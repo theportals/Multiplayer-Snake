@@ -9,11 +9,6 @@ public class GameplayView : GameStateView
     {
     }
 
-    public override GameStates processInput(GameTime gameTime)
-    {
-        return GameStates.GAMEPLAY;
-    }
-
     public override void update(GameTime gameTime)
     {
     }

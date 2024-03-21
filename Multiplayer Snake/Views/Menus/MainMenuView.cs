@@ -1,24 +1,15 @@
-using Microsoft.Xna.Framework;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework.Content;
 
-namespace Multiplayer_Snake.Views;
+namespace Multiplayer_Snake.Views.Menus;
 
-public class MainMenuView : GameStateView
+public class MainMenuView : Menu
 {
     public override void loadContent(ContentManager contentManager)
     {
-    }
-
-    public override GameStates processInput(GameTime gameTime)
-    {
-        return GameStates.MAIN_MENU;
-    }
-
-    public override void update(GameTime gameTime)
-    {
-    }
-
-    public override void render(GameTime gameTime)
-    {
+        mOptions = new List<MenuOption>
+        {
+            // new MenuOption()
+        };
     }
 }

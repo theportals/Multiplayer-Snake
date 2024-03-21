@@ -1,17 +1,12 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 
-namespace Multiplayer_Snake.Views;
+namespace Multiplayer_Snake.Views.Menus;
 
-public class ControlsView : GameStateView
+public class ControlsView : Menu
 {
     public override void loadContent(ContentManager contentManager)
     {
-    }
-
-    public override GameStates processInput(GameTime gameTime)
-    {
-        return GameStates.CONTROLS;
     }
 
     public override void update(GameTime gameTime)

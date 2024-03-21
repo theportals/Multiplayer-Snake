@@ -7,6 +7,7 @@ namespace Multiplayer_Snake.Views;
 
 public abstract class GameStateView : GameState
 {
+    protected MultiplayerSnakeGame mGame;
     protected GraphicsDeviceManager mGraphics;
     protected SpriteBatch mSpriteBatch;
     protected KeyboardInput mKeyboardInput;
@@ -16,16 +17,15 @@ public abstract class GameStateView : GameState
         
     }
 
-    public void initialize(GraphicsDevice graphicsDevice, GraphicsDeviceManager graphics, KeyboardInput keyboardInput)
+    public void initialize(MultiplayerSnakeGame game, GraphicsDevice graphicsDevice, GraphicsDeviceManager graphics, KeyboardInput keyboardInput)
     {
+        mGame = game;
         mGraphics = graphics;
         mSpriteBatch = new SpriteBatch(graphicsDevice);
         mKeyboardInput = keyboardInput;
     }
 
     public abstract void loadContent(ContentManager contentManager);
-
-    public abstract GameStates processInput(GameTime gameTime);
 
     public abstract void update(GameTime gameTime);
 

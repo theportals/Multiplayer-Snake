@@ -5,6 +5,7 @@ using Microsoft.Xna.Framework.Input;
 using Multiplayer_Snake.Input;
 using Multiplayer_Snake.Util;
 using Multiplayer_Snake.Views;
+using Multiplayer_Snake.Views.Menus;
 
 namespace Multiplayer_Snake;
 
@@ -60,24 +61,20 @@ public class MultiplayerSnakeGame : Game
     {
         foreach (var state in mStates)
         {
-            state.Value.initialize(GraphicsDevice, mGraphics, mKeyboardInput);
+            state.Value.initialize(this, GraphicsDevice, mGraphics, mKeyboardInput);
             state.Value.loadContent(Content);
         }
     }
 
+    public void changeState(GameStates nextState)
+    {
+        if (nextState == GameStates.EXIT) Exit();
+        mState = mStates[nextState];
+        mState.initializeSession();
+    }
+
     protected override void Update(GameTime gameTime)
     {
-        var nextState = mState.processInput(gameTime);
-
-        if (nextState == GameStates.EXIT) Exit();
-        
-        // TODO: If things break, change mState after the draw step like in the class' ECSSnakeGame code
-        if (mState != mStates[nextState])
-        {
-            mState = mStates[nextState];
-            mState.initializeSession();
-        }
-        
         mState.update(gameTime);
 
         base.Update(gameTime);

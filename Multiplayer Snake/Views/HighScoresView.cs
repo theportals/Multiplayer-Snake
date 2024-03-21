@@ -10,11 +10,6 @@ public class HighScoresView : GameStateView
         
     }
 
-    public override GameStates processInput(GameTime gameTime)
-    {
-        return GameStates.HIGH_SCORES;
-    }
-
     public override void update(GameTime gameTime)
     {
     }

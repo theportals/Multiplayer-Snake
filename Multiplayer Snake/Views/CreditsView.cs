@@ -9,11 +9,6 @@ public class CreditsView : GameStateView
     {
     }
 
-    public override GameStates processInput(GameTime gameTime)
-    {
-        return GameStates.CREDITS;
-    }
-
     public override void update(GameTime gameTime)
     {
     }
