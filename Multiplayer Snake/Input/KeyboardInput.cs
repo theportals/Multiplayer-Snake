@@ -87,7 +87,7 @@ public class KeyboardInput
         mKeyBinds = new Dictionary<Keys, KeyBind>();
     }
 
-    public void update(GameTime gameTime)
+    public void update(GameTime gameTime, bool waitForEnd = false)
     {
         KeyboardState state = Keyboard.GetState();
         for (int i = 0; i < mKeyBinds.Count; i++)
@@ -107,6 +107,8 @@ public class KeyboardInput
                 mCommandEntries[entry.command].onNegEdge?.Invoke(gameTime);
             }
         }
+
+        if (!waitForEnd) EndUpdate();
     }
 
     public void EndUpdate()

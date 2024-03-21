@@ -64,8 +64,13 @@ public abstract class Menu : GameStateView
         foreach (var option in mOptions)
         {
             var font = mFont;
-            if (mSelected == option) font = mFontSelect;
-            option.render(gameTime, mSpriteBatch, font, mButtonBackground);
+            var fontColor = Color.White;
+            if (mSelected == option)
+            {
+                font = mFontSelect;
+                fontColor = Color.Red;
+            }
+            option.render(gameTime, mSpriteBatch, font, mButtonBackground, fontColor, Color.Black);
         }
         mSpriteBatch.End();
     }

@@ -64,6 +64,7 @@ public class MultiplayerSnakeGame : Game
             state.Value.initialize(this, GraphicsDevice, mGraphics, mKeyboardInput);
             state.Value.loadContent(Content);
         }
+        mState.initializeSession();
     }
 
     public void changeState(GameStates nextState)
