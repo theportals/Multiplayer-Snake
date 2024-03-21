@@ -12,5 +12,5 @@
 /dataSources/
 /dataSources.local.xml
 # MonoGame ignored files
-/bin/
-/obj/
+/Content/bin/
+/Content/obj/
