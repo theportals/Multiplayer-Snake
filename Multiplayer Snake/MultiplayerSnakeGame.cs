@@ -2,6 +2,8 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Multiplayer_Snake.Input;
+using Multiplayer_Snake.Util;
 using Multiplayer_Snake.Views;
 
 namespace Multiplayer_Snake;
@@ -12,6 +14,7 @@ public class MultiplayerSnakeGame : Game
     private SpriteBatch mSpriteBatch;
     private Dictionary<GameStates, GameState> mStates;
     private GameState mState;
+    private KeyboardInput mKeyboardInput;
 
     public MultiplayerSnakeGame()
     {
@@ -38,6 +41,18 @@ public class MultiplayerSnakeGame : Game
 
         mState = mStates[GameStates.MAIN_MENU];
 
+        mKeyboardInput = (KeyboardInput)StorageUtil.loadData<KeyboardInput>("keybinds.json");
+        if (mKeyboardInput == null)
+        {
+            mKeyboardInput = new KeyboardInput();
+            mKeyboardInput.bindKey(Keys.Up, KeyboardInput.Commands.UP);
+            mKeyboardInput.bindKey(Keys.Down, KeyboardInput.Commands.DOWN);
+            mKeyboardInput.bindKey(Keys.Left, KeyboardInput.Commands.LEFT);
+            mKeyboardInput.bindKey(Keys.Right, KeyboardInput.Commands.RIGHT);
+            mKeyboardInput.bindKey(Keys.Z, KeyboardInput.Commands.SELECT);
+            mKeyboardInput.bindKey(Keys.X, KeyboardInput.Commands.BACK);
+        }
+
         base.Initialize();
     }
 
@@ -45,7 +60,7 @@ public class MultiplayerSnakeGame : Game
     {
         foreach (var state in mStates)
         {
-            state.Value.initialize(GraphicsDevice, mGraphics);
+            state.Value.initialize(GraphicsDevice, mGraphics, mKeyboardInput);
             state.Value.loadContent(Content);
         }
     }

@@ -1,6 +1,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
+using Multiplayer_Snake.Input;
 
 namespace Multiplayer_Snake.Views;
 
@@ -8,16 +9,18 @@ public abstract class GameStateView : GameState
 {
     protected GraphicsDeviceManager mGraphics;
     protected SpriteBatch mSpriteBatch;
+    protected KeyboardInput mKeyboardInput;
     
     public virtual void initializeSession()
     {
         
     }
 
-    public void initialize(GraphicsDevice graphicsDevice, GraphicsDeviceManager graphics)
+    public void initialize(GraphicsDevice graphicsDevice, GraphicsDeviceManager graphics, KeyboardInput keyboardInput)
     {
         mGraphics = graphics;
         mSpriteBatch = new SpriteBatch(graphicsDevice);
+        mKeyboardInput = keyboardInput;
     }
 
     public abstract void loadContent(ContentManager contentManager);
