@@ -14,7 +14,7 @@ public class MainMenuView : Menu
         mFont = contentManager.Load<SpriteFont>("Fonts/menu");
         mFontSelect = contentManager.Load<SpriteFont>("Fonts/menu-select");
         mButtonBackground = contentManager.Load<Texture2D>("Images/square");
-        var test = new MenuOption("Test", () => Console.WriteLine("Test"), mGraphics.PreferredBackBufferWidth / 4, 150, 150, 50);
+        var test = new MenuOption("New Game", () => mGame.changeState(GameStates.GAMEPLAY), mGraphics.PreferredBackBufferWidth / 4, 150, 150, 50);
         var test2 = new MenuOption("Test2", () => Console.WriteLine("Test2"), mGraphics.PreferredBackBufferWidth / 4, 225, 150, 50);
         var test3 = new MenuOption("Test3", () => Console.WriteLine("Test3"), 3 * mGraphics.PreferredBackBufferWidth / 4, 150, 150, 50);
         var test4 = new MenuOption("Test4", () => Console.WriteLine("Test4"), 3 * mGraphics.PreferredBackBufferWidth / 4, 225, 150, 50);
