@@ -22,11 +22,11 @@ public abstract class Menu : GameStateView
         const int dasDelay = 500;
         const int dasPeriod = 75;
         var t = new DASTimer(dasDelay, dasPeriod);
-        mKeyboardInput.registerCommand(KeyboardInput.Commands.UP, _ => moveUp(), gt => t.tick(gt, moveUp), t.resetTimer);
-        mKeyboardInput.registerCommand(KeyboardInput.Commands.DOWN, _ => moveDown(), gt => t.tick(gt, moveDown), t.resetTimer);
-        mKeyboardInput.registerCommand(KeyboardInput.Commands.LEFT, _ => moveLeft(), gt => t.tick(gt, moveLeft), t.resetTimer);
-        mKeyboardInput.registerCommand(KeyboardInput.Commands.RIGHT, _ => moveRight(), gt => t.tick(gt, moveRight), t.resetTimer);
-        mKeyboardInput.registerCommand(KeyboardInput.Commands.SELECT, _ => mSelected?.OnSelect());
+        mKeyboardInput.registerCommand(InputDevice.Commands.UP, _ => moveUp(), gt => t.tick(gt, moveUp), t.resetTimer);
+        mKeyboardInput.registerCommand(InputDevice.Commands.DOWN, _ => moveDown(), gt => t.tick(gt, moveDown), t.resetTimer);
+        mKeyboardInput.registerCommand(InputDevice.Commands.LEFT, _ => moveLeft(), gt => t.tick(gt, moveLeft), t.resetTimer);
+        mKeyboardInput.registerCommand(InputDevice.Commands.RIGHT, _ => moveRight(), gt => t.tick(gt, moveRight), t.resetTimer);
+        mKeyboardInput.registerCommand(InputDevice.Commands.SELECT, _ => mSelected?.OnSelect());
     }
 
     private void moveUp()
@@ -56,6 +56,7 @@ public abstract class Menu : GameStateView
     public override void update(GameTime gameTime)
     {
         mKeyboardInput.update(gameTime);
+        if (mGame.IsActive) mMouseInput.update(gameTime);
     }
 
     public override void render(GameTime gameTime)

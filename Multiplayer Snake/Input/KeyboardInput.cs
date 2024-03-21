@@ -9,21 +9,11 @@ namespace Multiplayer_Snake.Input;
 
 [DataContract(Name = "KeyBinds")]
 
-public class KeyboardInput
+public class KeyboardInput : InputDevice
 {
-    private Dictionary<Commands, CommandEntry> mCommandEntries = new();
+    private Dictionary<InputDevice.Commands, InputDevice.CommandEntry> mCommandEntries = new();
     [DataMember] private Dictionary<Keys, KeyBind> mKeyBinds = new();
     private KeyboardState mPrevState;
-
-    public enum Commands
-    {
-        UP,
-        DOWN,
-        LEFT,
-        RIGHT,
-        SELECT,
-        BACK
-    }
 
     /// <summary>
     /// Registers a link between a command and a delegate to be called,
@@ -33,7 +23,7 @@ public class KeyboardInput
     /// <param name="onPositiveEdge">Code executed when a key is first pressed</param>
     /// <param name="onHeld">Code executed every update after the first when key is held</param>
     /// <param name="onNegativeEdge">Code executed when a key is released</param>
-    public void registerCommand(Commands command,
+    public void registerCommand(InputDevice.Commands command,
         InputDevice.CommandDelegate onPositiveEdge,
         InputDevice.CommandDelegate onHeld = null,
         InputDevice.CommandDelegate onNegativeEdge = null)
@@ -42,7 +32,7 @@ public class KeyboardInput
         {
             mCommandEntries.Remove(command);
         }
-        mCommandEntries.Add(command, new CommandEntry(command, onPositiveEdge, onHeld, onNegativeEdge));
+        mCommandEntries.Add(command, new InputDevice.CommandEntry(onPositiveEdge, onHeld, onNegativeEdge));
     }
     
     /// <summary>
@@ -50,7 +40,7 @@ public class KeyboardInput
     /// </summary>
     /// <param name="key">key</param>
     /// <param name="command">command</param>
-    public void bindKey(Keys key, Commands command)
+    public void bindKey(Keys key, InputDevice.Commands command)
     {
         foreach (var conflictingBind in mKeyBinds.Where(bind => 
                      bind.Key.Equals(key)                       // Don't allow one key to perform multiple commands
@@ -62,7 +52,7 @@ public class KeyboardInput
         mKeyBinds.Add(key, new KeyBind(key, command));
     }
 
-    public Keys getKey(Commands command)
+    public Keys getKey(InputDevice.Commands command)
     {
         return mKeyBinds.FirstOrDefault(c => c.Value.command.Equals(command)).Key;
     }
@@ -79,7 +69,7 @@ public class KeyboardInput
 
     public void clearCommands()
     {
-        mCommandEntries = new Dictionary<Commands, CommandEntry>();
+        mCommandEntries = new Dictionary<InputDevice.Commands, InputDevice.CommandEntry>();
     }
 
     public void clearBinds()
@@ -108,10 +98,10 @@ public class KeyboardInput
             }
         }
 
-        if (!waitForEnd) EndUpdate();
+        if (!waitForEnd) endUpdate();
     }
 
-    public void EndUpdate()
+    public void endUpdate()
     {
         mPrevState = Keyboard.GetState();
     }
@@ -125,34 +115,17 @@ public class KeyboardInput
     {
         return !Keyboard.GetState().IsKeyDown(key) && mPrevState.IsKeyDown(key);
     }
-    
-    private struct CommandEntry
-    {
-        public CommandEntry(Commands command,
-            InputDevice.CommandDelegate onPosEdge, InputDevice.CommandDelegate onHeld, InputDevice.CommandDelegate onNegEdge)
-        {
-            this.command = command;
-            this.onPosEdge = onPosEdge;
-            this.onHeld = onHeld;
-            this.onNegEdge = onNegEdge;
-        }
-
-        public Commands command;
-        public InputDevice.CommandDelegate onPosEdge;   // Positive edge; called once when key is first pressed
-        public InputDevice.CommandDelegate onHeld;      // Held; called every update after the first when key is held
-        public InputDevice.CommandDelegate onNegEdge;   // Negative edge; called once when key is released
-    }
 
     [DataContract(Name = "KeyBind")]
     private struct KeyBind
     {
-        public KeyBind(Keys key, Commands command)
+        public KeyBind(Keys key, InputDevice.Commands command)
         {
             this.key = key;
             this.command = command;
         }
 
         [DataMember] public Keys key;
-        [DataMember] public Commands command;
+        [DataMember] public InputDevice.Commands command;
     }
 }

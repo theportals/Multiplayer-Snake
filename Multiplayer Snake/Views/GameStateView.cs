@@ -11,18 +11,20 @@ public abstract class GameStateView : GameState
     protected GraphicsDeviceManager mGraphics;
     protected SpriteBatch mSpriteBatch;
     protected KeyboardInput mKeyboardInput;
+    protected MouseInput mMouseInput;
     
     public virtual void initializeSession()
     {
         
     }
 
-    public void initialize(MultiplayerSnakeGame game, GraphicsDevice graphicsDevice, GraphicsDeviceManager graphics, KeyboardInput keyboardInput)
+    public void initialize(MultiplayerSnakeGame game, GraphicsDevice graphicsDevice, GraphicsDeviceManager graphics, KeyboardInput keyboardInput, MouseInput mouseInput)
     {
         mGame = game;
         mGraphics = graphics;
         mSpriteBatch = new SpriteBatch(graphicsDevice);
         mKeyboardInput = keyboardInput;
+        mMouseInput = mouseInput;
     }
 
     public abstract void loadContent(ContentManager contentManager);

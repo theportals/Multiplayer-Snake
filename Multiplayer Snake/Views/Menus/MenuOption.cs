@@ -32,6 +32,11 @@ public class MenuOption
         this.right = right;
     }
 
+    public Rectangle getRectangle()
+    {
+        return new Rectangle(mX - mWidth/2, mY - mHeight/2, mWidth, mHeight);
+    }
+
     public void linkUp(MenuOption newUp, bool symmetric = true)
     {
         up = newUp;

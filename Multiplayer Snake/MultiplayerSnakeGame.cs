@@ -16,6 +16,7 @@ public class MultiplayerSnakeGame : Game
     private Dictionary<GameStates, GameState> mStates;
     private GameState mState;
     private KeyboardInput mKeyboardInput;
+    private MouseInput mMouseInput;
 
     public MultiplayerSnakeGame()
     {
@@ -42,16 +43,18 @@ public class MultiplayerSnakeGame : Game
 
         mState = mStates[GameStates.MAIN_MENU];
 
+        mMouseInput = new MouseInput();
+
         mKeyboardInput = (KeyboardInput)StorageUtil.loadData<KeyboardInput>("keybinds.json");
         if (mKeyboardInput == null)
         {
             mKeyboardInput = new KeyboardInput();
-            mKeyboardInput.bindKey(Keys.Up, KeyboardInput.Commands.UP);
-            mKeyboardInput.bindKey(Keys.Down, KeyboardInput.Commands.DOWN);
-            mKeyboardInput.bindKey(Keys.Left, KeyboardInput.Commands.LEFT);
-            mKeyboardInput.bindKey(Keys.Right, KeyboardInput.Commands.RIGHT);
-            mKeyboardInput.bindKey(Keys.Z, KeyboardInput.Commands.SELECT);
-            mKeyboardInput.bindKey(Keys.X, KeyboardInput.Commands.BACK);
+            mKeyboardInput.bindKey(Keys.Up, InputDevice.Commands.UP);
+            mKeyboardInput.bindKey(Keys.Down, InputDevice.Commands.DOWN);
+            mKeyboardInput.bindKey(Keys.Left, InputDevice.Commands.LEFT);
+            mKeyboardInput.bindKey(Keys.Right, InputDevice.Commands.RIGHT);
+            mKeyboardInput.bindKey(Keys.Z, InputDevice.Commands.SELECT);
+            mKeyboardInput.bindKey(Keys.X, InputDevice.Commands.BACK);
         }
 
         base.Initialize();
@@ -61,7 +64,7 @@ public class MultiplayerSnakeGame : Game
     {
         foreach (var state in mStates)
         {
-            state.Value.initialize(this, GraphicsDevice, mGraphics, mKeyboardInput);
+            state.Value.initialize(this, GraphicsDevice, mGraphics, mKeyboardInput, mMouseInput);
             state.Value.loadContent(Content);
         }
         mState.initializeSession();

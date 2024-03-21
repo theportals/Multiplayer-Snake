@@ -8,7 +8,7 @@ namespace Multiplayer_Snake.Views;
 public interface GameState
 {
     void initializeSession();
-    void initialize(MultiplayerSnakeGame game, GraphicsDevice graphicsDevice, GraphicsDeviceManager graphics, KeyboardInput keyboardInput);
+    void initialize(MultiplayerSnakeGame game, GraphicsDevice graphicsDevice, GraphicsDeviceManager graphics, KeyboardInput keyboardInput, MouseInput mouseInput);
     void loadContent(ContentManager contentManager);
     void update(GameTime gameTime);
     void render(GameTime gameTime);
