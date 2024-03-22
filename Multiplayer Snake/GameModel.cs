@@ -13,8 +13,8 @@ namespace Multiplayer_Snake;
 
 public class GameModel
 {
-    private const int ARENA_SIZE = 500;
-    private const int OBSTACLE_COUNT = 15;
+    private const int ARENA_SIZE = 2000;
+    private const int OBSTACLE_COUNT = 150;
     private readonly int WINDOW_WIDTH;
     private readonly int WINDOW_HEIGHT;
 
@@ -46,7 +46,6 @@ public class GameModel
     {
         mKeyboardInput.clearCommands();
         mMouseInput.clearRegions();
-        mKeyboardInput.registerCommand(InputDevice.Commands.BACK, _ => mGame.changeState(GameStates.MAIN_MENU));
         var square = content.Load<Texture2D>("Images/square");
         var peepo = content.Load<Texture2D>("Images/Peepo");
 
@@ -72,6 +71,13 @@ public class GameModel
         mSysRenderer.follow(snake);
         mSysInput.setAbsCursor(true);
         addEntity(createFood(square));
+        addEntity(createFood(square));
+        addEntity(createFood(square));
+        addEntity(createFood(square));
+        addEntity(createFood(square));
+        mKeyboardInput.registerCommand(InputDevice.Commands.BACK, _ => mGame.changeState(GameStates.MAIN_MENU));
+        mMouseInput.registerMouseRegion(null, MouseInput.MouseActions.SCROLL_UP, _ => mSysRenderer.zoom *= 1.1f);
+        mMouseInput.registerMouseRegion(null, MouseInput.MouseActions.SCROLL_DOWN, _ => mSysRenderer.zoom /= 1.1f);
     }
 
     public void update(GameTime gameTime)

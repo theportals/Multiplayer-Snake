@@ -20,7 +20,7 @@ public class Input : System
     private int turn = 0;
     private bool mAbsCursor;
 
-    private float TURN_DEADZONE = (float)(2 * Math.PI / 180);
+    private const float TURN_DEADZONE = (float)(2 * Math.PI / 180);
     
     public Input(KeyboardInput keyboardInput, MouseInput mouseInput, bool listenKeys, int arenaSize, int windowWidth, int windowHeight, bool absCursor)
         : base(typeof(Components.Controllable))

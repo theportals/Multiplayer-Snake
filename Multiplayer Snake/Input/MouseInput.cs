@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
@@ -16,7 +17,9 @@ public class MouseInput : InputDevice
         HOVER,
         L_CLICK,
         R_CLICK,
-        M_CLICK
+        M_CLICK,
+        SCROLL_UP,
+        SCROLL_DOWN
     }
 
     public void registerMouseRegion(Rectangle? rectangle,
@@ -83,6 +86,8 @@ public class MouseInput : InputDevice
                                     mPrevState.RightButton == ButtonState.Released,
             MouseActions.M_CLICK => state.MiddleButton == ButtonState.Pressed &&
                                     mPrevState.MiddleButton == ButtonState.Released,
+            MouseActions.SCROLL_UP => state.ScrollWheelValue > mPrevState.ScrollWheelValue,
+            MouseActions.SCROLL_DOWN => state.ScrollWheelValue < mPrevState.ScrollWheelValue,
             _ => false
         };
     }
@@ -98,6 +103,7 @@ public class MouseInput : InputDevice
             MouseActions.L_CLICK => state.LeftButton == ButtonState.Pressed,
             MouseActions.R_CLICK => state.RightButton == ButtonState.Pressed,
             MouseActions.M_CLICK => state.MiddleButton == ButtonState.Pressed,
+            MouseActions.SCROLL_UP or MouseActions.SCROLL_DOWN => false,
             _ => false
         };
     }
@@ -110,6 +116,7 @@ public class MouseInput : InputDevice
         {
             hasCursor = cursorInRectangle(state, region);
         }
+
         return action switch
         {
             MouseActions.HOVER => !hasCursor && cursorInRectangle(mPrevState, region),
@@ -119,6 +126,7 @@ public class MouseInput : InputDevice
                                     mPrevState.RightButton == ButtonState.Pressed,
             MouseActions.M_CLICK => hasCursor && state.MiddleButton == ButtonState.Released &&
                                     mPrevState.MiddleButton == ButtonState.Pressed,
+            MouseActions.SCROLL_UP or MouseActions.SCROLL_DOWN => false,
             _ => false
         };
     }

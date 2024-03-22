@@ -14,7 +14,7 @@ public class Renderer : System
     private int OFFSET_Y;
     private readonly SpriteBatch mSpriteBatch;
     private readonly Texture2D mBackground;
-    public float zoom { private get; set; }
+    public float zoom { get; set; }
     private Entity? mFollow;
 
     public Renderer(SpriteBatch spriteBatch, Texture2D background, int windowWidth, int windowHeight, int arenaSize, Entity? toFollow, float zoom=1)
@@ -96,7 +96,7 @@ public class Renderer : System
             }
             else if (entity.ContainsComponent<Components.Movable>()) rot = entity.GetComponent<Components.Movable>().facing;
             mSpriteBatch.Draw(appearance.image, 
-                new Rectangle((int)drawPos.X, (int)drawPos.Y, (int)(appearance.size * zoom), (int)(appearance.size * zoom)), 
+                new Rectangle((int)drawPos.X, (int)drawPos.Y, (int)Math.Ceiling(appearance.size * zoom), (int)Math.Ceiling(appearance.size * zoom)), 
                 null,
                 appearance.color,
                 (float)(rot + Math.PI / 2),
