@@ -29,14 +29,15 @@ public class Movement : System
         var front = pos.segments[0];
         var angle = movable.facing;
 
-        // if (movable.segmentsToAdd == 0 && pos.segments.Count > 0)
-        // {
-        //     pos.segments.RemoveAt(pos.segments.Count - 1);
-        // }
-        // else
-        // {
-        //     movable.segmentsToAdd -= 1;
-        // }
+        const int segmentDistance = 10;
+        while (movable.segmentsToAdd > 0)
+        {
+            var tail = pos.segments[^1];
+            var spawnDir = movable.facing - Math.PI;
+            if (pos.segments.Count > 1) spawnDir = Math.Atan2(tail.Y - pos.segments[^2].Y, tail.X - pos.segments[^2].X);
+            pos.segments.Add(new Vector2((float)(tail.X + Math.Cos(spawnDir) * segmentDistance), (float)(tail.Y + Math.Sin(spawnDir) * segmentDistance)));
+            movable.segmentsToAdd -= 1;
+        }
         
         var xInc = (float)(Math.Cos(angle) * dist);
         var yInc = (float)(Math.Sin(angle) * dist);
@@ -44,7 +45,21 @@ public class Movement : System
         front.Y += yInc;
         pos.segments[0] = front;
 
-        // TODO: Move the rest of the body and increase length
+        for (int i = 1; i < pos.segments.Count; i++)
+        {
+            var leader = pos.segments[i - 1];
+            var segment = pos.segments[i];
+            var dir = Math.Atan2(leader.Y - segment.Y, leader.X - segment.X);
+            var d = Math.Sqrt(Math.Pow(leader.X - segment.X, 2) + Math.Pow(leader.Y - segment.Y, 2));
+            if (d > segmentDistance)
+            {
+                xInc = (float)(Math.Cos(dir) * (d - segmentDistance));
+                yInc = (float)(Math.Sin(dir) * (d - segmentDistance));
+                segment.X += xInc;
+                segment.Y += yInc;
+                pos.segments[i] = segment;
+            }
+        }
 
     }
 }

@@ -45,16 +45,22 @@ public class Renderer : System
     private void renderEntity(Entity entity)
     {
         var appearance = entity.GetComponent<Components.Appearance>();
-        var position = entity.GetComponent<Components.Position>();
+        var pos = entity.GetComponent<Components.Position>();
         Vector2 drawPos = new Vector2();
 
-        for (int segment = 0; segment < position.segments.Count; segment++)
+        for (int segment = 0; segment < pos.segments.Count; segment++)
         {
-            drawPos.X = OFFSET_X + position.segments[segment].X;
-            drawPos.Y = OFFSET_Y + position.segments[segment].Y;
+            drawPos.X = OFFSET_X + pos.segments[segment].X;
+            drawPos.Y = OFFSET_Y + pos.segments[segment].Y;
 
             float rot = 0f;
-            if (entity.ContainsComponent<Components.Movable>()) rot = entity.GetComponent<Components.Movable>().facing;
+            if (segment > 0)
+            {
+                var leader = pos.segments[segment - 1];
+                var follower = pos.segments[segment];
+                rot = (float)Math.Atan2(leader.Y - follower.Y, leader.X - follower.X);
+            }
+            else if (entity.ContainsComponent<Components.Movable>()) rot = entity.GetComponent<Components.Movable>().facing;
             mSpriteBatch.Draw(appearance.image, 
                 new Rectangle((int)drawPos.X, (int)drawPos.Y, appearance.size, appearance.size), 
                 null,
