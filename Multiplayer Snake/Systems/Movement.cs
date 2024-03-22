@@ -6,6 +6,9 @@ namespace Multiplayer_Snake.Systems;
 
 public class Movement : System
 {
+    private const float squiggleFactor = 10;
+    private const float antiSquiggleFactor = 10;
+    private const float segmentDistance = 10f / (squiggleFactor + antiSquiggleFactor);
     public Movement()
         : base(typeof(Components.Movable), typeof(Components.Position))
     {
@@ -28,10 +31,7 @@ public class Movement : System
 
         var front = pos.segments[0];
         var angle = movable.facing;
-
-        const float squiggleFactor = 10;
-        const float antiSquiggleFactor = 10;
-        const float segmentDistance = 10f / (squiggleFactor + antiSquiggleFactor);
+        
         // const float maxTurn = (float)Math.PI / 32;
         var maxTurn = movable.turnSpeed * gameTime.ElapsedGameTime.TotalSeconds;
         while (movable.segmentsToAdd > 0)

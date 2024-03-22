@@ -19,6 +19,8 @@ public class Input : System
 
     private int turn = 0;
     private bool mAbsCursor;
+
+    private float TURN_DEADZONE = (float)(2 * Math.PI / 180);
     
     public Input(KeyboardInput keyboardInput, MouseInput mouseInput, bool listenKeys, int arenaSize, int windowWidth, int windowHeight, bool absCursor)
         : base(typeof(Components.Controllable))
@@ -71,12 +73,14 @@ public class Input : System
                     var absY = pos.y + OFFSET_Y;
                     angleToCursor = Math.Atan2((cpos.Y - absY), (cpos.X - absX));
                 }
+
                 var dl = movable.facing - angleToCursor;
                 if (dl < 0) dl += 2 * Math.PI;
                 var dr = angleToCursor - movable.facing;
                 if (dr < 0) dr += 2 * Math.PI;
 
-                if (dl < dr) turn = -1;
+                if (Math.Min(dl, dr) <= TURN_DEADZONE) turn = 0;
+                else if (dl < dr) turn = -1;
                 else turn = 1;
             }
             movable.facing += (float)(movable.turnSpeed * gameTime.ElapsedGameTime.TotalSeconds * turn);
