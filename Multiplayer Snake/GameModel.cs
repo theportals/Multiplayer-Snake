@@ -63,12 +63,13 @@ public class GameModel
         });
 
         mSysMovement = new Systems.Movement();
-        mSysInput = new Systems.Input(mKeyboardInput, mMouseInput, mListenKeys, ARENA_SIZE, WINDOW_WIDTH, WINDOW_HEIGHT);
+        mSysInput = new Systems.Input(mKeyboardInput, mMouseInput, mListenKeys, ARENA_SIZE, WINDOW_WIDTH, WINDOW_HEIGHT, false);
 
         initializeBorder(square);
         initializeObstacles(square);
         var snake = initializeSnake(square);
         mSysRenderer.follow(snake);
+        mSysInput.setAbsCursor(true);
         addEntity(createFood(square));
     }
 

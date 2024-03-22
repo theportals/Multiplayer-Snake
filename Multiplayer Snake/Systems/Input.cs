@@ -18,8 +18,9 @@ public class Input : System
     private readonly int OFFSET_Y;
 
     private int turn = 0;
+    private bool mAbsCursor;
     
-    public Input(KeyboardInput keyboardInput, MouseInput mouseInput, bool listenKeys, int arenaSize, int windowWidth, int windowHeight)
+    public Input(KeyboardInput keyboardInput, MouseInput mouseInput, bool listenKeys, int arenaSize, int windowWidth, int windowHeight, bool absCursor)
         : base(typeof(Components.Controllable))
     {
         mKeyboardInput = keyboardInput;
@@ -37,6 +38,13 @@ public class Input : System
             keyboardInput.registerCommand(InputDevice.Commands.LEFT, _ => turn = -1, null, _ => turn = 0);
             keyboardInput.registerCommand(InputDevice.Commands.RIGHT, _ => turn = 1, null, _ => turn = 0);
         }
+
+        mAbsCursor = absCursor;
+    }
+
+    public void setAbsCursor(bool to)
+    {
+        mAbsCursor = to;
     }
     
     public override void Update(GameTime gameTime)
@@ -51,11 +59,18 @@ public class Input : System
             
             if (!mListenKeys)
             {
+                double angleToCursor = 0;
                 var cpos = mMouseInput.getCursorPos();
-                var absX = pos.x + OFFSET_X;
-                var absY = pos.y + OFFSET_Y;
-                var angleToCursor = Math.Atan2((cpos.Y - absY), (cpos.X - absX));
-
+                if (mAbsCursor)
+                {
+                    angleToCursor = Math.Atan2(cpos.Y - WINDOW_HEIGHT / 2, cpos.X - WINDOW_WIDTH / 2);
+                }
+                else
+                {
+                    var absX = pos.x + OFFSET_X;
+                    var absY = pos.y + OFFSET_Y;
+                    angleToCursor = Math.Atan2((cpos.Y - absY), (cpos.X - absX));
+                }
                 var dl = movable.facing - angleToCursor;
                 if (dl < 0) dl += 2 * Math.PI;
                 var dr = angleToCursor - movable.facing;
