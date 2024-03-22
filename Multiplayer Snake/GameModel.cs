@@ -23,13 +23,17 @@ public class GameModel
     private Systems.Renderer mSysRenderer;
     private Systems.Collision mSysCollision;
     private Systems.Movement mSysMovement;
+    private Systems.Input mSysInput;
 
     private KeyboardInput mKeyboardInput;
     private MouseInput mMouseInput;
     private bool mListenKeys;
 
-    public GameModel(int width, int height, KeyboardInput keyboardInput, MouseInput mouseInput, bool listenKeys)
+    private MultiplayerSnakeGame mGame;
+
+    public GameModel(MultiplayerSnakeGame game, int width, int height, KeyboardInput keyboardInput, MouseInput mouseInput, bool listenKeys)
     {
+        mGame = game;
         WINDOW_WIDTH = width;
         WINDOW_HEIGHT = height;
         mKeyboardInput = keyboardInput;
@@ -39,6 +43,9 @@ public class GameModel
 
     public void Initialize(ContentManager content, SpriteBatch spriteBatch)
     {
+        mKeyboardInput.clearCommands();
+        mMouseInput.clearRegions();
+        
         var square = content.Load<Texture2D>("Images/square");
 
         mSysRenderer = new Systems.Renderer(spriteBatch, square, WINDOW_WIDTH, WINDOW_HEIGHT, ARENA_SIZE);
@@ -53,6 +60,7 @@ public class GameModel
         });
 
         mSysMovement = new Systems.Movement();
+        mSysInput = new Systems.Input(mKeyboardInput, mMouseInput, mListenKeys);
 
         initializeBorder(square);
         initializeObstacles(square);
@@ -62,8 +70,8 @@ public class GameModel
 
     public void update(GameTime gameTime)
     {
-        mKeyboardInput.update(gameTime);
-        mMouseInput.update(gameTime);
+        if (mGame.IsActive) mSysInput.Update(gameTime);
+        mSysMovement.Update(gameTime);
         mSysCollision.Update(gameTime);
 
         foreach (var entity in mToRemove)
@@ -89,6 +97,7 @@ public class GameModel
         mSysMovement.Add(entity);
         mSysCollision.Add(entity);
         mSysRenderer.Add(entity);
+        mSysInput.Add(entity);
     }
 
     private void removeEntity(Entity entity)
@@ -96,11 +105,12 @@ public class GameModel
         mSysMovement.Remove(entity.Id);
         mSysCollision.Remove(entity.Id);
         mSysRenderer.Remove(entity.Id);
+        mSysInput.Remove(entity.Id);
     }
 
     private void initializeBorder(Texture2D square)
     {
-        for (int position = 0; position < ARENA_SIZE; position += 5)
+        for (int position = 0; position < ARENA_SIZE; position += 10)
         {
             var left = BorderBlock.create(square, 0, position);
             addEntity(left);
@@ -146,7 +156,7 @@ public class GameModel
         {
             int x = (int)rng.nextRange(1, ARENA_SIZE - 1);
             int y = (int)rng.nextRange(1, ARENA_SIZE - 1);
-            var proposed = SnakeSegment.create(square, mKeyboardInput, mMouseInput, mListenKeys, x, y);
+            var proposed = SnakeSegment.create(square, x, y);
             if (!mSysCollision.anyCollision(proposed))
             {
                 addEntity(proposed);

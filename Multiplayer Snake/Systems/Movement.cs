@@ -28,9 +28,22 @@ public class Movement : System
 
         var front = pos.segments[0];
         var angle = movable.facing;
-        front.X += (int)(Math.Cos(angle) * dist);
-        front.Y += (int)(Math.Sin(angle) * dist);
+
+        // if (movable.segmentsToAdd == 0 && pos.segments.Count > 0)
+        // {
+        //     pos.segments.RemoveAt(pos.segments.Count - 1);
+        // }
+        // else
+        // {
+        //     movable.segmentsToAdd -= 1;
+        // }
         
+        var xInc = (float)(Math.Cos(angle) * dist);
+        var yInc = (float)(Math.Sin(angle) * dist);
+        front.X += xInc;
+        front.Y += yInc;
+        pos.segments[0] = front;
+
         // TODO: Move the rest of the body and increase length
 
     }

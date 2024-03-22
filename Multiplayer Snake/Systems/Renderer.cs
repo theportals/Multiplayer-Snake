@@ -52,7 +52,7 @@ public class Renderer : System
             drawPos.X = OFFSET_X + position.segments[segment].X;
             drawPos.Y = OFFSET_Y + position.segments[segment].Y;
             
-            mSpriteBatch.Draw(appearance.image, new Rectangle((int)drawPos.X, (int)drawPos.Y, 5, 5), appearance.color);
+            mSpriteBatch.Draw(appearance.image, new Rectangle((int)drawPos.X, (int)drawPos.Y, appearance.size, appearance.size), appearance.color);
         }
     }
 }

@@ -69,12 +69,12 @@ public class KeyboardInput : InputDevice
 
     public void clearCommands()
     {
-        mCommandEntries = new Dictionary<InputDevice.Commands, InputDevice.CommandEntry>();
+        mCommandEntries.Clear();
     }
 
     public void clearBinds()
     {
-        mKeyBinds = new Dictionary<Keys, KeyBind>();
+        mKeyBinds.Clear();
     }
 
     public void update(GameTime gameTime, bool waitForEnd = false)

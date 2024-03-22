@@ -5,12 +5,12 @@ namespace Multiplayer_Snake.Components;
 
 public class Position : Component
 {
-    public List<Point> segments = new();
-    public int x => segments[0].X;
-    public int y => segments[0].Y;
+    public List<Vector2> segments = new();
+    public float x => segments[0].X;
+    public float y => segments[0].Y;
 
-    public Position(int x, int y)
+    public Position(float x, float y)
     {
-        segments.Add(new Point(x, y));
+        segments.Add(new Vector2(x, y));
     }
 }

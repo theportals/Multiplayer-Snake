@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
@@ -26,6 +27,17 @@ public class MouseInput : InputDevice
         bool requireCursorInRegion = true)
     {
         mMouseRegions.Add(new MouseRegion(rectangle, action, requireCursorInRegion), new InputDevice.CommandEntry(onPositiveEdge, onHeld, onNegativeEdge));
+    }
+
+    public void clearRegions()
+    {
+        mMouseRegions.Clear();
+    }
+
+    public Vector2 getCursorPos()
+    {
+        var state = Mouse.GetState();
+        return new Vector2(state.X, state.Y);
     }
     
     public void update(GameTime gameTime, bool waitForEnd = false)
