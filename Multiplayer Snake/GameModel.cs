@@ -58,7 +58,8 @@ public class GameModel
         },
         e =>
         {
-            Console.WriteLine("We crashin!!!");
+            // TODO: Better lose effects
+            // mToRemove.Add(e);
         });
 
         mSysMovement = new Systems.Movement();
@@ -162,6 +163,7 @@ public class GameModel
             if (!mSysCollision.anyCollision(proposed))
             {
                 addEntity(proposed);
+                proposed.GetComponent<Components.Movable>().segmentsToAdd = 200;
                 done = true;
             }
         }

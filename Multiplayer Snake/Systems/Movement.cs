@@ -29,13 +29,17 @@ public class Movement : System
         var front = pos.segments[0];
         var angle = movable.facing;
 
-        const int segmentDistance = 10;
+        const float squiggleFactor = 10;
+        const float antiSquiggleFactor = 10;
+        const float segmentDistance = 10f / (squiggleFactor + antiSquiggleFactor);
+        // const float maxTurn = (float)Math.PI / 32;
+        var maxTurn = movable.turnSpeed * gameTime.ElapsedGameTime.TotalSeconds;
         while (movable.segmentsToAdd > 0)
         {
             var tail = pos.segments[^1];
             var spawnDir = movable.facing - Math.PI;
             if (pos.segments.Count > 1) spawnDir = Math.Atan2(tail.Y - pos.segments[^2].Y, tail.X - pos.segments[^2].X);
-            pos.segments.Add(new Vector2((float)(tail.X + Math.Cos(spawnDir) * segmentDistance), (float)(tail.Y + Math.Sin(spawnDir) * segmentDistance)));
+            pos.segments.Add(new Vector2((float)(tail.X + Math.Cos(spawnDir) * segmentDistance * (squiggleFactor + antiSquiggleFactor)), (float)(tail.Y + Math.Sin(spawnDir) * segmentDistance)));
             movable.segmentsToAdd -= 1;
         }
         
@@ -50,11 +54,33 @@ public class Movement : System
             var leader = pos.segments[i - 1];
             var segment = pos.segments[i];
             var dir = Math.Atan2(leader.Y - segment.Y, leader.X - segment.X);
-            var d = Math.Sqrt(Math.Pow(leader.X - segment.X, 2) + Math.Pow(leader.Y - segment.Y, 2));
-            if (d > segmentDistance)
+            var needx = (float)(leader.X - Math.Cos(dir) * segmentDistance * squiggleFactor);
+            var needy = (float)(leader.Y - Math.Sin(dir) * segmentDistance * squiggleFactor);
+            
+            if (i > 1)
             {
-                xInc = (float)(Math.Cos(dir) * (d - segmentDistance));
-                yInc = (float)(Math.Sin(dir) * (d - segmentDistance));
+                var dir2 = Math.Atan2(pos.segments[i - 2].Y - leader.Y, pos.segments[i - 2].X - leader.X);
+                if (Math.Abs(dir2 - dir) > maxTurn)
+                {
+                    var dl = dir2 - dir;
+                    if (dl < 0) dl += 2 * Math.PI;
+                    var dr = dir - dir2;
+                    if (dr < 0) dr += 2 * Math.PI;
+                    var sign = -1;
+                    if (dl < dr) sign = 1;
+                    
+                    var correction = dir2 - maxTurn * sign;
+                    needx = (float)(leader.X - Math.Cos(correction) * segmentDistance * squiggleFactor);
+                    needy = (float)(leader.Y - Math.Sin(correction) * segmentDistance * squiggleFactor);
+                    dir = Math.Atan2(needy - segment.Y, needx - segment.X);
+                }
+            }
+            var d = Math.Sqrt(Math.Pow(needx - segment.X, 2) + Math.Pow(needy - segment.Y, 2));
+
+            if (d >= segmentDistance * antiSquiggleFactor)
+            {
+                xInc = (float)(Math.Cos(dir) * (d - segmentDistance * antiSquiggleFactor));
+                yInc = (float)(Math.Sin(dir) * (d - segmentDistance * antiSquiggleFactor));
                 segment.X += xInc;
                 segment.Y += yInc;
                 pos.segments[i] = segment;
