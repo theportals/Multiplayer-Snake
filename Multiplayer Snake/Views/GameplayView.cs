@@ -11,7 +11,7 @@ public class GameplayView : GameStateView
     public override void initializeSession()
     {
         mGameModel = new GameModel(mGame, mGraphics.PreferredBackBufferWidth, mGraphics.PreferredBackBufferHeight,
-            mKeyboardInput, mMouseInput, true);
+            mKeyboardInput, mMouseInput, false);
         mGameModel.Initialize(mContent, mSpriteBatch);
     }
 

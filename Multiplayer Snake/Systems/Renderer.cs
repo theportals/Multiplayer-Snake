@@ -1,3 +1,4 @@
+using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Multiplayer_Snake.Entities;
@@ -51,8 +52,17 @@ public class Renderer : System
         {
             drawPos.X = OFFSET_X + position.segments[segment].X;
             drawPos.Y = OFFSET_Y + position.segments[segment].Y;
-            
-            mSpriteBatch.Draw(appearance.image, new Rectangle((int)drawPos.X, (int)drawPos.Y, appearance.size, appearance.size), appearance.color);
+
+            float rot = 0f;
+            if (entity.ContainsComponent<Components.Movable>()) rot = entity.GetComponent<Components.Movable>().facing;
+            mSpriteBatch.Draw(appearance.image, 
+                new Rectangle((int)drawPos.X, (int)drawPos.Y, appearance.size, appearance.size), 
+                null,
+                appearance.color,
+                (float)(rot + Math.PI / 2),
+                new Vector2(appearance.image.Width / 2f, appearance.image.Height / 2f),
+                SpriteEffects.None,
+                0);
         }
     }
 }

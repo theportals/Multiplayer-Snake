@@ -8,12 +8,9 @@ namespace Multiplayer_Snake.Views.Menus;
 
 public class MainMenuView : Menu
 {
-    
-    public override void loadContent(ContentManager contentManager)
+    public override void initializeSession()
     {
-        mFont = contentManager.Load<SpriteFont>("Fonts/menu");
-        mFontSelect = contentManager.Load<SpriteFont>("Fonts/menu-select");
-        mButtonBackground = contentManager.Load<Texture2D>("Images/square");
+        base.initializeSession();
         var test = new MenuOption("New Game", () => mGame.changeState(GameStates.GAMEPLAY), mGraphics.PreferredBackBufferWidth / 4, 150, 150, 50);
         var test2 = new MenuOption("Test2", () => Console.WriteLine("Test2"), mGraphics.PreferredBackBufferWidth / 4, 225, 150, 50);
         var test3 = new MenuOption("Test3", () => Console.WriteLine("Test3"), 3 * mGraphics.PreferredBackBufferWidth / 4, 150, 150, 50);
@@ -50,5 +47,12 @@ public class MainMenuView : Menu
             test5
         };
         mDefault = test;
+    }
+
+    public override void loadContent(ContentManager contentManager)
+    {
+        mFont = contentManager.Load<SpriteFont>("Fonts/menu");
+        mFontSelect = contentManager.Load<SpriteFont>("Fonts/menu-select");
+        mButtonBackground = contentManager.Load<Texture2D>("Images/square");
     }
 }

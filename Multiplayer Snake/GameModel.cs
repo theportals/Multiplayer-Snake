@@ -7,6 +7,7 @@ using Microsoft.Xna.Framework.Input;
 using Multiplayer_Snake.Entities;
 using Multiplayer_Snake.Input;
 using Multiplayer_Snake.Util;
+using Multiplayer_Snake.Views;
 
 namespace Multiplayer_Snake;
 
@@ -45,8 +46,9 @@ public class GameModel
     {
         mKeyboardInput.clearCommands();
         mMouseInput.clearRegions();
-        
+        mKeyboardInput.registerCommand(InputDevice.Commands.BACK, _ => mGame.changeState(GameStates.MAIN_MENU));
         var square = content.Load<Texture2D>("Images/square");
+        var peepo = content.Load<Texture2D>("Images/Peepo");
 
         mSysRenderer = new Systems.Renderer(spriteBatch, square, WINDOW_WIDTH, WINDOW_HEIGHT, ARENA_SIZE);
         mSysCollision = new Systems.Collision(e =>
@@ -60,7 +62,7 @@ public class GameModel
         });
 
         mSysMovement = new Systems.Movement();
-        mSysInput = new Systems.Input(mKeyboardInput, mMouseInput, mListenKeys);
+        mSysInput = new Systems.Input(mKeyboardInput, mMouseInput, mListenKeys, ARENA_SIZE, WINDOW_WIDTH, WINDOW_HEIGHT);
 
         initializeBorder(square);
         initializeObstacles(square);
