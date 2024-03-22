@@ -50,7 +50,7 @@ public class GameModel
         var square = content.Load<Texture2D>("Images/square");
         var peepo = content.Load<Texture2D>("Images/Peepo");
 
-        mSysRenderer = new Systems.Renderer(spriteBatch, square, WINDOW_WIDTH, WINDOW_HEIGHT, ARENA_SIZE);
+        mSysRenderer = new Systems.Renderer(spriteBatch, square, WINDOW_WIDTH, WINDOW_HEIGHT, ARENA_SIZE, null);
         mSysCollision = new Systems.Collision(e =>
         {
             mToRemove.Add(e);
@@ -67,7 +67,8 @@ public class GameModel
 
         initializeBorder(square);
         initializeObstacles(square);
-        initializeSnake(square);
+        var snake = initializeSnake(square);
+        mSysRenderer.follow(snake);
         addEntity(createFood(square));
     }
 
@@ -150,7 +151,7 @@ public class GameModel
         }
     }
 
-    private void initializeSnake(Texture2D square)
+    private Entity initializeSnake(Texture2D square)
     {
         var rng = new ExtendedRandom();
         bool done = false;
@@ -164,9 +165,11 @@ public class GameModel
             {
                 addEntity(proposed);
                 proposed.GetComponent<Components.Movable>().segmentsToAdd = 200;
-                done = true;
+                return proposed;
             }
         }
+
+        return null;
     }
 
     private Entity createFood(Texture2D square)
