@@ -10,11 +10,11 @@ public class Renderer : System
     private readonly int ARENA_SIZE;
     private readonly int WINDOW_WIDTH;
     private readonly int WINDOW_HEIGHT;
-    private readonly int OFFSET_X;
-    private readonly int OFFSET_Y;
+    private int OFFSET_X;
+    private int OFFSET_Y;
     private readonly SpriteBatch mSpriteBatch;
     private readonly Texture2D mBackground;
-    private float mZoom;
+    public float zoom { private get; set; }
     private Entity? mFollow;
 
     public Renderer(SpriteBatch spriteBatch, Texture2D background, int windowWidth, int windowHeight, int arenaSize, Entity? toFollow, float zoom=1)
@@ -28,7 +28,7 @@ public class Renderer : System
         mSpriteBatch = spriteBatch;
         mBackground = background;
         mFollow = toFollow;
-        mZoom = zoom;
+        this.zoom = zoom;
     }
 
     public void follow(Entity entity)
@@ -44,8 +44,10 @@ public class Renderer : System
         var bgCenter = new Vector2();
         if (mFollow == null)
         {
-            centerPoint.X = OFFSET_X + ARENA_SIZE;
-            centerPoint.Y = OFFSET_Y + ARENA_SIZE;
+            OFFSET_X = (int)((WINDOW_WIDTH - ARENA_SIZE * zoom) / 2);
+            OFFSET_Y = (int)((WINDOW_HEIGHT - ARENA_SIZE * zoom) / 2);
+            centerPoint.X = OFFSET_X + ARENA_SIZE * zoom;
+            centerPoint.Y = OFFSET_Y + ARENA_SIZE * zoom;
             bgCenter.X = OFFSET_X;
             bgCenter.Y = OFFSET_Y;
         }
@@ -54,17 +56,16 @@ public class Renderer : System
             var followPos = mFollow.GetComponent<Components.Position>();
             centerPoint.X = followPos.x;
             centerPoint.Y = followPos.y;
-            bgCenter.X = OFFSET_X - centerPoint.X + ARENA_SIZE / 2;
-            bgCenter.Y = OFFSET_Y - centerPoint.Y + ARENA_SIZE / 2;
+            bgCenter.X = OFFSET_X - centerPoint.X * zoom + ARENA_SIZE / 2;
+            bgCenter.Y = OFFSET_Y - centerPoint.Y * zoom + ARENA_SIZE / 2;
         }
-        Rectangle background = new Rectangle((int)(bgCenter.X), (int)(bgCenter.Y), ARENA_SIZE, ARENA_SIZE);
+        Rectangle background = new Rectangle((int)(bgCenter.X), (int)(bgCenter.Y), (int)(ARENA_SIZE * zoom), (int)(ARENA_SIZE * zoom));
         mSpriteBatch.Draw(mBackground, background, Color.Blue);
 
         foreach (var entity in mEntities.Values)
         {
             renderEntity(entity, centerPoint);
         }
-
         mSpriteBatch.End();
     }
 
@@ -76,10 +77,15 @@ public class Renderer : System
 
         for (int segment = 0; segment < pos.segments.Count; segment++)
         {
-            var div = 1;
-            if (mFollow != null) div = 2;
-            drawPos.X = WINDOW_WIDTH / div - (centerPoint.X - pos.segments[segment].X);
-            drawPos.Y = WINDOW_HEIGHT / div - (centerPoint.Y - pos.segments[segment].Y);
+            if (mFollow != null){
+                drawPos.X = WINDOW_WIDTH / 2 - (centerPoint.X - pos.segments[segment].X) * zoom;
+                drawPos.Y = WINDOW_HEIGHT / 2 - (centerPoint.Y - pos.segments[segment].Y) * zoom;
+            } 
+            else
+            {
+                drawPos.X = WINDOW_WIDTH - (centerPoint.X - pos.segments[segment].X * zoom);
+                drawPos.Y = WINDOW_HEIGHT - (centerPoint.Y - pos.segments[segment].Y * zoom);
+            }
 
             float rot = 0f;
             if (segment > 0)
@@ -90,7 +96,7 @@ public class Renderer : System
             }
             else if (entity.ContainsComponent<Components.Movable>()) rot = entity.GetComponent<Components.Movable>().facing;
             mSpriteBatch.Draw(appearance.image, 
-                new Rectangle((int)drawPos.X, (int)drawPos.Y, appearance.size, appearance.size), 
+                new Rectangle((int)drawPos.X, (int)drawPos.Y, (int)(appearance.size * zoom), (int)(appearance.size * zoom)), 
                 null,
                 appearance.color,
                 (float)(rot + Math.PI / 2),

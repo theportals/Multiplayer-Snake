@@ -13,7 +13,7 @@ namespace Multiplayer_Snake;
 
 public class GameModel
 {
-    private const int ARENA_SIZE = 750;
+    private const int ARENA_SIZE = 500;
     private const int OBSTACLE_COUNT = 15;
     private readonly int WINDOW_WIDTH;
     private readonly int WINDOW_HEIGHT;
@@ -68,6 +68,7 @@ public class GameModel
         initializeBorder(square);
         initializeObstacles(square);
         var snake = initializeSnake(square);
+        mSysRenderer.zoom = 2.5f;
         mSysRenderer.follow(snake);
         mSysInput.setAbsCursor(true);
         addEntity(createFood(square));
