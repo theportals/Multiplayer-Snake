@@ -1,6 +1,4 @@
 using System;
-using Microsoft.Xna.Framework;
-using NotImplementedException = System.NotImplementedException;
 using Vector2 = System.Numerics.Vector2;
 
 namespace Multiplayer_Snake.Systems;

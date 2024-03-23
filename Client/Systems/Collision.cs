@@ -1,11 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Mime;
-using Microsoft.Xna.Framework;
-using Multiplayer_Snake.Entities;
 using Shared.Entities;
-using NotImplementedException = System.NotImplementedException;
 
 namespace Multiplayer_Snake.Systems;
 
