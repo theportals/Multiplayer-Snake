@@ -3,10 +3,9 @@ namespace Shared.Messages;
 public class Input : Message
 {
     public uint entityId { get; private set; }
-    public List<int> inputs { get; private set; }
+    public List<Components.Input.Type> inputs { get; private set; }
     public TimeSpan elapsedTime { get; private set; }
-    // TODO: List<int> is a placeholder
-    public Input(uint entityId, List<int> inputs, TimeSpan elapsedTime) : base(Type.Input)
+    public Input(uint entityId, List<Components.Input.Type> inputs, TimeSpan elapsedTime) : base(Type.Input)
     {
         this.entityId = entityId;
         this.inputs = inputs;
@@ -16,7 +15,7 @@ public class Input : Message
     public Input() : base(Type.Input)
     {
         elapsedTime = TimeSpan.Zero;
-        inputs = new List<int>();
+        inputs = new List<Components.Input.Type>();
     }
 
     public override byte[] serialize()
@@ -49,7 +48,7 @@ public class Input : Message
 
         for (var i = 0; i < howMany; i++)
         {
-            var input = (int)BitConverter.ToUInt16(data, offset);
+            var input = (Components.Input.Type)BitConverter.ToUInt16(data, offset);
             offset += sizeof(UInt16);
             inputs.Add(input);
         }
