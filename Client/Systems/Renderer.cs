@@ -1,10 +1,10 @@
 using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Multiplayer_Snake.Entities;
+using Client.Entities;
 using Shared.Entities;
 
-namespace Multiplayer_Snake.Systems;
+namespace Client.Systems;
 
 public class Renderer : Shared.Systems.System
 {

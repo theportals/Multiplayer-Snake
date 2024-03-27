@@ -1,9 +1,9 @@
+using Client.Input;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
-using Multiplayer_Snake.Input;
 
-namespace Multiplayer_Snake.Views;
+namespace Client.Views;
 
 public abstract class GameStateView : GameState
 {

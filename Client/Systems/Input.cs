@@ -1,9 +1,9 @@
 using System;
+using Client.Input;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
-using Multiplayer_Snake.Input;
 
-namespace Multiplayer_Snake.Systems;
+namespace Client.Systems;
 
 public class Input : Shared.Systems.System
 {

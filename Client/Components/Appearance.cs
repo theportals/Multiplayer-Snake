@@ -2,7 +2,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Shared.Components;
 
-namespace Multiplayer_Snake.Components;
+namespace Client.Components;
 
 public class Appearance : Component
 {

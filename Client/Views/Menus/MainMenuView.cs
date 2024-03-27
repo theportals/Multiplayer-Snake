@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
+using Client.Input;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
-using Multiplayer_Snake.Input;
 
-namespace Multiplayer_Snake.Views.Menus;
+namespace Client.Views.Menus;
 
 public class MainMenuView : Menu
 {
@@ -12,48 +12,43 @@ public class MainMenuView : Menu
     {
         base.initializeSession();
         mSelected = null;
-        var test = new MenuOption("New Game", () => mGame.changeState(GameStates.GAMEPLAY), mGraphics.PreferredBackBufferWidth / 4, 150, 150, 50);
-        var test2 = new MenuOption("Test2", () => Console.WriteLine("Test2"), mGraphics.PreferredBackBufferWidth / 4, 225, 150, 50);
-        var test3 = new MenuOption("Test3", () => Console.WriteLine("Test3"), 3 * mGraphics.PreferredBackBufferWidth / 4, 150, 150, 50);
-        var test4 = new MenuOption("Test4", () => Console.WriteLine("Test4"), 3 * mGraphics.PreferredBackBufferWidth / 4, 225, 150, 50);
-        var test5 = new MenuOption("Test5", () => Console.WriteLine("Test5"), mGraphics.PreferredBackBufferWidth / 2, 300, 150, 50);
+        var start = 2 * mGraphics.PreferredBackBufferHeight / 3;
+        const int spacing = 100;
+        var newGame = new MenuOption("New Game", () => mGame.changeState(GameStates.GAMEPLAY), mGraphics.PreferredBackBufferWidth / 3, start, mFont);
+        var highScores = new MenuOption("High Scores", () => mGame.changeState(GameStates.HIGH_SCORES), mGraphics.PreferredBackBufferWidth / 3, start + spacing, mFont);
+        var controls = new MenuOption("Controls", () => mGame.changeState(GameStates.CONTROLS), 2 * mGraphics.PreferredBackBufferWidth / 3, start, mFont);
+        var credits = new MenuOption("Credits", () => mGame.changeState(GameStates.CREDITS), 2 * mGraphics.PreferredBackBufferWidth / 3, start + spacing, mFont);
+        var exit = new MenuOption("Exit", () => mGame.changeState(GameStates.EXIT), mGraphics.PreferredBackBufferWidth / 2, start + spacing * 2, mFont);
 
-        test.linkDown(test2);
-        test.linkRight(test3);
+        newGame.linkDown(highScores);
+        newGame.linkRight(controls);
         
-        test2.linkRight(test4);
-        test2.linkDown(test5, false);
+        highScores.linkRight(credits);
+        highScores.linkDown(exit, false);
         
-        test3.linkDown(test4);
+        controls.linkDown(credits);
         
-        test4.linkDown(test5, false);
+        credits.linkDown(exit, false);
         
-        test5.linkLeft(test2, false);
-        test5.linkRight(test4, false);
+        exit.linkLeft(highScores, false);
+        exit.linkRight(credits, false);
         
-        mMouseInput.registerMouseRegion(test.getRectangle(), MouseInput.MouseActions.HOVER, _ => mSelected = test, null, _ => mSelected = null);
-        mMouseInput.registerMouseRegion(test2.getRectangle(), MouseInput.MouseActions.HOVER, _ => mSelected = test2, null, _ => mSelected = null);
-        mMouseInput.registerMouseRegion(test3.getRectangle(), MouseInput.MouseActions.HOVER, _ => mSelected = test3, null, _ => mSelected = null);
-        mMouseInput.registerMouseRegion(test4.getRectangle(), MouseInput.MouseActions.HOVER, _ => mSelected = test4, null, _ => mSelected = null);
-        mMouseInput.registerMouseRegion(test5.getRectangle(), MouseInput.MouseActions.HOVER, _ => mSelected = test5, null, _ => mSelected = null);
+        mMouseInput.registerMouseRegion(newGame.getRectangle(), MouseInput.MouseActions.HOVER, _ => mSelected = newGame, _ => mSelected = newGame, _ => mSelected = null);
+        mMouseInput.registerMouseRegion(highScores.getRectangle(), MouseInput.MouseActions.HOVER, _ => mSelected = highScores, _ => mSelected = highScores, _ => mSelected = null);
+        mMouseInput.registerMouseRegion(controls.getRectangle(), MouseInput.MouseActions.HOVER, _ => mSelected = controls, _ => mSelected = controls, _ => mSelected = null);
+        mMouseInput.registerMouseRegion(credits.getRectangle(), MouseInput.MouseActions.HOVER, _ => mSelected = credits, _ => mSelected = credits, _ => mSelected = null);
+        mMouseInput.registerMouseRegion(exit.getRectangle(), MouseInput.MouseActions.HOVER, _ => mSelected = exit, _ => mSelected = exit, _ => mSelected = null);
         mMouseInput.registerMouseRegion(null, MouseInput.MouseActions.L_CLICK, null, null, _ => mSelected?.OnSelect());
         
         
         mOptions = new List<MenuOption>
         {
-            test,
-            test2,
-            test3,
-            test4,
-            test5
+            newGame,
+            highScores,
+            controls,
+            credits,
+            exit
         };
-        mDefault = test;
-    }
-
-    public override void loadContent(ContentManager contentManager)
-    {
-        mFont = contentManager.Load<SpriteFont>("Fonts/menu");
-        mFontSelect = contentManager.Load<SpriteFont>("Fonts/menu-select");
-        mButtonBackground = contentManager.Load<Texture2D>("Images/square");
+        mDefault = newGame;
     }
 }

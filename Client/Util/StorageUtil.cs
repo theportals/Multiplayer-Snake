@@ -4,7 +4,7 @@ using System.IO.IsolatedStorage;
 using System.Runtime.Serialization.Json;
 using System.Threading.Tasks;
 
-namespace Multiplayer_Snake.Util;
+namespace Client.Util;
 
 public class StorageUtil
 {

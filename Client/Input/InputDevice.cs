@@ -1,7 +1,7 @@
 using System;
 using Microsoft.Xna.Framework;
 
-namespace Multiplayer_Snake.Input;
+namespace Client.Input;
 
 public interface InputDevice
 {

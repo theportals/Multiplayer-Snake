@@ -1,13 +1,15 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using Client.Input;
+using Client.Util;
+using Client.Views;
+using Client.Views.Menus;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Graphics.PackedVector;
 using Microsoft.Xna.Framework.Input;
-using Multiplayer_Snake.Input;
-using Multiplayer_Snake.Util;
-using Multiplayer_Snake.Views;
-using Multiplayer_Snake.Views.Menus;
 
-namespace Multiplayer_Snake;
+namespace Client;
 
 public class Client : Game
 {
@@ -17,6 +19,7 @@ public class Client : Game
     private GameState mState;
     private KeyboardInput mKeyboardInput;
     private MouseInput mMouseInput;
+    public List<Tuple<int, DateTime>> mHighscores;
 
     public Client()
     {
@@ -45,6 +48,11 @@ public class Client : Game
 
         mMouseInput = new MouseInput();
 
+        mHighscores = (List<Tuple<int, DateTime>>)StorageUtil.loadData<List<Tuple<int, DateTime>>>("highscores.json");
+        if (mHighscores == null)
+        {
+            mHighscores = new List<Tuple<int, DateTime>>();
+        }
         mKeyboardInput = (KeyboardInput)StorageUtil.loadData<KeyboardInput>("keybinds.json");
         if (mKeyboardInput == null)
         {
@@ -70,9 +78,24 @@ public class Client : Game
         mState.initializeSession();
     }
 
+    public void SubmitScore(int score)
+    {
+        mHighscores.Add(new Tuple<int, DateTime>(score, DateTime.Now));
+        mHighscores.Sort((s1, s2) => s2.Item1 - s1.Item1);
+        for (var i = 5; i < mHighscores.Count; i++)
+        {
+            mHighscores.Remove(mHighscores[i]);
+        }
+        StorageUtil.storeData("highscores.json", mHighscores);
+    }
+
     public void changeState(GameStates nextState)
     {
-        if (nextState == GameStates.EXIT) Exit();
+        if (nextState == GameStates.EXIT)
+        {
+            Exit();
+            return;
+        }
         mState = mStates[nextState];
         mState.initializeSession();
     }
@@ -93,3 +116,22 @@ public class Client : Game
         base.Draw(gameTime);
     }
 }
+
+// TODO: Add boosting for mouse and keyboard
+// TODO: Add sounds
+// TODO: Add better assets for snakes, food, etc
+// TODO: Give the player a chance to name themselves
+// TODO: Show the tutorial message/diagram "your snake will follow your mouse"
+// TODO: Show the message/diagram for boosting
+// TODO: Show the joining message and once joined, the player begins participating in the game
+// TODO: Food refreshes periodically
+// TODO: Snakes leave behind food upon dying
+// TODO: Show end game panel after death that shows score, kills, and highest position achieved
+// TODO: Customization of controls
+// TODO: Show player name beside head of snake
+// TODO: Multiple kinds and sizes of food, utilizing animated sprite
+// TODO: Game status panel, showing current score and top 5 snakes in game
+// TODO: Background image
+// TODO: Finish menus
+// TODO: Finish server implementation
+// TODO: Test multiplayer on local machine and multiple machines

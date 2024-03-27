@@ -1,7 +1,7 @@
 using System;
 using Microsoft.Xna.Framework;
 
-namespace Multiplayer_Snake.Input;
+namespace Client.Input;
 
 /// <summary>
 /// Delayed Auto Shift (DAS) Timer. Typically used to rapidly scroll through menu options after a short delay.

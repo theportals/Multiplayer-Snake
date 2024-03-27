@@ -1,2 +1,2 @@
-﻿using var game = new Multiplayer_Snake.Client();
+﻿using var game = new Client.Client();
 game.Run();

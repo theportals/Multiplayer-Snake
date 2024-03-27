@@ -1,16 +1,16 @@
 using System;
 using System.Collections.Generic;
+using Client.Entities;
+using Client.Input;
+using Client.Util;
+using Client.Views;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using Multiplayer_Snake.Entities;
-using Multiplayer_Snake.Input;
-using Multiplayer_Snake.Util;
-using Multiplayer_Snake.Views;
 using Shared.Entities;
 
-namespace Multiplayer_Snake;
+namespace Client;
 
 public class GameModel
 {
@@ -30,6 +30,8 @@ public class GameModel
     private KeyboardInput mKeyboardInput;
     private MouseInput mMouseInput;
     private bool mListenKeys;
+
+    private int mScore;
 
     private Client mGame;
 
@@ -55,11 +57,14 @@ public class GameModel
         {
             mToRemove.Add(e);
             mToAdd.Add(createFood(square));
+            mScore += 1;
         },
         e =>
         {
             // TODO: Better lose effects
-            // mToRemove.Add(e);
+            mToRemove.Add(e);
+            if (mScore > 0) mGame.SubmitScore(mScore);
+            mScore = 0;
         });
 
         mSysMovement = new Systems.Movement();

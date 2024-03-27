@@ -1,8 +1,8 @@
 using Microsoft.Xna.Framework.Input;
-using Multiplayer_Snake.Input;
+using Client.Input;
 using Shared.Components;
 
-namespace Multiplayer_Snake.Components;
+namespace Client.Components;
 
 public class Controllable : Component
 {

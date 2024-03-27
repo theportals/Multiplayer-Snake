@@ -1,9 +1,10 @@
 using System.Collections.Generic;
 using Client.Input;
+using Client.Views.Menus;
 
-namespace Client.Views.Menus;
+namespace Client.Views;
 
-public class ControlsView : Menu
+public class CreditsView : Menu
 {
     public override void initializeSession()
     {

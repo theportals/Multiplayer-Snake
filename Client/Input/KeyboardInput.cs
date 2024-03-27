@@ -5,7 +5,7 @@ using System.Runtime.Serialization;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 
-namespace Multiplayer_Snake.Input;
+namespace Client.Input;
 
 [DataContract(Name = "KeyBinds")]
 

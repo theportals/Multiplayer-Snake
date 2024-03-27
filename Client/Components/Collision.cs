@@ -1,6 +1,6 @@
 using Shared.Components;
 
-namespace Multiplayer_Snake.Components;
+namespace Client.Components;
 
 public class Collision : Component
 {

@@ -1,7 +1,7 @@
 using System;
 using Vector2 = System.Numerics.Vector2;
 
-namespace Multiplayer_Snake.Systems;
+namespace Client.Systems;
 
 public class Movement : Shared.Systems.System
 {

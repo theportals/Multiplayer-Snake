@@ -1,11 +1,12 @@
 using System;
 using System.Collections.Generic;
+using Client.Input;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Multiplayer_Snake.Input;
-using Multiplayer_Snake.Util;
+using Client.Util;
+using Microsoft.Xna.Framework.Content;
 
-namespace Multiplayer_Snake.Views.Menus;
+namespace Client.Views.Menus;
 
 public abstract class Menu : GameStateView
 {
@@ -19,6 +20,7 @@ public abstract class Menu : GameStateView
     public override void initializeSession()
     {
         mKeyboardInput.clearCommands();
+        mMouseInput.clearRegions();
         const int dasDelay = 500;
         const int dasPeriod = 75;
         var t = new DASTimer(dasDelay, dasPeriod);
@@ -27,6 +29,13 @@ public abstract class Menu : GameStateView
         mKeyboardInput.registerCommand(InputDevice.Commands.LEFT, _ => moveLeft(), gt => t.tick(gt, moveLeft), t.resetTimer);
         mKeyboardInput.registerCommand(InputDevice.Commands.RIGHT, _ => moveRight(), gt => t.tick(gt, moveRight), t.resetTimer);
         mKeyboardInput.registerCommand(InputDevice.Commands.SELECT, _ => mSelected?.OnSelect());
+    }
+
+    public override void loadContent(ContentManager contentManager)
+    {
+        mFont = contentManager.Load<SpriteFont>("Fonts/menu");
+        mFontSelect = contentManager.Load<SpriteFont>("Fonts/menu-select");
+        mButtonBackground = contentManager.Load<Texture2D>("Images/square");
     }
 
     private void moveUp()

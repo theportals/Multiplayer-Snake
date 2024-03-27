@@ -1,7 +1,7 @@
 using System;
 using Microsoft.Xna.Framework;
 
-namespace Multiplayer_Snake.Util;
+namespace Client.Util;
 
 public class ExtendedRandom : Random
 {

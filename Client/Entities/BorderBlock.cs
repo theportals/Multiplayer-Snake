@@ -2,7 +2,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Shared.Entities;
 
-namespace Multiplayer_Snake.Entities;
+namespace Client.Entities;
 
 public class BorderBlock
 {

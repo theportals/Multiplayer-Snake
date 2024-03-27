@@ -5,7 +5,7 @@ using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 
-namespace Multiplayer_Snake.Input;
+namespace Client.Input;
 
 public class MouseInput : InputDevice
 {

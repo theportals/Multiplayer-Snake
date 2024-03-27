@@ -1,4 +1,4 @@
-namespace Multiplayer_Snake.Views;
+namespace Client.Views;
 
 public enum GameStates
 {

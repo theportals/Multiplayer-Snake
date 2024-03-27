@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Shared.Entities;
 
-namespace Multiplayer_Snake.Systems;
+namespace Client.Systems;
 
 public class Collision : Shared.Systems.System
 {
