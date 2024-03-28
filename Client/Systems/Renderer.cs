@@ -106,7 +106,18 @@ public class Renderer : Shared.Systems.System
             if (entity.contains<RotationOffset>()) rot += entity.get<RotationOffset>().offset;
             
             var c = Color.White;
-            if (entity.contains<ColorOverride>()) c = entity.get<ColorOverride>().color; 
+            if (entity.contains<ColorOverride>()) c = entity.get<ColorOverride>().color;
+            if (entity.contains<Boostable>())
+            {
+                var boost = entity.get<Boostable>();
+                var frac = boost.stamina / boost.maxStamina;
+                var staminaColor = new Color(
+                    (int)MathHelper.Lerp(255, c.R, frac),
+                    (int)MathHelper.Lerp(0, c.G, frac),
+                    (int)MathHelper.Lerp(0, c.B, frac)
+                );
+                c = staminaColor;
+            }
             mSpriteBatch.Draw(appearance.image, 
                 new Rectangle((int)drawPos.X, (int)drawPos.Y, (int)Math.Ceiling(appearance.size * zoom), (int)Math.Ceiling(appearance.size * zoom)), 
                 null,

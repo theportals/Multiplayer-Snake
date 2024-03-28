@@ -18,6 +18,8 @@ public class SnakeSegment
             .add(new Shared.Components.Position(x, y))
             .add(new Components.Collision(10f))
             .add(new Shared.Components.Movable(0f, MOVE_SPEED, TURN_SPEED))
-            .add(new Components.Controllable());
+            .add(new Components.Controllable())
+            .add(new Components.Alive())
+            .add(new Components.Boostable(3, 1, 2, 0.5f, 0.75f));
     }
 }

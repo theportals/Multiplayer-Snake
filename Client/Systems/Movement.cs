@@ -33,7 +33,31 @@ public class Movement : Shared.Systems.System
         var movable = entity.get<Shared.Components.Movable>();
         var pos = entity.get<Shared.Components.Position>();
         var dist = gameTime.TotalSeconds * movable.moveSpeed;
-        if (movable.boosting) dist *= 2;
+
+        if (entity.contains<Boostable>())
+        {
+            var boost = entity.get<Boostable>();
+            if (boost.boosting)
+            {
+                if (boost.stamina > 0)
+                {
+                    boost.stamina -= (float)gameTime.TotalSeconds;
+                    dist *= boost.speedModifier;
+                }
+                else
+                {
+                    dist *= boost.penaltySpeed;
+                }
+            }
+            else
+            {
+                if (boost.stamina < boost.maxStamina)
+                {
+                    var remaining = boost.maxStamina - boost.stamina;
+                    boost.stamina += (float)Math.Min(remaining, gameTime.TotalSeconds * boost.regenRate);
+                }
+            }
+        }
 
         var front = pos.segments[0];
         var angle = movable.facing;

@@ -1,12 +1,16 @@
 using System.Collections.Generic;
+using Client.Components;
 using Client.Entities;
 using Client.Input;
 using Client.Util;
 using Client.Views;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
+using Shared.Components;
 using Shared.Entities;
+using Food = Client.Entities.Food;
 
 namespace Client;
 
@@ -52,17 +56,26 @@ public class GameModel
         var square = content.Load<Texture2D>("Images/square");
         var fire = content.Load<Texture2D>("Particles/fire");
         var smoke = content.Load<Texture2D>("Particles/smoke-2");
+        var explode = content.Load<SoundEffect>("Sounds/explosion");
+        var score = content.Load<SoundEffect>("Sounds/score");
+        var thrust = content.Load<SoundEffect>("Sounds/thrust");
+        var thrustInstance = thrust.CreateInstance();
+        thrustInstance.IsLooped = true;
         var peepo = content.Load<Texture2D>("Images/Peepo");
 
         mSysRenderer = new Systems.Renderer(spriteBatch, square, WINDOW_WIDTH, WINDOW_HEIGHT, ARENA_SIZE, null);
         mSysCollision = new Systems.Collision(e =>
         {
+            score.Play();
             mToRemove.Add(e);
             mToAdd.Add(createFood(square));
             mScore += 1;
         },
         e =>
         {
+            thrustInstance.Pause();
+            explode.Play();
+            e.remove<Alive>();
             addParticlesLater(ParticleUtil.playerDeath(fire, smoke, e));
             mToRemove.Add(e);
             if (mScore > 0) mGame.SubmitScore(mScore);
@@ -91,7 +104,24 @@ public class GameModel
         mKeyboardInput.registerCommand(InputDevice.Commands.BACK, _ => mGame.changeState(GameStates.MAIN_MENU));
         
         if (mListenKeys) mKeyboardInput.registerCommand(InputDevice.Commands.BOOST, _ => snake.get<Shared.Components.Movable>().boosting = true, null, _ => snake.get<Shared.Components.Movable>().boosting = false);
-        else mMouseInput.registerMouseRegion(null, MouseInput.MouseActions.L_CLICK, _ => snake.get<Shared.Components.Movable>().boosting = true, null, _ => snake.get<Shared.Components.Movable>().boosting = false);
+        else mMouseInput.registerMouseRegion(null, MouseInput.MouseActions.L_CLICK, _ =>
+        {
+            if (snake.contains<Alive>())
+            {
+                snake.get<Boostable>().boosting = true;
+            }
+        }, _ =>
+        {
+            if (snake.contains<Alive>() && snake.get<Boostable>().stamina > 0) thrustInstance.Play();
+            else thrustInstance.Pause();
+        }, _ =>
+        {
+            if (snake.contains<Alive>())
+            {
+                thrustInstance.Pause();
+                snake.get<Boostable>().boosting = false;
+            }
+        });
         
         mMouseInput.registerMouseRegion(null, MouseInput.MouseActions.SCROLL_UP, _ =>
         {

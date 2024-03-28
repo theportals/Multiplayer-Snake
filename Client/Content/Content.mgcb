@@ -81,6 +81,18 @@
 /processorParam:Quality=Best
 /build:Sounds/click-button-140881.mp3;Sounds/button_click.mp3
 
+#begin Sounds/completetask_0.mp3
+/importer:Mp3Importer
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Sounds/completetask_0.mp3;Sounds/score.mp3
+
+#begin Sounds/good-jetpack-sound-loop-96693_01.ogg
+/importer:OggImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Sounds/good-jetpack-sound-loop-96693_01.ogg;Sounds/thrust.ogg
+
 #begin Sounds/interface-1-126517.mp3
 /importer:Mp3Importer
 /processor:SoundEffectProcessor

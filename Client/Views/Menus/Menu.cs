@@ -1,6 +1,8 @@
+using System;
 using System.Collections.Generic;
 using Client.Input;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Content;
 
@@ -14,6 +16,8 @@ public abstract class Menu : GameStateView
     protected List<MenuOption> mOptions;
     protected MenuOption? mSelected;
     protected MenuOption mDefault;
+    protected SoundEffect mMenuSelectSound;
+    protected SoundEffect mMenuBrowseSound;
 
     public override void initializeSession()
     {
@@ -26,9 +30,23 @@ public abstract class Menu : GameStateView
         mKeyboardInput.registerCommand(InputDevice.Commands.DOWN, _ => moveDown(), gt => t.tick(gt, moveDown), t.resetTimer);
         mKeyboardInput.registerCommand(InputDevice.Commands.LEFT, _ => moveLeft(), gt => t.tick(gt, moveLeft), t.resetTimer);
         mKeyboardInput.registerCommand(InputDevice.Commands.RIGHT, _ => moveRight(), gt => t.tick(gt, moveRight), t.resetTimer);
-        mKeyboardInput.registerCommand(InputDevice.Commands.SELECT, _ => mSelected?.OnSelect());
+        mKeyboardInput.registerCommand(InputDevice.Commands.SELECT, _ =>
+        {
+            if (mSelected != null)
+            {
+                mSelected.OnSelect();
+                mMenuSelectSound.Play();
+            }
+        });
         
-        mMouseInput.registerMouseRegion(null, MouseInput.MouseActions.L_CLICK, null, null, _ => mSelected?.OnSelect());
+        mMouseInput.registerMouseRegion(null, MouseInput.MouseActions.L_CLICK, null, null, _ =>
+        {
+            if (mSelected != null)
+            {
+                mSelected.OnSelect();
+                mMenuSelectSound.Play();
+            }
+        });
     }
 
     public override void loadContent(ContentManager contentManager)
@@ -36,35 +54,53 @@ public abstract class Menu : GameStateView
         mFont = contentManager.Load<SpriteFont>("Fonts/menu");
         mFontSelect = contentManager.Load<SpriteFont>("Fonts/menu-select");
         mButtonBackground = contentManager.Load<Texture2D>("Images/square");
+        mMenuSelectSound = contentManager.Load<SoundEffect>("Sounds/button_select");
+        mMenuBrowseSound = contentManager.Load<SoundEffect>("Sounds/button_click");
     }
 
     private void moveUp()
     {
         if (mSelected == null) mSelected = mDefault;
-        else if (mSelected.up != null) mSelected = mSelected.up;
+        else if (mSelected.up != null) {
+            mMenuBrowseSound.Play();
+            mSelected = mSelected.up;
+        }
     }
 
     private void moveDown()
     {
         if (mSelected == null) mSelected = mDefault;
-        else if (mSelected.down != null) mSelected = mSelected.down;
+        else if (mSelected.down != null) {
+            mMenuBrowseSound.Play();
+            mSelected = mSelected.down;
+        }
     }
 
     private void moveLeft()
     {
         if (mSelected == null) mSelected = mDefault;
-        else if (mSelected.left != null) mSelected = mSelected.left;
+        else if (mSelected.left != null) {
+            mMenuBrowseSound.Play();
+            mSelected = mSelected.left;
+        }
     }
 
     private void moveRight()
     {
         if (mSelected == null) mSelected = mDefault;
-        else if (mSelected.right != null) mSelected = mSelected.right;
+        else if (mSelected.right != null) {
+            mMenuBrowseSound.Play();
+            mSelected = mSelected.right;
+        }
     }
 
     protected void registerHoverRegion(MenuOption option)
     {
-        mMouseInput.registerMouseRegion(option.getRectangle(), MouseInput.MouseActions.HOVER, _ => mSelected = option, _ => mSelected = option, _ => mSelected = null);
+        mMouseInput.registerMouseRegion(option.getRectangle(), MouseInput.MouseActions.HOVER, _ =>
+        {
+            mSelected = option;
+            mMenuBrowseSound.Play();
+        }, _ => mSelected = option, _ => mSelected = null);
     }
 
     public override void update(GameTime gameTime)
