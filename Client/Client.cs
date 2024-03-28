@@ -137,6 +137,5 @@ public class Client : Game
 // TODO: Multiple kinds and sizes of food, utilizing animated sprite
 // TODO: Game status panel, showing current score and top 5 snakes in game
 // TODO: Background image
-// TODO: Finish menus
 // TODO: Finish server implementation
 // TODO: Test multiplayer on local machine and multiple machines
