@@ -30,6 +30,16 @@ public class GameModel
     private Systems.Movement mSysMovement;
     private Systems.Input mSysInput;
     private Systems.Lifetime mSysLifetime;
+    private Systems.Lifetime mSysParticleLifetime;
+
+    private Texture2D square;
+    private Texture2D fire;
+    private Texture2D smoke;
+    private Texture2D peepo;
+    private SoundEffect explode;
+    private SoundEffect score;
+    private SoundEffect thrust;
+    private SoundEffectInstance thrustInstance;
 
     private KeyboardInput mKeyboardInput;
     private MouseInput mMouseInput;
@@ -53,33 +63,29 @@ public class GameModel
     {
         mKeyboardInput.clearCommands();
         mMouseInput.clearRegions();
-        var square = content.Load<Texture2D>("Images/square");
-        var fire = content.Load<Texture2D>("Particles/fire");
-        var smoke = content.Load<Texture2D>("Particles/smoke-2");
-        var explode = content.Load<SoundEffect>("Sounds/explosion");
-        var score = content.Load<SoundEffect>("Sounds/score");
-        var thrust = content.Load<SoundEffect>("Sounds/thrust");
-        var thrustInstance = thrust.CreateInstance();
+        square = content.Load<Texture2D>("Images/square");
+        peepo = content.Load<Texture2D>("Images/Peepo");
+        fire = content.Load<Texture2D>("Particles/fire");
+        smoke = content.Load<Texture2D>("Particles/smoke-2");
+        explode = content.Load<SoundEffect>("Sounds/explosion");
+        score = content.Load<SoundEffect>("Sounds/score");
+        thrust = content.Load<SoundEffect>("Sounds/thrust");
+        thrustInstance = thrust.CreateInstance();
         thrustInstance.IsLooped = true;
-        var peepo = content.Load<Texture2D>("Images/Peepo");
 
         mSysRenderer = new Systems.Renderer(spriteBatch, square, WINDOW_WIDTH, WINDOW_HEIGHT, ARENA_SIZE, null);
         mSysCollision = new Systems.Collision(e =>
         {
             score.Play();
             mToRemove.Add(e);
-            mToAdd.Add(createFood(square));
             mScore += 1;
         },
         e =>
         {
+            playerDeath(e);
+            addParticlesLater(ParticleUtil.playerDeath(fire, smoke, e));
             thrustInstance.Pause();
             explode.Play();
-            e.remove<Alive>();
-            addParticlesLater(ParticleUtil.playerDeath(fire, smoke, e));
-            mToRemove.Add(e);
-            if (mScore > 0) mGame.SubmitScore(mScore);
-            mScore = 0;
         });
 
         mSysMovement = new Systems.Movement();
@@ -87,14 +93,19 @@ public class GameModel
         mSysLifetime = new Systems.Lifetime(e =>
         {
             mToRemove.Add(e);
+            var food = e.get<Components.Food>();
+            if (food.naturalSpawn) mToAdd.Add(createFood(square, true));
+        });
+        mSysParticleLifetime = new Systems.Lifetime(e =>
+        {
+            mToRemove.Add(e);
         });
 
         initializeBorder(square);
         initializeObstacles(square);
-        var snake = initializeSnake(square);
+        spawnSnake();
         mSysRenderer.zoom = 2.5f;
         mSysInput.zoom = mSysRenderer.zoom;
-        mSysRenderer.follow(snake);
         mSysInput.setAbsCursor(true);
         addEntity(createFood(square));
         addEntity(createFood(square));
@@ -102,26 +113,6 @@ public class GameModel
         addEntity(createFood(square));
         addEntity(createFood(square));
         mKeyboardInput.registerCommand(InputDevice.Commands.BACK, _ => mGame.changeState(GameStates.MAIN_MENU));
-        
-        if (mListenKeys) mKeyboardInput.registerCommand(InputDevice.Commands.BOOST, _ => snake.get<Shared.Components.Movable>().boosting = true, null, _ => snake.get<Shared.Components.Movable>().boosting = false);
-        else mMouseInput.registerMouseRegion(null, MouseInput.MouseActions.L_CLICK, _ =>
-        {
-            if (snake.contains<Alive>())
-            {
-                snake.get<Boostable>().boosting = true;
-            }
-        }, _ =>
-        {
-            if (snake.contains<Alive>() && snake.get<Boostable>().stamina > 0) thrustInstance.Play();
-            else thrustInstance.Pause();
-        }, _ =>
-        {
-            if (snake.contains<Alive>())
-            {
-                thrustInstance.Pause();
-                snake.get<Boostable>().boosting = false;
-            }
-        });
         
         mMouseInput.registerMouseRegion(null, MouseInput.MouseActions.SCROLL_UP, _ =>
         {
@@ -135,12 +126,68 @@ public class GameModel
         });
     }
 
+    private void playerDeath(Entity e)
+    {
+        e.remove<Alive>();
+        mToRemove.Add(e);
+        if (mScore > 0) mGame.SubmitScore(mScore);
+        mScore = 0;
+        var pos = e.get<Position>();
+        foreach (var segment in pos.segments)
+        {
+            mToAdd.Add(createFood(square, false, segment));
+        }
+        
+        if (mListenKeys) mKeyboardInput.registerCommand(InputDevice.Commands.SELECT, _ => spawnSnake());
+        mMouseInput.registerMouseRegion(null, MouseInput.MouseActions.L_CLICK, _ => spawnSnake());
+    }
+
+    private void spawnSnake()
+    {
+        var snake = initializeSnake(square);
+        mSysRenderer.follow(snake);
+        
+        
+        if (mListenKeys) mKeyboardInput.registerCommand(InputDevice.Commands.BOOST, 
+            _ => boostOn(snake), 
+            _ => playBoost(snake), 
+            _ => boostOff(snake));
+        else mMouseInput.registerMouseRegion(null, MouseInput.MouseActions.L_CLICK, 
+            _ => boostOn(snake), 
+            _ => playBoost(snake), 
+            _ => boostOff(snake));
+    }
+
+    private void boostOn(Entity snake)
+    {
+        if (snake.contains<Alive>())
+        {
+            snake.get<Boostable>().boosting = true;
+        }
+    }
+
+    private void playBoost(Entity snake)
+    {
+        if (snake.contains<Alive>() && snake.get<Boostable>().stamina > 0) thrustInstance.Play();
+        else thrustInstance.Pause();
+    }
+    
+    private void boostOff(Entity snake)
+    {
+        if (snake.contains<Alive>())
+        {
+            thrustInstance.Pause();
+            snake.get<Boostable>().boosting = false;
+        }
+    }
+
     public void update(GameTime gameTime)
     {
         if (mGame.IsActive) mSysInput.Update(gameTime.ElapsedGameTime);
         mSysMovement.Update(gameTime.ElapsedGameTime);
         mSysCollision.Update(gameTime.ElapsedGameTime);
         mSysLifetime.Update(gameTime.ElapsedGameTime);
+        mSysParticleLifetime.Update(gameTime.ElapsedGameTime);
 
         foreach (var entity in mToRemove)
         {
@@ -178,7 +225,7 @@ public class GameModel
     {
         mSysMovement.Add(particle);
         mSysRenderer.Add(particle);
-        mSysLifetime.Add(particle);
+        mSysParticleLifetime.Add(particle);
     }
 
     private void addEntity(Entity entity)
@@ -187,6 +234,7 @@ public class GameModel
         mSysCollision.Add(entity);
         mSysRenderer.Add(entity);
         mSysInput.Add(entity);
+        mSysLifetime.Add(entity);
     }
 
     private void removeEntity(Entity entity)
@@ -195,7 +243,7 @@ public class GameModel
         mSysCollision.Remove(entity.Id);
         mSysRenderer.Remove(entity.Id);
         mSysInput.Remove(entity.Id);
-        mSysLifetime.Remove(entity.Id);
+        mSysParticleLifetime.Remove(entity.Id);
     }
 
     private void initializeBorder(Texture2D square)
@@ -250,7 +298,7 @@ public class GameModel
             if (!mSysCollision.anyCollision(proposed))
             {
                 addEntity(proposed);
-                proposed.get<Shared.Components.Movable>().segmentsToAdd = 200;
+                proposed.get<Shared.Components.Movable>().segmentsToAdd = 3;
                 return proposed;
             }
         }
@@ -258,16 +306,20 @@ public class GameModel
         return null;
     }
 
-    private Entity createFood(Texture2D square)
+    private Entity createFood(Texture2D square, bool naturalSpawn=true, Vector2? pos=null)
     {
         var rng = new ExtendedRandom();
         var done = false;
 
         while (!done)
         {
+            if (pos != null)
+            {
+                return Food.create(square, (int)pos.Value.X, (int)pos.Value.Y, naturalSpawn);
+            }
             int x = (int)rng.nextRange(1, ARENA_SIZE - 1);
             int y = (int)rng.nextRange(1, ARENA_SIZE - 1);
-            var proposed = Food.create(square, x, y);
+            var proposed = Food.create(square, x, y, naturalSpawn);
             if (!mSysCollision.anyCollision(proposed))
             {
                 return proposed;

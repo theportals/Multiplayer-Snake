@@ -29,7 +29,9 @@ public class MouseInput : InputDevice
         InputDevice.CommandDelegate onNegativeEdge = null,
         bool requireCursorInRegion = true)
     {
-        mMouseRegions.Add(new MouseRegion(rectangle, action, requireCursorInRegion), new InputDevice.CommandEntry(onPositiveEdge, onHeld, onNegativeEdge));
+        var mr = new MouseRegion(rectangle, action, requireCursorInRegion);
+        if (mMouseRegions.ContainsKey(mr)) mMouseRegions.Remove(mr);
+        mMouseRegions.Add(mr, new InputDevice.CommandEntry(onPositiveEdge, onHeld, onNegativeEdge));
     }
 
     public void clearRegions()
