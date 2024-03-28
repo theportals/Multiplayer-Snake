@@ -49,6 +49,14 @@ public class ControlsView : Menu
         registerHoverRegion(rbRight);
         registerHoverRegion(rbBoost);
         
+        toggleMouse.linkDown(rbUp);
+        rbUp.linkDown(rbDown);
+        rbDown.linkDown(rbLeft);
+        rbLeft.linkDown(rbRight);
+        rbRight.linkDown(rbBoost);
+        rbBoost.linkDown(reset);
+        reset.linkLeft(back);
+        
         mOptions = new List<MenuOption>
         {
             back,
