@@ -7,7 +7,7 @@ namespace Client.Entities;
 
 public class SnakeSegment
 {
-    private const float MOVE_SPEED = 100;
+    public const float MOVE_SPEED = 100;
     private const float TURN_SPEED = 4;
 
     public static Entity create(Texture2D square, int x, int y)

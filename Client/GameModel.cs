@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Client.Entities;
 using Client.Input;
+using Client.Systems;
 using Client.Util;
 using Client.Views;
 using Microsoft.Xna.Framework;
@@ -82,6 +83,10 @@ public class GameModel
         addEntity(createFood(square));
         addEntity(createFood(square));
         mKeyboardInput.registerCommand(InputDevice.Commands.BACK, _ => mGame.changeState(GameStates.MAIN_MENU));
+        
+        if (mListenKeys) mKeyboardInput.registerCommand(InputDevice.Commands.BOOST, _ => snake.get<Shared.Components.Movable>().boosting = true, null, _ => snake.get<Shared.Components.Movable>().boosting = false);
+        else mMouseInput.registerMouseRegion(null, MouseInput.MouseActions.L_CLICK, _ => snake.get<Shared.Components.Movable>().boosting = true, null, _ => snake.get<Shared.Components.Movable>().boosting = false);
+        
         mMouseInput.registerMouseRegion(null, MouseInput.MouseActions.SCROLL_UP, _ => mSysRenderer.zoom *= 1.1f);
         mMouseInput.registerMouseRegion(null, MouseInput.MouseActions.SCROLL_DOWN, _ => mSysRenderer.zoom /= 1.1f);
     }

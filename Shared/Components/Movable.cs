@@ -8,6 +8,7 @@ public class Movable : Component
     public uint segmentsToAdd = 0;
     public float moveSpeed { get; private set; }
     public float turnSpeed { get; private set; }
+    public bool boosting = false;
 
     public Movable(float facing, float moveSpeed, float turnSpeed)
     {

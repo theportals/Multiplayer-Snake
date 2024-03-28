@@ -27,6 +27,7 @@ public class Movement : Shared.Systems.System
         var movable = entity.get<Shared.Components.Movable>();
         var pos = entity.get<Shared.Components.Position>();
         var dist = gameTime.TotalSeconds * movable.moveSpeed;
+        if (movable.boosting) dist *= 2;
 
         var front = pos.segments[0];
         var angle = movable.facing;

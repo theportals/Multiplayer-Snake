@@ -122,7 +122,6 @@ public class Client : Game
     }
 }
 
-// TODO: Add boosting for mouse and keyboard
 // TODO: Add sounds
 // TODO: Add better assets for snakes, food, etc
 // TODO: Give the player a chance to name themselves
