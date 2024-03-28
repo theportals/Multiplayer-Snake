@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using Client.Input;
+using Client.Util;
 using Client.Views.Menus;
+using Microsoft.Xna.Framework;
 
 namespace Client.Views;
 
@@ -11,15 +13,22 @@ public class CreditsView : Menu
         base.initializeSession();
         mSelected = null;
         var back = new MenuOption("Return", () => mGame.changeState(GameStates.MAIN_MENU),
-            mGraphics.PreferredBackBufferWidth / 2, mGraphics.PreferredBackBufferHeight / 2, mFont);
+            mGraphics.PreferredBackBufferWidth / 2, 2 * mGraphics.PreferredBackBufferHeight / 3, mFont);
         mDefault = back;
         
-        mMouseInput.registerMouseRegion(back.getRectangle(), MouseInput.MouseActions.HOVER, _ => mSelected = back, _ => mSelected = back, _ => mSelected = null);
-        mMouseInput.registerMouseRegion(null, MouseInput.MouseActions.L_CLICK, null, null, _ => mSelected?.OnSelect());
+        registerHoverRegion(back);
         
         mOptions = new List<MenuOption>
         {
             back,
         };
+    }
+
+    public override void render(GameTime gameTime)
+    {
+        base.render(gameTime);
+        mSpriteBatch.Begin();
+        DrawUtil.DrawStringsCentered(new List<string>{"Programming by Tom Longhurst"}, mFont, Color.White, mSpriteBatch);
+        mSpriteBatch.End();
     }
 }

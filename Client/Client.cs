@@ -20,6 +20,7 @@ public class Client : Game
     private KeyboardInput mKeyboardInput;
     private MouseInput mMouseInput;
     public List<Tuple<int, DateTime>> mHighscores;
+    public static Texture2D pixel;
 
     public Client()
     {
@@ -34,6 +35,9 @@ public class Client : Game
         mGraphics.PreferredBackBufferWidth = 1920;
         mGraphics.PreferredBackBufferHeight = 1080;
         mGraphics.ApplyChanges();
+        
+        pixel = new Texture2D(mGraphics.GraphicsDevice, 1, 1);
+        pixel.SetData(new[] { Color.White });
 
         mStates = new Dictionary<GameStates, GameState>
         {
@@ -61,8 +65,9 @@ public class Client : Game
             mKeyboardInput.bindKey(Keys.Down, InputDevice.Commands.DOWN);
             mKeyboardInput.bindKey(Keys.Left, InputDevice.Commands.LEFT);
             mKeyboardInput.bindKey(Keys.Right, InputDevice.Commands.RIGHT);
-            mKeyboardInput.bindKey(Keys.Z, InputDevice.Commands.SELECT);
-            mKeyboardInput.bindKey(Keys.X, InputDevice.Commands.BACK);
+            mKeyboardInput.bindKey(Keys.Enter, InputDevice.Commands.SELECT);
+            mKeyboardInput.bindKey(Keys.Escape, InputDevice.Commands.BACK);
+            mKeyboardInput.bindKey(Keys.Space, InputDevice.Commands.BOOST);
         }
 
         base.Initialize();

@@ -17,7 +17,8 @@ public interface InputDevice
         LEFT,
         RIGHT,
         SELECT,
-        BACK
+        BACK,
+        BOOST
     }
     
     protected struct CommandEntry

@@ -13,6 +13,7 @@ public class KeyboardInput : InputDevice
 {
     private Dictionary<InputDevice.Commands, InputDevice.CommandEntry> mCommandEntries = new();
     [DataMember] private Dictionary<Keys, KeyBind> mKeyBinds = new();
+    [DataMember] public bool listenKeys = false;
     private KeyboardState mPrevState;
 
     /// <summary>
@@ -69,7 +70,7 @@ public class KeyboardInput : InputDevice
 
     public void clearCommands()
     {
-        mCommandEntries.Clear();
+        mCommandEntries = new Dictionary<InputDevice.Commands, InputDevice.CommandEntry>();
     }
 
     public void clearBinds()

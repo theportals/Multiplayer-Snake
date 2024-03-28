@@ -20,9 +20,8 @@ public class HighScoresView : Menu {
         
         back.linkRight(reset);
         
-        mMouseInput.registerMouseRegion(back.getRectangle(), MouseInput.MouseActions.HOVER, _ => mSelected = back, _ => mSelected = back, _ => mSelected = null);
-        mMouseInput.registerMouseRegion(reset.getRectangle(), MouseInput.MouseActions.HOVER, _ => mSelected = reset, _ => mSelected = reset, _ => mSelected = null);
-        mMouseInput.registerMouseRegion(null, MouseInput.MouseActions.L_CLICK, null, null, _ => mSelected?.OnSelect());
+        registerHoverRegion(back);
+        registerHoverRegion(reset);
 
         mOptions = new List<MenuOption>
         {

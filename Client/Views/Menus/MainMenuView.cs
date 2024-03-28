@@ -33,12 +33,11 @@ public class MainMenuView : Menu
         exit.linkLeft(highScores, false);
         exit.linkRight(credits, false);
         
-        mMouseInput.registerMouseRegion(newGame.getRectangle(), MouseInput.MouseActions.HOVER, _ => mSelected = newGame, _ => mSelected = newGame, _ => mSelected = null);
-        mMouseInput.registerMouseRegion(highScores.getRectangle(), MouseInput.MouseActions.HOVER, _ => mSelected = highScores, _ => mSelected = highScores, _ => mSelected = null);
-        mMouseInput.registerMouseRegion(controls.getRectangle(), MouseInput.MouseActions.HOVER, _ => mSelected = controls, _ => mSelected = controls, _ => mSelected = null);
-        mMouseInput.registerMouseRegion(credits.getRectangle(), MouseInput.MouseActions.HOVER, _ => mSelected = credits, _ => mSelected = credits, _ => mSelected = null);
-        mMouseInput.registerMouseRegion(exit.getRectangle(), MouseInput.MouseActions.HOVER, _ => mSelected = exit, _ => mSelected = exit, _ => mSelected = null);
-        mMouseInput.registerMouseRegion(null, MouseInput.MouseActions.L_CLICK, null, null, _ => mSelected?.OnSelect());
+        registerHoverRegion(newGame);
+        registerHoverRegion(highScores);
+        registerHoverRegion(controls);
+        registerHoverRegion(credits);
+        registerHoverRegion(exit);
         
         
         mOptions = new List<MenuOption>

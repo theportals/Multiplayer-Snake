@@ -29,6 +29,8 @@ public abstract class Menu : GameStateView
         mKeyboardInput.registerCommand(InputDevice.Commands.LEFT, _ => moveLeft(), gt => t.tick(gt, moveLeft), t.resetTimer);
         mKeyboardInput.registerCommand(InputDevice.Commands.RIGHT, _ => moveRight(), gt => t.tick(gt, moveRight), t.resetTimer);
         mKeyboardInput.registerCommand(InputDevice.Commands.SELECT, _ => mSelected?.OnSelect());
+        
+        mMouseInput.registerMouseRegion(null, MouseInput.MouseActions.L_CLICK, null, null, _ => mSelected?.OnSelect());
     }
 
     public override void loadContent(ContentManager contentManager)
@@ -60,6 +62,11 @@ public abstract class Menu : GameStateView
     {
         if (mSelected == null) mSelected = mDefault;
         else if (mSelected.right != null) mSelected = mSelected.right;
+    }
+
+    protected void registerHoverRegion(MenuOption option)
+    {
+        mMouseInput.registerMouseRegion(option.getRectangle(), MouseInput.MouseActions.HOVER, _ => mSelected = option, _ => mSelected = option, _ => mSelected = null);
     }
 
     public override void update(GameTime gameTime)
