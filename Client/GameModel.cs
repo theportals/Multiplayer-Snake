@@ -1,32 +1,31 @@
-using System;
 using System.Collections.Generic;
 using Client.Entities;
 using Client.Input;
-using Client.Systems;
 using Client.Util;
 using Client.Views;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 using Shared.Entities;
 
 namespace Client;
 
 public class GameModel
 {
-    private const int ARENA_SIZE = 2000;
-    private const int OBSTACLE_COUNT = 150;
+    private const int ARENA_SIZE = 1000;
+    private const int OBSTACLE_COUNT = 5;
     private readonly int WINDOW_WIDTH;
     private readonly int WINDOW_HEIGHT;
 
     private List<Entity> mToRemove = new();
     private List<Entity> mToAdd = new();
+    private List<Entity> mParticlesToAdd = new();
 
     private Systems.Renderer mSysRenderer;
     private Systems.Collision mSysCollision;
     private Systems.Movement mSysMovement;
     private Systems.Input mSysInput;
+    private Systems.Lifetime mSysLifetime;
 
     private KeyboardInput mKeyboardInput;
     private MouseInput mMouseInput;
@@ -51,6 +50,8 @@ public class GameModel
         mKeyboardInput.clearCommands();
         mMouseInput.clearRegions();
         var square = content.Load<Texture2D>("Images/square");
+        var fire = content.Load<Texture2D>("Particles/fire");
+        var smoke = content.Load<Texture2D>("Particles/smoke-2");
         var peepo = content.Load<Texture2D>("Images/Peepo");
 
         mSysRenderer = new Systems.Renderer(spriteBatch, square, WINDOW_WIDTH, WINDOW_HEIGHT, ARENA_SIZE, null);
@@ -62,7 +63,7 @@ public class GameModel
         },
         e =>
         {
-            // TODO: Better lose effects
+            addParticlesLater(ParticleUtil.playerDeath(fire, smoke, e));
             mToRemove.Add(e);
             if (mScore > 0) mGame.SubmitScore(mScore);
             mScore = 0;
@@ -70,11 +71,16 @@ public class GameModel
 
         mSysMovement = new Systems.Movement();
         mSysInput = new Systems.Input(mKeyboardInput, mMouseInput, mListenKeys, ARENA_SIZE, WINDOW_WIDTH, WINDOW_HEIGHT, false);
+        mSysLifetime = new Systems.Lifetime(e =>
+        {
+            mToRemove.Add(e);
+        });
 
         initializeBorder(square);
         initializeObstacles(square);
         var snake = initializeSnake(square);
         mSysRenderer.zoom = 2.5f;
+        mSysInput.zoom = mSysRenderer.zoom;
         mSysRenderer.follow(snake);
         mSysInput.setAbsCursor(true);
         addEntity(createFood(square));
@@ -87,8 +93,16 @@ public class GameModel
         if (mListenKeys) mKeyboardInput.registerCommand(InputDevice.Commands.BOOST, _ => snake.get<Shared.Components.Movable>().boosting = true, null, _ => snake.get<Shared.Components.Movable>().boosting = false);
         else mMouseInput.registerMouseRegion(null, MouseInput.MouseActions.L_CLICK, _ => snake.get<Shared.Components.Movable>().boosting = true, null, _ => snake.get<Shared.Components.Movable>().boosting = false);
         
-        mMouseInput.registerMouseRegion(null, MouseInput.MouseActions.SCROLL_UP, _ => mSysRenderer.zoom *= 1.1f);
-        mMouseInput.registerMouseRegion(null, MouseInput.MouseActions.SCROLL_DOWN, _ => mSysRenderer.zoom /= 1.1f);
+        mMouseInput.registerMouseRegion(null, MouseInput.MouseActions.SCROLL_UP, _ =>
+        {
+            mSysRenderer.zoom *= 1.1f;
+            mSysInput.zoom = mSysRenderer.zoom;
+        });
+        mMouseInput.registerMouseRegion(null, MouseInput.MouseActions.SCROLL_DOWN, _ =>
+        {
+            mSysRenderer.zoom /= 1.1f;
+            mSysInput.zoom = mSysRenderer.zoom;
+        });
     }
 
     public void update(GameTime gameTime)
@@ -96,6 +110,7 @@ public class GameModel
         if (mGame.IsActive) mSysInput.Update(gameTime.ElapsedGameTime);
         mSysMovement.Update(gameTime.ElapsedGameTime);
         mSysCollision.Update(gameTime.ElapsedGameTime);
+        mSysLifetime.Update(gameTime.ElapsedGameTime);
 
         foreach (var entity in mToRemove)
         {
@@ -108,11 +123,32 @@ public class GameModel
             addEntity(entity);
         }
         mToAdd.Clear();
+
+        foreach (var particle in mParticlesToAdd)
+        {
+            addParticle(particle);
+        }
+        mParticlesToAdd.Clear();
     }
 
     public void Draw(GameTime gameTime)
     {
         mSysRenderer.Update(gameTime.ElapsedGameTime);
+    }
+
+    private void addParticlesLater(List<Entity> entities)
+    {
+        foreach (var entity in entities)
+        {
+            mParticlesToAdd.Add(entity);
+        }
+    }
+
+    private void addParticle(Entity particle)
+    {
+        mSysMovement.Add(particle);
+        mSysRenderer.Add(particle);
+        mSysLifetime.Add(particle);
     }
 
     private void addEntity(Entity entity)
@@ -129,6 +165,7 @@ public class GameModel
         mSysCollision.Remove(entity.Id);
         mSysRenderer.Remove(entity.Id);
         mSysInput.Remove(entity.Id);
+        mSysLifetime.Remove(entity.Id);
     }
 
     private void initializeBorder(Texture2D square)

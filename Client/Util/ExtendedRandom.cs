@@ -32,6 +32,11 @@ public class ExtendedRandom : Random
         return new Vector2(x, y);
     }
 
+    public double nextCircleAngle()
+    {
+        return NextDouble() * 2.0 * Math.PI;
+    }
+
     public Vector2 nextGaussianVector(float angle, float stdDev)
     {
         var a = nextGaussian(angle, stdDev);

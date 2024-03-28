@@ -1,4 +1,5 @@
 using System;
+using Client.Components;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Client.Entities;
@@ -8,11 +9,11 @@ namespace Client.Systems;
 
 public class Renderer : Shared.Systems.System
 {
-    private readonly int ARENA_SIZE;
-    private readonly int WINDOW_WIDTH;
-    private readonly int WINDOW_HEIGHT;
-    private int OFFSET_X;
-    private int OFFSET_Y;
+    public readonly int ARENA_SIZE;
+    public readonly int WINDOW_WIDTH;
+    public readonly int WINDOW_HEIGHT;
+    public int OFFSET_X;
+    public int OFFSET_Y;
     private readonly SpriteBatch mSpriteBatch;
     private readonly Texture2D mBackground;
     public float zoom { get; set; }
@@ -35,6 +36,11 @@ public class Renderer : Shared.Systems.System
     public void follow(Entity entity)
     {
         mFollow = entity;
+    }
+
+    public bool isFollowing()
+    {
+        return mFollow != null;
     }
     
     public override void Update(TimeSpan gameTime)
@@ -96,10 +102,15 @@ public class Renderer : Shared.Systems.System
                 rot = (float)Math.Atan2(leader.Y - follower.Y, leader.X - follower.X);
             }
             else if (entity.contains<Shared.Components.Movable>()) rot = entity.get<Shared.Components.Movable>().facing;
+
+            if (entity.contains<RotationOffset>()) rot += entity.get<RotationOffset>().offset;
+            
+            var c = Color.White;
+            if (entity.contains<ColorOverride>()) c = entity.get<ColorOverride>().color; 
             mSpriteBatch.Draw(appearance.image, 
                 new Rectangle((int)drawPos.X, (int)drawPos.Y, (int)Math.Ceiling(appearance.size * zoom), (int)Math.Ceiling(appearance.size * zoom)), 
                 null,
-                appearance.color,
+                c,
                 (float)(rot + Math.PI / 2),
                 new Vector2(appearance.image.Width / 2f, appearance.image.Height / 2f),
                 SpriteEffects.None,

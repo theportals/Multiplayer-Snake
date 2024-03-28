@@ -14,15 +14,17 @@ public class Input : Shared.Systems.System
     private readonly int ARENA_SIZE;
     private readonly int WINDOW_WIDTH;
     private readonly int WINDOW_HEIGHT;
-    private readonly int OFFSET_X;
-    private readonly int OFFSET_Y;
+    private int OFFSET_X;
+    private int OFFSET_Y;
+
+    public float zoom;
 
     private int turn = 0;
     private bool mAbsCursor;
 
     private const float TURN_DEADZONE = (float)(2 * Math.PI / 180);
     
-    public Input(KeyboardInput keyboardInput, MouseInput mouseInput, bool listenKeys, int arenaSize, int windowWidth, int windowHeight, bool absCursor)
+    public Input(KeyboardInput keyboardInput, MouseInput mouseInput, bool listenKeys, int arenaSize, int windowWidth, int windowHeight, bool absCursor, float zoom=1)
         : base(typeof(Components.Controllable))
     {
         mKeyboardInput = keyboardInput;
@@ -42,6 +44,7 @@ public class Input : Shared.Systems.System
         }
 
         mAbsCursor = absCursor;
+        this.zoom = zoom;
     }
 
     public void setAbsCursor(bool to)
@@ -69,8 +72,10 @@ public class Input : Shared.Systems.System
                 }
                 else
                 {
-                    var absX = pos.x + OFFSET_X;
-                    var absY = pos.y + OFFSET_Y;
+                    OFFSET_X = (int)((WINDOW_WIDTH - ARENA_SIZE * zoom) / 2);
+                    OFFSET_Y = (int)((WINDOW_HEIGHT - ARENA_SIZE * zoom) / 2);
+                    var absX = pos.x * zoom + OFFSET_X;
+                    var absY = pos.y * zoom + OFFSET_Y;
                     angleToCursor = Math.Atan2((cpos.Y - absY), (cpos.X - absX));
                 }
 

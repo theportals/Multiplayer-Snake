@@ -13,7 +13,8 @@ public class SnakeSegment
     public static Entity create(Texture2D square, int x, int y)
     {
         return new Entity()
-            .add(new Components.Appearance(square, Color.White, 10))
+            .add(new Components.Appearance(square, 10))
+            .add(new Components.ColorOverride(Color.White))
             .add(new Shared.Components.Position(x, y))
             .add(new Components.Collision(10f))
             .add(new Shared.Components.Movable(0f, MOVE_SPEED, TURN_SPEED))

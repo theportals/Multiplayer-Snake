@@ -1,9 +1,7 @@
-using System;
 using System.Collections.Generic;
 using Client.Input;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Client.Util;
 using Microsoft.Xna.Framework.Content;
 
 namespace Client.Views.Menus;

@@ -1,4 +1,5 @@
 using System;
+using Client.Components;
 using Vector2 = System.Numerics.Vector2;
 
 namespace Client.Systems;
@@ -19,6 +20,11 @@ public class Movement : Shared.Systems.System
         foreach (var entity in mEntities.Values)
         {
             moveEntity(entity, gameTime);
+            if (entity.contains<Components.RotationOffset>())
+            {
+                var rot = entity.get<Components.RotationOffset>();
+                rot.offset += (float)(rot.rotationSpeed * gameTime.TotalSeconds);
+            }
         }
     }
 
