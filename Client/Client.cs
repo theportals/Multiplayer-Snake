@@ -132,7 +132,6 @@ public class Client : Game
 // TODO: Food refreshes periodically
 // TODO: Snakes leave behind food upon dying
 // TODO: Show end game panel after death that shows score, kills, and highest position achieved
-// TODO: Customization of controls
 // TODO: Show player name beside head of snake
 // TODO: Multiple kinds and sizes of food, utilizing animated sprite
 // TODO: Game status panel, showing current score and top 5 snakes in game
