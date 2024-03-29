@@ -21,7 +21,7 @@ public interface InputDevice
         BOOST
     }
     
-    protected struct CommandEntry
+    public struct CommandEntry
     {
         public CommandEntry(CommandDelegate onPosEdge, CommandDelegate onHeld, CommandDelegate onNegEdge)
         {

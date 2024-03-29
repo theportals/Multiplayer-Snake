@@ -8,6 +8,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
+using Multiplayer_Snake.Views.Menus;
 using Shared.Components;
 using Shared.Entities;
 using Food = Client.Entities.Food;
@@ -17,7 +18,8 @@ namespace Client;
 public class GameModel
 {
     private const int ARENA_SIZE = 1000;
-    private const int OBSTACLE_COUNT = 5;
+    private const int OBSTACLE_COUNT = 50;
+    private const int FOOD_COUNT = 50;
     private readonly int WINDOW_WIDTH;
     private readonly int WINDOW_HEIGHT;
 
@@ -49,6 +51,10 @@ public class GameModel
 
     private Client mGame;
 
+    private PauseMenu mPause;
+
+    private Entity? mPlayerSnake;
+
     public GameModel(Client game, int width, int height, KeyboardInput keyboardInput, MouseInput mouseInput, bool listenKeys)
     {
         mGame = game;
@@ -57,6 +63,8 @@ public class GameModel
         mKeyboardInput = keyboardInput;
         mMouseInput = mouseInput;
         mListenKeys = listenKeys;
+        mPause = new PauseMenu(this);
+        mPause.initialize(mGame, mGame.GraphicsDevice, mGame.mGraphics, mKeyboardInput, mMouseInput);
     }
 
     public void Initialize(ContentManager content, SpriteBatch spriteBatch)
@@ -73,6 +81,9 @@ public class GameModel
         thrustInstance = thrust.CreateInstance();
         thrustInstance.IsLooped = true;
 
+        mPause.loadContent(content);
+        mPause.initializeSession();
+
         mSysRenderer = new Systems.Renderer(spriteBatch, square, WINDOW_WIDTH, WINDOW_HEIGHT, ARENA_SIZE, null);
         mSysCollision = new Systems.Collision(e =>
         {
@@ -82,6 +93,8 @@ public class GameModel
         },
         e =>
         {
+            mPlayerSnake = null;
+            mPause.open();
             playerDeath(e);
             addParticlesLater(ParticleUtil.playerDeath(fire, smoke, e));
             thrustInstance.Pause();
@@ -107,12 +120,15 @@ public class GameModel
         mSysRenderer.zoom = 2.5f;
         mSysInput.zoom = mSysRenderer.zoom;
         mSysInput.setAbsCursor(true);
-        addEntity(createFood(square));
-        addEntity(createFood(square));
-        addEntity(createFood(square));
-        addEntity(createFood(square));
-        addEntity(createFood(square));
-        mKeyboardInput.registerCommand(InputDevice.Commands.BACK, _ => mGame.changeState(GameStates.MAIN_MENU));
+        for (var i = 0; i < FOOD_COUNT; i++)
+        {
+            addEntity(createFood(square));
+        }
+        mKeyboardInput.registerCommand(InputDevice.Commands.BACK, _ =>
+        {
+            mPause.toggle();
+            if (mPlayerSnake != null) boostOff(mPlayerSnake);
+        });
         
         mMouseInput.registerMouseRegion(null, MouseInput.MouseActions.SCROLL_UP, _ =>
         {
@@ -133,20 +149,23 @@ public class GameModel
         if (mScore > 0) mGame.SubmitScore(mScore);
         mScore = 0;
         var pos = e.get<Position>();
-        foreach (var segment in pos.segments)
+        for (var segment = 0; segment < pos.segments.Count; segment++)
         {
-            mToAdd.Add(createFood(square, false, segment));
+            mToAdd.Add(createFood(square, false, pos.segments[segment]));
         }
-        
-        if (mListenKeys) mKeyboardInput.registerCommand(InputDevice.Commands.SELECT, _ => spawnSnake());
-        mMouseInput.registerMouseRegion(null, MouseInput.MouseActions.L_CLICK, _ => spawnSnake());
     }
 
-    private void spawnSnake()
+    public void spawnSnake()
     {
+        if (mPlayerSnake != null && mPlayerSnake.contains<Alive>())
+        {
+            playerDeath(mPlayerSnake);
+            mPlayerSnake = null;
+        }
         var snake = initializeSnake(square);
         mSysRenderer.follow(snake);
-        
+
+        mPlayerSnake = snake;
         
         if (mListenKeys) mKeyboardInput.registerCommand(InputDevice.Commands.BOOST, 
             _ => boostOn(snake), 
@@ -174,16 +193,17 @@ public class GameModel
     
     private void boostOff(Entity snake)
     {
+        thrustInstance.Pause();
         if (snake.contains<Alive>())
         {
-            thrustInstance.Pause();
             snake.get<Boostable>().boosting = false;
         }
     }
 
     public void update(GameTime gameTime)
     {
-        if (mGame.IsActive) mSysInput.Update(gameTime.ElapsedGameTime);
+        if (mGame.IsActive && !mPause.isOpen) mSysInput.Update(gameTime.ElapsedGameTime);
+        else thrustInstance.Pause();
         mSysMovement.Update(gameTime.ElapsedGameTime);
         mSysCollision.Update(gameTime.ElapsedGameTime);
         mSysLifetime.Update(gameTime.ElapsedGameTime);
@@ -206,11 +226,14 @@ public class GameModel
             addParticle(particle);
         }
         mParticlesToAdd.Clear();
+        
+        mPause.update(gameTime);
     }
 
-    public void Draw(GameTime gameTime)
+    public void render(GameTime gameTime)
     {
         mSysRenderer.Update(gameTime.ElapsedGameTime);
+        mPause.render(gameTime);
     }
 
     private void addParticlesLater(List<Entity> entities)

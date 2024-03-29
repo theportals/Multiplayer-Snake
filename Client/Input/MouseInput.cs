@@ -9,7 +9,7 @@ namespace Client.Input;
 
 public class MouseInput : InputDevice
 {
-    private Dictionary<MouseRegion, InputDevice.CommandEntry> mMouseRegions = new();
+    public Dictionary<MouseRegion, InputDevice.CommandEntry> mMouseRegions = new();
     private MouseState mPrevState;
 
     public enum MouseActions
@@ -139,7 +139,7 @@ public class MouseInput : InputDevice
         return state.X > r.Value.Left && state.X < r.Value.Right && state.Y > r.Value.Top && state.Y < r.Value.Bottom;
     }
 
-    private struct MouseRegion
+    public struct MouseRegion
     {
         public MouseRegion(Rectangle? region, MouseActions action, bool requireCursor)
         {

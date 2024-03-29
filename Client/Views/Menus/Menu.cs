@@ -58,7 +58,7 @@ public abstract class Menu : GameStateView
         mMenuBrowseSound = contentManager.Load<SoundEffect>("Sounds/button_click");
     }
 
-    private void moveUp()
+    protected void moveUp()
     {
         if (mSelected == null) mSelected = mDefault;
         else if (mSelected.up != null) {
@@ -67,7 +67,7 @@ public abstract class Menu : GameStateView
         }
     }
 
-    private void moveDown()
+    protected void moveDown()
     {
         if (mSelected == null) mSelected = mDefault;
         else if (mSelected.down != null) {
@@ -76,7 +76,7 @@ public abstract class Menu : GameStateView
         }
     }
 
-    private void moveLeft()
+    protected void moveLeft()
     {
         if (mSelected == null) mSelected = mDefault;
         else if (mSelected.left != null) {
@@ -85,7 +85,7 @@ public abstract class Menu : GameStateView
         }
     }
 
-    private void moveRight()
+    protected void moveRight()
     {
         if (mSelected == null) mSelected = mDefault;
         else if (mSelected.right != null) {

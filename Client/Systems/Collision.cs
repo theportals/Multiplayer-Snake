@@ -30,7 +30,9 @@ public class Collision : Shared.Systems.System
                     // No worries if collides with food
                     if (entity.contains<Components.Food>())
                     {
-                        entityMovable.get<Shared.Components.Movable>().segmentsToAdd = 3;
+                        var food = entity.get<Components.Food>();
+                        if (food.naturalSpawn) entityMovable.get<Shared.Components.Movable>().segmentsToAdd = 3;
+                        else entityMovable.get<Shared.Components.Movable>().segmentsToAdd = 1;
                         mFoodConsumed(entity);
                     }
                     else
@@ -62,10 +64,24 @@ public class Collision : Shared.Systems.System
         var bPos = b.get<Shared.Components.Position>();
         var bCol = b.get<Components.Collision>();
 
-        if (a == b) return false;   // We don't care if a player collides with themself
+        float d2;
+        double r2;
+        if (a == b)
+        {
+            for (int segment = 1; segment < aPos.segments.Count; segment++)
+            {
+                d2 = (aPos.segments[segment].X - aPos.segments[0].X) * (aPos.segments[segment].X - aPos.segments[0].X) + (aPos.segments[segment].Y - aPos.segments[0].Y) * (aPos.segments[segment].Y - aPos.segments[0].Y);
+                if (d2 < aCol.size)
+                {
+                    return true;
+                }
+            }
 
-        var d2 = (bPos.x - aPos.x) * (bPos.x - aPos.x) + (bPos.y - aPos.y) * (bPos.y - aPos.y);
-        var r2 = Math.Pow(Math.Max(aCol.size, bCol.size), 2);
+            return false;
+        }
+
+        d2 = (bPos.x - aPos.x) * (bPos.x - aPos.x) + (bPos.y - aPos.y) * (bPos.y - aPos.y);
+        r2 = Math.Pow(Math.Max(aCol.size, bCol.size), 2);
         return d2 <= r2;
     }
 }

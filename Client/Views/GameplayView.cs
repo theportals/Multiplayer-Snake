@@ -27,6 +27,6 @@ public class GameplayView : GameStateView
 
     public override void render(GameTime gameTime)
     {
-        mGameModel.Draw(gameTime);
+        mGameModel.render(gameTime);
     }
 }

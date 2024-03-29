@@ -13,7 +13,7 @@ namespace Client;
 
 public class Client : Game
 {
-    private GraphicsDeviceManager mGraphics;
+    public GraphicsDeviceManager mGraphics;
     private SpriteBatch mSpriteBatch;
     private Dictionary<GameStates, GameState> mStates;
     private GameState mState;

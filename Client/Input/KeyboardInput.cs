@@ -11,7 +11,7 @@ namespace Client.Input;
 
 public class KeyboardInput : InputDevice
 {
-    private Dictionary<InputDevice.Commands, InputDevice.CommandEntry> mCommandEntries = new();
+    public Dictionary<InputDevice.Commands, InputDevice.CommandEntry> mCommandEntries = new();
     [DataMember] private Dictionary<Keys, KeyBind> mKeyBinds = new();
     [DataMember] public bool listenKeys = false;
     private KeyboardState mPrevState;
