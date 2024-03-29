@@ -16,12 +16,14 @@ public class Renderer : Shared.Systems.System
     public int OFFSET_Y;
     private readonly SpriteBatch mSpriteBatch;
     private readonly Texture2D mBackground;
+    private readonly SpriteFont mFont;
     public float zoom { get; set; }
     private Entity? mFollow;
 
-    public Renderer(SpriteBatch spriteBatch, Texture2D background, int windowWidth, int windowHeight, int arenaSize, Entity? toFollow, float zoom=1)
+    public Renderer(SpriteBatch spriteBatch, SpriteFont font, Texture2D background, int windowWidth, int windowHeight, int arenaSize, Entity? toFollow, float zoom=1)
         : base(typeof(Components.Appearance), typeof(Shared.Components.Position))
     {
+        mFont = font;
         ARENA_SIZE = arenaSize;
         WINDOW_WIDTH = windowWidth;
         WINDOW_HEIGHT = windowHeight;
@@ -84,15 +86,7 @@ public class Renderer : Shared.Systems.System
 
         for (int segment = 0; segment < pos.segments.Count; segment++)
         {
-            if (mFollow != null){
-                drawPos.X = WINDOW_WIDTH / 2 - (centerPoint.X - pos.segments[segment].X) * zoom;
-                drawPos.Y = WINDOW_HEIGHT / 2 - (centerPoint.Y - pos.segments[segment].Y) * zoom;
-            } 
-            else
-            {
-                drawPos.X = WINDOW_WIDTH - (centerPoint.X - pos.segments[segment].X * zoom);
-                drawPos.Y = WINDOW_HEIGHT - (centerPoint.Y - pos.segments[segment].Y * zoom);
-            }
+            drawPos = getDrawPos(centerPoint, pos, segment);
 
             float rot = 0f;
             if (segment > 0)
@@ -127,5 +121,38 @@ public class Renderer : Shared.Systems.System
                 SpriteEffects.None,
                 0);
         }
+                
+        if (entity.contains<PlayerName>())
+        {
+            drawPos = getDrawPos(centerPoint, pos, 0);
+            
+            var name = entity.get<PlayerName>().playerName;
+            var size = mFont.MeasureString(name);
+            mSpriteBatch.DrawString(mFont, 
+                name, 
+                new Vector2((drawPos.X - size.X / 2 * zoom), (drawPos.Y - (size.Y / 2 + 15) * zoom)), 
+                Color.White,
+                0f,
+                new Vector2(0, 0),
+                new Vector2(zoom, zoom),
+                SpriteEffects.None,
+                0f);
+        }
+    }
+
+    private Vector2 getDrawPos(Vector2 centerPoint, Shared.Components.Position pos, int segment)
+    {
+        var drawPos = new Vector2();
+        if (mFollow != null){
+            drawPos.X = WINDOW_WIDTH / 2 - (centerPoint.X - pos.segments[segment].X) * zoom;
+            drawPos.Y = WINDOW_HEIGHT / 2 - (centerPoint.Y - pos.segments[segment].Y) * zoom;
+        } 
+        else
+        {
+            drawPos.X = WINDOW_WIDTH - (centerPoint.X - pos.segments[segment].X * zoom);
+            drawPos.Y = WINDOW_HEIGHT - (centerPoint.Y - pos.segments[segment].Y * zoom);
+        }
+
+        return drawPos;
     }
 }

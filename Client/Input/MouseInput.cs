@@ -27,9 +27,10 @@ public class MouseInput : InputDevice
         InputDevice.CommandDelegate onPositiveEdge = null,
         InputDevice.CommandDelegate onHeld = null,
         InputDevice.CommandDelegate onNegativeEdge = null,
+        bool inverse = false,
         bool requireCursorInRegion = true)
     {
-        var mr = new MouseRegion(rectangle, action, requireCursorInRegion);
+        var mr = new MouseRegion(rectangle, action, requireCursorInRegion, inverse);
         if (mMouseRegions.ContainsKey(mr)) mMouseRegions.Remove(mr);
         mMouseRegions.Add(mr, new InputDevice.CommandEntry(onPositiveEdge, onHeld, onNegativeEdge));
     }
@@ -52,13 +53,13 @@ public class MouseInput : InputDevice
             var region = mMouseRegions.ElementAt(i).Key;
             var entry = mMouseRegions.ElementAt(i).Value;
 
-            if (positiveEdge(region.region, region.action, region.requireCursor))
+            if (positiveEdge(region))
             {
                 entry.onPosEdge?.Invoke(gameTime);
-            } else if (held(region.region, region.action))
+            } else if (held(region))
             {
                 entry.onHeld?.Invoke(gameTime);
-            } else if (negativeEdge(region.region, region.action, region.requireCursor))
+            } else if (negativeEdge(region))
             {
                 entry.onNegEdge?.Invoke(gameTime);
             }
@@ -72,16 +73,16 @@ public class MouseInput : InputDevice
         mPrevState = Mouse.GetState();
     }
 
-    private bool positiveEdge(Rectangle? region, MouseActions action, bool requireCursor)
+    private bool positiveEdge(MouseRegion r)
     {
         var state = Mouse.GetState();
-        if (requireCursor)
+        if (r.requireCursor)
         {
-            if (!cursorInRectangle(state, region)) return false;
+            if (!cursorInRegion(state, r)) return false;
         }
-        return action switch
+        return r.action switch
         {
-            MouseActions.HOVER => !cursorInRectangle(mPrevState, region),
+            MouseActions.HOVER => !cursorInRegion(mPrevState, r),
             MouseActions.L_CLICK => state.LeftButton == ButtonState.Pressed &&
                                     mPrevState.LeftButton == ButtonState.Released,
             MouseActions.R_CLICK => state.RightButton == ButtonState.Pressed &&
@@ -94,12 +95,12 @@ public class MouseInput : InputDevice
         };
     }
 
-    private bool held(Rectangle? region, MouseActions action)
+    private bool held(MouseRegion r)
     {
         var state = Mouse.GetState();
-        var inRegion = cursorInRectangle(state, region);
+        var inRegion = cursorInRegion(state, r);
         if (!inRegion) return false;
-        return action switch
+        return r.action switch
         {
             MouseActions.HOVER => true,
             MouseActions.L_CLICK => state.LeftButton == ButtonState.Pressed,
@@ -110,18 +111,18 @@ public class MouseInput : InputDevice
         };
     }
 
-    private bool negativeEdge(Rectangle? region, MouseActions action, bool requireCursor)
+    private bool negativeEdge(MouseRegion r)
     {
         var state = Mouse.GetState();
         var hasCursor = true;
-        if (requireCursor)
+        if (r.requireCursor)
         {
-            hasCursor = cursorInRectangle(state, region);
+            hasCursor = cursorInRegion(state, r);
         }
 
-        return action switch
+        return r.action switch
         {
-            MouseActions.HOVER => !hasCursor && cursorInRectangle(mPrevState, region),
+            MouseActions.HOVER => !hasCursor && cursorInRegion(mPrevState, r),
             MouseActions.L_CLICK => hasCursor && state.LeftButton == ButtonState.Released &&
                                     mPrevState.LeftButton == ButtonState.Pressed,
             MouseActions.R_CLICK => hasCursor && state.RightButton == ButtonState.Released &&
@@ -133,23 +134,28 @@ public class MouseInput : InputDevice
         };
     }
 
-    private bool cursorInRectangle(MouseState state, Rectangle? r)
+    private bool cursorInRegion(MouseState state, MouseRegion r)
     {
-        if (r == null) return true;
-        return state.X > r.Value.Left && state.X < r.Value.Right && state.Y > r.Value.Top && state.Y < r.Value.Bottom;
+        if (r.region == null) return true;
+        var rec = r.region.Value;
+        
+        if (r.inverse) return state.X < rec.Left || state.X > rec.Right || state.Y < rec.Top || state.Y > rec.Bottom;
+        return state.X > rec.Left && state.X < rec.Right && state.Y > rec.Top && state.Y < rec.Bottom;
     }
 
     public struct MouseRegion
     {
-        public MouseRegion(Rectangle? region, MouseActions action, bool requireCursor)
+        public MouseRegion(Rectangle? region, MouseActions action, bool requireCursor, bool inverse)
         {
             this.region = region;
             this.action = action;
             this.requireCursor = requireCursor;
+            this.inverse = inverse;
         }        
         
         public Rectangle? region;
         public MouseActions action;
         public bool requireCursor;
+        public bool inverse;
     }
 }

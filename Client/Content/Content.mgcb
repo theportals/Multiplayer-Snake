@@ -27,6 +27,13 @@
 /processorParam:TextureFormat=Compressed
 /build:Fonts/menu.spritefont
 
+#begin Fonts/name.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:PremultiplyAlpha=True
+/processorParam:TextureFormat=Compressed
+/build:Fonts/name.spritefont
+
 #begin Images/Peepo.png
 /importer:TextureImporter
 /processor:TextureProcessor

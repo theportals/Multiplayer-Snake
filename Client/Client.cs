@@ -21,6 +21,7 @@ public class Client : Game
     private MouseInput mMouseInput;
     public List<Tuple<int, DateTime>> mHighscores;
     public static Texture2D pixel;
+    public string playerName = "";
 
     public Client()
     {
@@ -123,12 +124,10 @@ public class Client : Game
 }
 
 // TODO: Add better assets for snakes, food, etc
-// TODO: Give the player a chance to name themselves
 // TODO: Show the tutorial message/diagram "your snake will follow your mouse"
 // TODO: Show the message/diagram for boosting
 // TODO: Show the joining message and once joined, the player begins participating in the game
 // TODO: Show end game panel after death that shows score, kills, and highest position achieved
-// TODO: Show player name beside head of snake
 // TODO: Multiple kinds and sizes of food, utilizing animated sprite
 // TODO: Game status panel, showing current score and top 5 snakes in game
 // TODO: Background image

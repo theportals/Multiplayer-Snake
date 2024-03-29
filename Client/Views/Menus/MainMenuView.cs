@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Client.Input;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -8,17 +9,41 @@ namespace Client.Views.Menus;
 
 public class MainMenuView : Menu
 {
+    private TextInput mNameInput;
+    private string nameError = "";
+    
     public override void initializeSession()
     {
         base.initializeSession();
+        var textSize = mFont.MeasureString("____________");
+        mNameInput = new TextInput(mKeyboardInput, mMouseInput, 
+            mGraphics.PreferredBackBufferWidth / 2, mGraphics.PreferredBackBufferHeight / 4, 
+            (int)textSize.X, (int)textSize.Y, 
+            mButtonBackground, mSpriteBatch, mFont,
+            n =>
+            {
+                mMenuSelectSound.Play();
+                this.submitName(n);
+            },
+            mGame.playerName);
         mSelected = null;
         var start = 2 * mGraphics.PreferredBackBufferHeight / 3;
         const int spacing = 100;
-        var newGame = new MenuOption("New Game", () => mGame.changeState(GameStates.GAMEPLAY), mGraphics.PreferredBackBufferWidth / 3, start, mFont);
+        var newGame = new MenuOption("New Game", () =>
+        {
+            if (mGame.playerName == "")
+            {
+                nameError = "Please choose a name!";
+                return;
+            }
+            mGame.changeState(GameStates.GAMEPLAY);
+        }, mGraphics.PreferredBackBufferWidth / 3, start, mFont);
         var highScores = new MenuOption("High Scores", () => mGame.changeState(GameStates.HIGH_SCORES), mGraphics.PreferredBackBufferWidth / 3, start + spacing, mFont);
         var controls = new MenuOption("Controls", () => mGame.changeState(GameStates.CONTROLS), 2 * mGraphics.PreferredBackBufferWidth / 3, start, mFont);
         var credits = new MenuOption("Credits", () => mGame.changeState(GameStates.CREDITS), 2 * mGraphics.PreferredBackBufferWidth / 3, start + spacing, mFont);
         var exit = new MenuOption("Exit", () => mGame.changeState(GameStates.EXIT), mGraphics.PreferredBackBufferWidth / 2, start + spacing * 2, mFont);
+        var submitName = new MenuOption("Submit", () => this.submitName(mNameInput.input),
+            (int)(mGraphics.PreferredBackBufferWidth / 2 + textSize.X), mGraphics.PreferredBackBufferHeight / 4, mFont);
 
         newGame.linkDown(highScores);
         newGame.linkRight(controls);
@@ -38,6 +63,10 @@ public class MainMenuView : Menu
         registerHoverRegion(controls);
         registerHoverRegion(credits);
         registerHoverRegion(exit);
+        registerHoverRegion(submitName);
+        
+        mMouseInput.registerMouseRegion(mNameInput.getRectangle(), MouseInput.MouseActions.L_CLICK, _ => mNameInput.focus());
+        mMouseInput.registerMouseRegion(mNameInput.getRectangle(), MouseInput.MouseActions.L_CLICK, _ => mNameInput.unFocus(), null, null, true);
         
         
         mOptions = new List<MenuOption>
@@ -46,8 +75,43 @@ public class MainMenuView : Menu
             highScores,
             controls,
             credits,
-            exit
+            exit,
+            submitName
         };
         mDefault = newGame;
+    }
+
+    private void submitName(string name)
+    {
+        if (name.Length < 1)
+        {
+            nameError = "Please choose a name!";
+            return;
+        }
+
+        nameError = "";
+        mGame.playerName = name;
+    }
+
+    public override void update(GameTime gameTime)
+    {
+        mKeyboardInput.update(gameTime.ElapsedGameTime, true);
+        if (mGame.IsActive) mMouseInput.update(gameTime.ElapsedGameTime);
+        mNameInput.update(gameTime);
+        mKeyboardInput.endUpdate();
+    }
+
+    public override void render(GameTime gameTime)
+    {
+        base.render(gameTime);
+        
+        mNameInput.render(gameTime);
+        mSpriteBatch.Begin();
+        if (nameError != "")
+        {
+            var size = mFont.MeasureString(nameError);
+            mSpriteBatch.DrawString(mFont, nameError, new Vector2((mGraphics.PreferredBackBufferWidth - size.X) / 2, mGraphics.PreferredBackBufferHeight / 8), Color.Red);
+        }
+        mSpriteBatch.End();
     }
 }

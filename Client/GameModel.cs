@@ -18,8 +18,8 @@ namespace Client;
 public class GameModel
 {
     private const int ARENA_SIZE = 1000;
-    private const int OBSTACLE_COUNT = 50;
-    private const int FOOD_COUNT = 50;
+    private const int OBSTACLE_COUNT = 200;
+    private const int FOOD_COUNT = 25;
     private readonly int WINDOW_WIDTH;
     private readonly int WINDOW_HEIGHT;
 
@@ -78,13 +78,14 @@ public class GameModel
         explode = content.Load<SoundEffect>("Sounds/explosion");
         score = content.Load<SoundEffect>("Sounds/score");
         thrust = content.Load<SoundEffect>("Sounds/thrust");
+        var font = content.Load<SpriteFont>("Fonts/name");
         thrustInstance = thrust.CreateInstance();
         thrustInstance.IsLooped = true;
 
         mPause.loadContent(content);
         mPause.initializeSession();
 
-        mSysRenderer = new Systems.Renderer(spriteBatch, square, WINDOW_WIDTH, WINDOW_HEIGHT, ARENA_SIZE, null);
+        mSysRenderer = new Systems.Renderer(spriteBatch, font, square, WINDOW_WIDTH, WINDOW_HEIGHT, ARENA_SIZE, null);
         mSysCollision = new Systems.Collision(e =>
         {
             score.Play();
@@ -163,6 +164,7 @@ public class GameModel
             mPlayerSnake = null;
         }
         var snake = initializeSnake(square);
+        snake.get<PlayerName>().playerName = mGame.playerName;
         mSysRenderer.follow(snake);
 
         mPlayerSnake = snake;
