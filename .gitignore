@@ -1,3 +1,9 @@
 /.idea
-/Multiplayer Snake/Content/obj/
-/Multiplayer Snake/Content/bin/
+/Client/bin
+/Client/obj
+/Client/Content/bin
+/Client/Content/obj
+/Server/bin
+/Server/obj
+/Shared/bin
+/Shared/obj
