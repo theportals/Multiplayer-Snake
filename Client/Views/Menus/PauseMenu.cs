@@ -12,6 +12,7 @@ public class PauseMenu : Menu
 {
     public bool isOpen;
     public bool respawnChosen;
+    public bool gameOver = false;
     private Dictionary<InputDevice.Commands, InputDevice.CommandEntry> mOtherBinds = new();
     private Dictionary<MouseInput.MouseRegion, InputDevice.CommandEntry> mOtherRegions = new();
     private const int dasDelay = 500;
@@ -104,6 +105,7 @@ public class PauseMenu : Menu
         {
             this.close();
             mModel.spawnSnake();
+            gameOver = false;
         }, mGraphics.PreferredBackBufferWidth / 2, mGraphics.PreferredBackBufferHeight / 2, mFont);
         mSelected = null;
         mDefault = close;
@@ -129,5 +131,25 @@ public class PauseMenu : Menu
         DrawUtil.DrawGrayOverlay(mSpriteBatch);
         mSpriteBatch.End();
         base.render(gameTime);
+        if (!gameOver) return;
+        mSpriteBatch.Begin();
+
+        var strings = new List<string>()
+        {
+            "Game Over!",
+            $"Your Score: {mModel.mScore}",
+            $"Kills: {mModel.mKills}",
+            $"Best Rank: #{mModel.mBestRank} / {mModel.mLeaderboard.Count + 1}",
+        };
+        for (var i = 0; i < strings.Count; i++)
+        {
+            var s = strings[i];
+            var size = mFont.MeasureString(s);
+            mSpriteBatch.DrawString(mFont, s,
+                new Vector2((mGraphics.PreferredBackBufferWidth - size.X) / 2,
+                    mGraphics.PreferredBackBufferHeight / 4f - size.Y + mFont.LineSpacing * i), Color.White);
+        }
+
+        mSpriteBatch.End();
     }
 }

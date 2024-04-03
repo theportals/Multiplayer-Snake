@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using Client.Components;
 using Client.Entities;
 using Client.Input;
@@ -42,12 +44,26 @@ public class GameModel
     private SoundEffect score;
     private SoundEffect thrust;
     private SoundEffectInstance thrustInstance;
+    private SpriteFont font;
+
+    private SpriteBatch mSpriteBatch;
 
     private KeyboardInput mKeyboardInput;
     private MouseInput mMouseInput;
     private bool mListenKeys;
 
-    private int mScore;
+    public int mScore;
+    public int mKills = 0; // TODO: Track kills
+    public int mBestRank = 0;
+
+    public List<Tuple<string, int>> mLeaderboard = new()
+    {
+        new Tuple<string, int>("Test1", 0),
+        new Tuple<string, int>("Test2", 5),
+        new Tuple<string, int>("Test3", 30),
+        new Tuple<string, int>("Test4", 100),
+        new Tuple<string, int>("Test5", 50)
+    };
 
     private Client mGame;
 
@@ -69,6 +85,7 @@ public class GameModel
 
     public void Initialize(ContentManager content, SpriteBatch spriteBatch)
     {
+        mSpriteBatch = spriteBatch;
         mKeyboardInput.clearCommands();
         mMouseInput.clearRegions();
         square = content.Load<Texture2D>("Images/square");
@@ -78,7 +95,7 @@ public class GameModel
         explode = content.Load<SoundEffect>("Sounds/explosion");
         score = content.Load<SoundEffect>("Sounds/score");
         thrust = content.Load<SoundEffect>("Sounds/thrust");
-        var font = content.Load<SpriteFont>("Fonts/name");
+        font = content.Load<SpriteFont>("Fonts/name");
         thrustInstance = thrust.CreateInstance();
         thrustInstance.IsLooped = true;
 
@@ -91,10 +108,17 @@ public class GameModel
             score.Play();
             mToRemove.Add(e);
             mScore += 1;
+            mLeaderboard.RemoveAll(t => t.Item1 == mGame.playerName);
+            var t = new Tuple<string, int>(mGame.playerName, mScore);
+            mLeaderboard.Add(t);
+            mLeaderboard.Sort((t1, t2) => t2.Item2 - t1.Item2);
+            var rank = mLeaderboard.IndexOf(t) + 1;
+            if (mBestRank > rank) mBestRank = rank;
         },
         e =>
         {
             mPlayerSnake = null;
+            mPause.gameOver = true;
             mPause.open();
             playerDeath(e);
             addParticlesLater(ParticleUtil.playerDeath(fire, smoke, e));
@@ -148,16 +172,18 @@ public class GameModel
         e.remove<Alive>();
         mToRemove.Add(e);
         if (mScore > 0) mGame.SubmitScore(mScore);
-        mScore = 0;
         var pos = e.get<Position>();
         for (var segment = 0; segment < pos.segments.Count; segment++)
         {
             mToAdd.Add(createFood(square, false, pos.segments[segment]));
         }
+
+        mLeaderboard.RemoveAll(t => t.Item1 == mGame.playerName);
     }
 
     public void spawnSnake()
     {
+        mScore = 0;
         if (mPlayerSnake != null && mPlayerSnake.contains<Alive>())
         {
             playerDeath(mPlayerSnake);
@@ -177,6 +203,11 @@ public class GameModel
             _ => boostOn(snake), 
             _ => playBoost(snake), 
             _ => boostOff(snake));
+
+        var t = new Tuple<string, int>(mGame.playerName, 0);
+        mLeaderboard.Add(t);
+        mLeaderboard.Sort((t1, t2) => t2.Item2 - t1.Item2);
+        mBestRank = mLeaderboard.IndexOf(t);
     }
 
     private void boostOn(Entity snake)
@@ -235,6 +266,28 @@ public class GameModel
     public void render(GameTime gameTime)
     {
         mSysRenderer.Update(gameTime.ElapsedGameTime);
+        
+        // Draw leaderboard
+        mSpriteBatch.Begin();
+        var x = 7 * WINDOW_WIDTH / 8 - 25;
+        var y = 25;
+        var w = WINDOW_WIDTH / 8;
+        var h = WINDOW_WIDTH / 4;
+        var padding = 25;
+        mSpriteBatch.Draw(Client.pixel, new Rectangle(x, y, w, h), new Color(Color.Black, 0.5f));
+        mSpriteBatch.DrawString(font, "You", new Vector2(x + padding, y + h - padding - font.LineSpacing), Color.Red);
+        var size = font.MeasureString(mScore.ToString());
+        mSpriteBatch.DrawString(font, mScore.ToString(), new Vector2(x + w - padding - size.X, y + h - padding - font.LineSpacing), Color.Red);
+        for (int i = 0; i < Math.Min(10, mLeaderboard.Count); i++)
+        {
+            var (name, score) = mLeaderboard[i];
+            size = font.MeasureString(score.ToString());
+            
+            mSpriteBatch.DrawString(font, name, new Vector2(x + padding, y + padding + i * font.LineSpacing), Color.White);
+            mSpriteBatch.DrawString(font, score.ToString(), new Vector2(x + w - size.X - padding, y + padding + i * font.LineSpacing), Color.White);
+        }
+        mSpriteBatch.End();
+        
         mPause.render(gameTime);
     }
 

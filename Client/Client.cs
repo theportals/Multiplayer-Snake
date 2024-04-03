@@ -127,9 +127,7 @@ public class Client : Game
 // TODO: Show the tutorial message/diagram "your snake will follow your mouse"
 // TODO: Show the message/diagram for boosting
 // TODO: Show the joining message and once joined, the player begins participating in the game
-// TODO: Show end game panel after death that shows score, kills, and highest position achieved
 // TODO: Multiple kinds and sizes of food, utilizing animated sprite
-// TODO: Game status panel, showing current score and top 5 snakes in game
 // TODO: Background image
 // TODO: Finish server implementation
 // TODO: Test multiplayer on local machine and multiple machines
