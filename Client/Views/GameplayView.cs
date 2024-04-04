@@ -14,7 +14,7 @@ public class GameplayView : GameStateView
     private SpriteFont mFont;
 
     private bool connected = false; 
-    private float timeout = 3;
+    private float timeout = 1;
     private float timer = 0;
 
     public override void initializeSession()

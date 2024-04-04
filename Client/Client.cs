@@ -125,8 +125,5 @@ public class Client : Game
     }
 }
 
-// TODO: Add better assets for snakes, food, etc
-// TODO: Multiple kinds and sizes of food, utilizing animated sprite
-// TODO: Background image
 // TODO: Finish server implementation
 // TODO: Test multiplayer on local machine and multiple machines

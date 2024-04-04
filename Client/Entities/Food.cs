@@ -12,11 +12,12 @@ public class Food
     public static Entity create(Texture2D square, int x, int y, bool naturalSpawn)
     {
         var rng = new ExtendedRandom();
+        var size = rng.Next(10) + 7.5f;
         return new Entity()
-            .add(new Appearance(square, 10))
-            .add(new ColorOverride(Color.Red))
+            .add(new Appearance(square, (int)size, true, 4, 1024, 1024, rng.Next(4)))
+            .add(new RotationOffset((float)(-Math.PI / 2), 0f))
             .add(new Shared.Components.Position(x, y))
-            .add(new Collision(10f))
+            .add(new Collision(size))
             .add(new Components.Food(naturalSpawn))
             .add(new Lifetime((float)rng.nextGaussian(10, 2.5)));
     }

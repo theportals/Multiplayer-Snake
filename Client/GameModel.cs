@@ -40,6 +40,9 @@ public class GameModel
     private Texture2D fire;
     private Texture2D smoke;
     private Texture2D peepo;
+    private Texture2D snakeSheet;
+    private Texture2D bomb;
+    private Texture2D foodSheet;
     private SoundEffect explode;
     private SoundEffect score;
     private SoundEffect thrust;
@@ -55,6 +58,8 @@ public class GameModel
     public int mScore;
     public int mKills = 0; // TODO: Track kills
     public int mBestRank = 0;
+
+    private Color? lastColor = null;
 
     public List<Tuple<string, int>> mLeaderboard = new()
     {
@@ -90,19 +95,25 @@ public class GameModel
         mMouseInput.clearRegions();
         square = content.Load<Texture2D>("Images/square");
         peepo = content.Load<Texture2D>("Images/Peepo");
+        snakeSheet = content.Load<Texture2D>("Images/Snake_Sheet");
+        bomb = content.Load<Texture2D>("Images/bomb");
+        foodSheet = content.Load<Texture2D>("Images/Food_Sheet");
         fire = content.Load<Texture2D>("Particles/fire");
         smoke = content.Load<Texture2D>("Particles/smoke-2");
         explode = content.Load<SoundEffect>("Sounds/explosion");
         score = content.Load<SoundEffect>("Sounds/score");
         thrust = content.Load<SoundEffect>("Sounds/thrust");
         font = content.Load<SpriteFont>("Fonts/name");
+
+        var bg = content.Load<Texture2D>("Images/normal_hillside");
+        
         thrustInstance = thrust.CreateInstance();
         thrustInstance.IsLooped = true;
 
         mPause.loadContent(content);
         mPause.initializeSession();
 
-        mSysRenderer = new Systems.Renderer(spriteBatch, font, square, WINDOW_WIDTH, WINDOW_HEIGHT, ARENA_SIZE, null);
+        mSysRenderer = new Systems.Renderer(spriteBatch, font, bg, WINDOW_WIDTH, WINDOW_HEIGHT, ARENA_SIZE, null);
         mSysCollision = new Systems.Collision(e =>
         {
             score.Play();
@@ -132,7 +143,7 @@ public class GameModel
         {
             mToRemove.Add(e);
             var food = e.get<Components.Food>();
-            if (food.naturalSpawn) mToAdd.Add(createFood(square, true));
+            if (food.naturalSpawn) mToAdd.Add(createFood(true));
         });
         mSysParticleLifetime = new Systems.Lifetime(e =>
         {
@@ -140,14 +151,14 @@ public class GameModel
         });
 
         initializeBorder(square);
-        initializeObstacles(square);
+        initializeObstacles();
         spawnSnake();
         mSysRenderer.zoom = 2.5f;
         mSysInput.zoom = mSysRenderer.zoom;
         mSysInput.setAbsCursor(true);
         for (var i = 0; i < FOOD_COUNT; i++)
         {
-            addEntity(createFood(square));
+            addEntity(createFood());
         }
         mKeyboardInput.registerCommand(InputDevice.Commands.BACK, _ =>
         {
@@ -175,7 +186,7 @@ public class GameModel
         var pos = e.get<Position>();
         for (var segment = 0; segment < pos.segments.Count; segment++)
         {
-            mToAdd.Add(createFood(square, false, pos.segments[segment]));
+            mToAdd.Add(createFood(false, pos.segments[segment]));
         }
 
         mLeaderboard.RemoveAll(t => t.Item1 == mGame.playerName);
@@ -183,13 +194,37 @@ public class GameModel
 
     public void spawnSnake()
     {
+        // Color replacement for the snake
+        Color cFrom;
+        if (lastColor == null) cFrom = new Color(0, 255, 0);
+        else cFrom = lastColor.Value;
+        var rng = new Random();
+        var r = rng.Next(230);
+        var g = rng.Next(230);
+        var b = rng.Next(230);
+        var cTo = new Color(r, g, b);
+        // var cTo = new Color(255, 255, 255);
+        Color[] data = new Color[snakeSheet.Width * snakeSheet.Height];
+        snakeSheet.GetData(data);
+
+        var tolerance = 15;
+        for (int i = 0; i < data.Length; i++)
+        {
+            if (Math.Abs(data[i].R - cFrom.R) < tolerance && Math.Abs(data[i].G - cFrom.G) < tolerance && Math.Abs(data[i].B - cFrom.B) < tolerance)
+            {
+                data[i] = cTo;
+            }
+        }
+        snakeSheet.SetData(data);
+        lastColor = cTo;
+        
         mScore = 0;
         if (mPlayerSnake != null && mPlayerSnake.contains<Alive>())
         {
             playerDeath(mPlayerSnake);
             mPlayerSnake = null;
         }
-        var snake = initializeSnake(square);
+        var snake = initializeSnake();
         snake.get<PlayerName>().playerName = mGame.playerName;
         mSysRenderer.follow(snake);
 
@@ -345,7 +380,7 @@ public class GameModel
         }
     }
 
-    private void initializeObstacles(Texture2D square)
+    private void initializeObstacles()
     {
         var rng = new ExtendedRandom();
         var remaining = OBSTACLE_COUNT;
@@ -354,7 +389,7 @@ public class GameModel
         {
             int x = (int)rng.nextRange(1, ARENA_SIZE - 1);
             int y = (int)rng.nextRange(1, ARENA_SIZE - 1);
-            var proposed = Obstacle.create(square, x, y);
+            var proposed = Obstacle.create(bomb, x, y);
             if (!mSysCollision.anyCollision(proposed))
             {
                 addEntity(proposed);
@@ -363,7 +398,7 @@ public class GameModel
         }
     }
 
-    private Entity initializeSnake(Texture2D square)
+    private Entity initializeSnake()
     {
         var rng = new ExtendedRandom();
         bool done = false;
@@ -372,7 +407,7 @@ public class GameModel
         {
             int x = (int)rng.nextRange(1, ARENA_SIZE - 1);
             int y = (int)rng.nextRange(1, ARENA_SIZE - 1);
-            var proposed = SnakeSegment.create(square, x, y);
+            var proposed = SnakeSegment.create(snakeSheet, x, y);
             if (!mSysCollision.anyCollision(proposed))
             {
                 addEntity(proposed);
@@ -384,7 +419,7 @@ public class GameModel
         return null;
     }
 
-    private Entity createFood(Texture2D square, bool naturalSpawn=true, Vector2? pos=null)
+    private Entity createFood(bool naturalSpawn=true, Vector2? pos=null)
     {
         var rng = new ExtendedRandom();
         var done = false;
@@ -393,11 +428,11 @@ public class GameModel
         {
             if (pos != null)
             {
-                return Food.create(square, (int)pos.Value.X, (int)pos.Value.Y, naturalSpawn);
+                return Food.create(foodSheet, (int)pos.Value.X, (int)pos.Value.Y, naturalSpawn);
             }
             int x = (int)rng.nextRange(1, ARENA_SIZE - 1);
             int y = (int)rng.nextRange(1, ARENA_SIZE - 1);
-            var proposed = Food.create(square, x, y, naturalSpawn);
+            var proposed = Food.create(foodSheet, x, y, naturalSpawn);
             if (!mSysCollision.anyCollision(proposed))
             {
                 return proposed;

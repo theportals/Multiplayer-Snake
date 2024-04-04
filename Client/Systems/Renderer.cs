@@ -48,6 +48,7 @@ public class Renderer : Shared.Systems.System
     public override void Update(TimeSpan gameTime)
     {
         mSpriteBatch.Begin();
+        mSpriteBatch.Draw(mBackground, new Rectangle(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT), Color.White);
 
         var centerPoint = new Vector2();
         var bgCenter = new Vector2();
@@ -69,7 +70,7 @@ public class Renderer : Shared.Systems.System
             bgCenter.Y = OFFSET_Y - centerPoint.Y * zoom + ARENA_SIZE / 2;
         }
         Rectangle background = new Rectangle((int)(bgCenter.X), (int)(bgCenter.Y), (int)(ARENA_SIZE * zoom), (int)(ARENA_SIZE * zoom));
-        mSpriteBatch.Draw(mBackground, background, Color.Blue);
+        mSpriteBatch.Draw(Client.pixel, background, Color.DarkBlue);
 
         foreach (var entity in mEntities.Values)
         {
@@ -83,6 +84,7 @@ public class Renderer : Shared.Systems.System
         var appearance = entity.get<Components.Appearance>();
         var pos = entity.get<Shared.Components.Position>();
         Vector2 drawPos = new Vector2();
+        var rng = new Random();
 
         for (int segment = 0; segment < pos.segments.Count; segment++)
         {
@@ -112,14 +114,43 @@ public class Renderer : Shared.Systems.System
                 );
                 c = staminaColor;
             }
-            mSpriteBatch.Draw(appearance.image, 
-                new Rectangle((int)drawPos.X, (int)drawPos.Y, (int)Math.Ceiling(appearance.size * zoom), (int)Math.Ceiling(appearance.size * zoom)), 
-                null,
-                c,
-                (float)(rot + Math.PI / 2),
-                new Vector2(appearance.image.Width / 2f, appearance.image.Height / 2f),
-                SpriteEffects.None,
-                0);
+
+            if (appearance.animated)
+            {
+                var frame = 0;
+                if (entity.contains<Snakeitude>())
+                {
+                    if (segment == 0) frame = 0;
+                    else if (segment == pos.segments.Count - 1) frame = 2;
+                    else frame = 1;
+                }
+
+                if (appearance.staticFrame.HasValue)
+                {
+                    frame = appearance.staticFrame.Value;
+                }
+                mSpriteBatch.Draw(appearance.image,
+                    new Rectangle((int)drawPos.X, (int)drawPos.Y, (int)Math.Ceiling(appearance.displaySize * zoom),
+                        (int)Math.Ceiling(appearance.displaySize * zoom)),
+                    new Rectangle(frame * appearance.frameWidth, 0, appearance.frameWidth, appearance.frameHeight),
+                    c,
+                    (float)(rot + Math.PI / 2),
+                    new Vector2(appearance.frameWidth / 2f, appearance.frameHeight / 2f),
+                    SpriteEffects.None,
+                    0);
+                
+            } else
+            {
+                mSpriteBatch.Draw(appearance.image,
+                    new Rectangle((int)drawPos.X, (int)drawPos.Y, (int)Math.Ceiling(appearance.displaySize * zoom),
+                        (int)Math.Ceiling(appearance.displaySize * zoom)),
+                    null,
+                    c,
+                    (float)(rot + Math.PI / 2),
+                    new Vector2(appearance.image.Width / 2f, appearance.image.Height / 2f),
+                    SpriteEffects.None,
+                    0);
+            }
         }
                 
         if (entity.contains<PlayerName>())
