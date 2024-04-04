@@ -36,7 +36,8 @@ public class MainMenuView : Menu
                 nameError = "Please choose a name!";
                 return;
             }
-            mGame.changeState(GameStates.GAMEPLAY);
+            if (mGame.tutorialCompleted) mGame.changeState(GameStates.GAMEPLAY);
+            else mGame.changeState(GameStates.TUTORIAL);
         }, mGraphics.PreferredBackBufferWidth / 3, start, mFont);
         var highScores = new MenuOption("High Scores", () => mGame.changeState(GameStates.HIGH_SCORES), mGraphics.PreferredBackBufferWidth / 3, start + spacing, mFont);
         var controls = new MenuOption("Controls", () => mGame.changeState(GameStates.CONTROLS), 2 * mGraphics.PreferredBackBufferWidth / 3, start, mFont);
@@ -79,6 +80,22 @@ public class MainMenuView : Menu
             submitName
         };
         mDefault = newGame;
+        if (!mGame.tutorialCompleted) return;
+        
+        var tutorial = new MenuOption("Tutorial", () =>
+            {
+                if (mGame.playerName == "")
+                {
+                    nameError = "Please choose a name!";
+                    return;
+                }
+                mGame.changeState(GameStates.TUTORIAL);
+            },
+            mGraphics.PreferredBackBufferWidth / 2, start, mFont);
+        registerHoverRegion(tutorial);
+        mOptions.Add(tutorial);
+        newGame.linkRight(tutorial);
+        tutorial.linkRight(controls);
     }
 
     private void submitName(string name)

@@ -7,5 +7,6 @@ public enum GameStates
     HIGH_SCORES,
     CONTROLS,
     CREDITS,
-    EXIT
+    EXIT,
+    TUTORIAL
 }

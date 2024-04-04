@@ -6,8 +6,8 @@ using Client.Views;
 using Client.Views.Menus;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Graphics.PackedVector;
 using Microsoft.Xna.Framework.Input;
+using Multiplayer_Snake.Views.Menus;
 
 namespace Client;
 
@@ -22,6 +22,7 @@ public class Client : Game
     public List<Tuple<int, DateTime>> mHighscores;
     public static Texture2D pixel;
     public string playerName = "";
+    public bool tutorialCompleted = false;
 
     public Client()
     {
@@ -46,7 +47,8 @@ public class Client : Game
             { GameStates.GAMEPLAY, new GameplayView() },
             { GameStates.HIGH_SCORES, new HighScoresView() },
             { GameStates.CONTROLS, new ControlsView() },
-            { GameStates.CREDITS, new CreditsView() }
+            { GameStates.CREDITS, new CreditsView() },
+            { GameStates.TUTORIAL, new TutorialView() }
         };
 
         mState = mStates[GameStates.MAIN_MENU];
@@ -124,8 +126,6 @@ public class Client : Game
 }
 
 // TODO: Add better assets for snakes, food, etc
-// TODO: Show the tutorial message/diagram "your snake will follow your mouse"
-// TODO: Show the message/diagram for boosting
 // TODO: Show the joining message and once joined, the player begins participating in the game
 // TODO: Multiple kinds and sizes of food, utilizing animated sprite
 // TODO: Background image
