@@ -13,7 +13,22 @@ public sealed class Entity
 
     public Entity()
     {
-        id = mNextId++;
+        id = mNextId;
+        mNextId += 1;
+        if (id == 0)
+        {
+            Console.WriteLine("Ruh roh!");
+        }
+    }
+
+    public Entity(uint id)
+    {
+        mNextId = id + 1;
+        this.id = id;
+        if (id == 0)
+        {
+            Console.WriteLine("Ruh roh!");
+        }
     }
 
     public bool contains(Type type)

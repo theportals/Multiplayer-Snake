@@ -22,21 +22,25 @@ public class Network : Shared.Systems.System
     {
         registerHandler(Type.ConnectAck, (gameTime, message) =>
         {
+            Console.WriteLine("ConnectAck received!");
             handleConnectAck(gameTime, (ConnectAck)message);
         });
         
         registerHandler(Type.NewEntity, (gameTime, message) =>
         {
+            Console.WriteLine("NewEntity received!");
             mNewEntityHandler((NewEntity)message);
         });
         
         registerHandler(Type.UpdateEntity, (gameTime, message) =>
         {
+            Console.WriteLine("UpdateEntity received!");
             handleUpdateEntity(gameTime, (UpdateEntity)message);
         });
         
         registerHandler(Type.RemoveEntity, (gameTime, message) =>
         {
+            Console.WriteLine("RemoveEntity received!");
             mRemoveEntityHandler((RemoveEntity)message);
         });
     }

@@ -12,4 +12,9 @@ public class Position : Component
     {
         segments.Add(new Vector2(x, y));
     }
+
+    public Position(List<Vector2> segments)
+    {
+        this.segments = segments;
+    }
 }

@@ -54,6 +54,7 @@ public class NewEntity : Message
     public NewEntity() : base(Type.NewEntity)
     {
         texture = "";
+        segments = new List<Vector2>();
         inputs = new List<Components.Input.Type>();
     }
     

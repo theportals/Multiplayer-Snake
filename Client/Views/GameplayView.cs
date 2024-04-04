@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Client.Input;
 using Client.Util;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
@@ -13,20 +14,16 @@ public class GameplayView : GameStateView
     private GameModel mGameModel;
     private SpriteFont mFont;
 
-    private bool connected = false; 
-    private float timeout = 1;
+    private bool connected = false;
+    private bool firstFrame = true;
+    private float timeout = 5;
     private float timer = 0;
 
     public override void initializeSession()
     {
-        connected = false;
         timer = 0;
-        // connect();
-    }
-
-    private void connect()
-    {
-        //TODO: Connect to server and actually update joined status
+        firstFrame = true;
+        connected = false;
         mGameModel = new GameModel(mGame, mGraphics.PreferredBackBufferWidth, mGraphics.PreferredBackBufferHeight,
             mKeyboardInput, mMouseInput, mKeyboardInput.listenKeys);
         mGameModel.Initialize(mContent, mSpriteBatch);
@@ -40,17 +37,19 @@ public class GameplayView : GameStateView
 
     public override void update(GameTime gameTime)
     {
+        if (firstFrame)
+        {
+            render(gameTime);
+            firstFrame = false;
+            connected = MessageQueueClient.instance.initialize("localhost", 3000);
+            return;
+        }
         if (connected) mGameModel.update(gameTime);
         else
         {
             timer += (float)gameTime.ElapsedGameTime.TotalSeconds;
-            if (timer > timeout)
-            {
-                connected = true;
-                // TODO: Actually connect
-                connect();
-            }
-        }
+            if (timer >= timeout) mGame.changeState(GameStates.MAIN_MENU);
+        };
     }
 
     public override void render(GameTime gameTime)

@@ -5,6 +5,7 @@ using Client.Util;
 using Client.Views;
 using Client.Views.Menus;
 using Microsoft.Xna.Framework;
+using Shared.Messages;
 
 namespace Multiplayer_Snake.Views.Menus;
 
@@ -101,7 +102,11 @@ public class PauseMenu : Menu
     public override void initializeSession()
     {
         var close = new MenuOption("Close Menu", this.close, mGraphics.PreferredBackBufferWidth / 3, 2 * mGraphics.PreferredBackBufferHeight / 3, mFont);
-        var mainMenu = new MenuOption("Return to Title", () => mGame.changeState(GameStates.MAIN_MENU), 2 * mGraphics.PreferredBackBufferWidth / 3, 2 * mGraphics.PreferredBackBufferHeight / 3, mFont);
+        var mainMenu = new MenuOption("Return to Title", () =>
+        {
+            // MessageQueueClient.instance.sendMessage(new Disconnect());
+            mGame.changeState(GameStates.MAIN_MENU);
+        }, 2 * mGraphics.PreferredBackBufferWidth / 3, 2 * mGraphics.PreferredBackBufferHeight / 3, mFont);
         var respawn = new MenuOption("Respawn", () =>
         {
             this.close();

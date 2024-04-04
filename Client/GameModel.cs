@@ -4,6 +4,7 @@ using System.Linq;
 using Client.Components;
 using Client.Entities;
 using Client.Input;
+using Client.Systems;
 using Client.Util;
 using Client.Views;
 using Microsoft.Xna.Framework;
@@ -13,6 +14,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Multiplayer_Snake.Views.Menus;
 using Shared.Components;
 using Shared.Entities;
+using Shared.Messages;
 using Food = Client.Entities.Food;
 
 namespace Client;
@@ -29,12 +31,19 @@ public class GameModel
     private List<Entity> mToAdd = new();
     private List<Entity> mParticlesToAdd = new();
 
+    private Dictionary<uint, Entity> mEntities = new();
+
     private Systems.Renderer mSysRenderer;
     private Systems.Collision mSysCollision;
     private Systems.Movement mSysMovement;
     private Systems.Input mSysInput;
     private Systems.Lifetime mSysLifetime;
     private Systems.Lifetime mSysParticleLifetime;
+
+    private Systems.Network mSysNetwork;
+    private Systems.Interpolation mSysInterp;
+
+    private ContentManager mContentManager;
 
     private Texture2D square;
     private Texture2D fire;
@@ -88,11 +97,12 @@ public class GameModel
         mPause.initialize(mGame, mGame.GraphicsDevice, Client.mGraphics, mKeyboardInput, mMouseInput);
     }
 
-    public void Initialize(ContentManager content, SpriteBatch spriteBatch)
+    public bool Initialize(ContentManager content, SpriteBatch spriteBatch)
     {
         mSpriteBatch = spriteBatch;
         mKeyboardInput.clearCommands();
         mMouseInput.clearRegions();
+        mContentManager = content;
         square = content.Load<Texture2D>("Images/square");
         peepo = content.Load<Texture2D>("Images/Peepo");
         snakeSheet = content.Load<Texture2D>("Images/Snake_Sheet");
@@ -153,6 +163,12 @@ public class GameModel
             mToRemove.Add(e);
         });
 
+        mSysNetwork = new Network();
+        mSysInterp = new Interpolation();
+        
+        mSysNetwork.registerNewEntityHandler(handleNewEntity);
+        mSysNetwork.registerRemoveEntityHandler(handleRemoveEntity);
+
         initializeBorder(square);
         initializeObstacles();
         spawnSnake();
@@ -179,6 +195,47 @@ public class GameModel
             mSysRenderer.zoom /= 1.1f;
             mSysInput.zoom = mSysRenderer.zoom;
         });
+
+        return true;
+    }
+
+    public void handleNewEntity(NewEntity message)
+    {
+        Entity entity = createEntity(message);
+        addEntity(entity);
+    }
+
+    public Entity createEntity(NewEntity message)
+    {
+        Entity entity = new Entity(message.id);
+
+        if (message.hasAppearance)
+        {
+            var texture = mContentManager.Load<Texture2D>(message.texture);
+            entity.add(new Sprite(texture));
+        }
+
+        if (message.hasPosition)
+        {
+            entity.add(new Position(message.segments));
+        }
+
+        if (message.hasMovement)
+        {
+            entity.add(new Movable(message.facing, message.moveSpeed, message.turnSpeed));
+        }
+
+        if (message.hasInput)
+        {
+            entity.add(new Shared.Components.Input(message.inputs));
+        }
+
+        return entity;
+    }
+
+    public void handleRemoveEntity(RemoveEntity message)
+    {
+        removeEntity(mEntities[message.id]);
     }
 
     private void playerDeath(Entity e)
@@ -275,6 +332,8 @@ public class GameModel
     {
         if (mGame.IsActive && !mPause.isOpen) mSysInput.update(gameTime.ElapsedGameTime);
         else thrustInstance.Pause();
+        mSysNetwork.update(gameTime.ElapsedGameTime, MessageQueueClient.instance.getMessages());
+        mSysInterp.update(gameTime.ElapsedGameTime);
         mSysMovement.update(gameTime.ElapsedGameTime);
         mSysCollision.update(gameTime.ElapsedGameTime);
         mSysLifetime.update(gameTime.ElapsedGameTime);
@@ -346,20 +405,28 @@ public class GameModel
 
     private void addEntity(Entity entity)
     {
+        if (entity == null) return;
+
+        mEntities[entity.id] = entity;
         mSysMovement.add(entity);
         mSysCollision.add(entity);
         mSysRenderer.add(entity);
         mSysInput.add(entity);
         mSysLifetime.add(entity);
+        mSysNetwork.add(entity);
+        mSysInterp.add(entity);
     }
 
     private void removeEntity(Entity entity)
     {
+        mEntities.Remove(entity.id);
         mSysMovement.remove(entity.id);
         mSysCollision.remove(entity.id);
         mSysRenderer.remove(entity.id);
         mSysInput.remove(entity.id);
         mSysParticleLifetime.remove(entity.id);
+        mSysNetwork.remove(entity.id);
+        mSysInterp.remove(entity.id);
     }
 
     private void initializeBorder(Texture2D square)

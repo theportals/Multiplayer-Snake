@@ -102,6 +102,7 @@ public class Network : Shared.Systems.System
         {
             switch (input)
             {
+                //TODO: Handle input messages
                 // case Shared.Components.Input.Type.Thrust:
                 //     Shared.Entities.Utility.thrust(entity, message.elapsedTime);
                 //     m_reportThese.Add(message.entityId);
