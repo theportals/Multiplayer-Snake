@@ -85,7 +85,7 @@ public class GameModel
         mMouseInput = mouseInput;
         mListenKeys = listenKeys;
         mPause = new PauseMenu(this);
-        mPause.initialize(mGame, mGame.GraphicsDevice, mGame.mGraphics, mKeyboardInput, mMouseInput);
+        mPause.initialize(mGame, mGame.GraphicsDevice, Client.mGraphics, mKeyboardInput, mMouseInput);
     }
 
     public void Initialize(ContentManager content, SpriteBatch spriteBatch)
@@ -116,6 +116,7 @@ public class GameModel
         mSysRenderer = new Systems.Renderer(spriteBatch, font, bg, WINDOW_WIDTH, WINDOW_HEIGHT, ARENA_SIZE, null);
         mSysCollision = new Systems.Collision(e =>
         {
+            // Called when eating food
             score.Play();
             mToRemove.Add(e);
             mScore += 1;
@@ -125,9 +126,11 @@ public class GameModel
             mLeaderboard.Sort((t1, t2) => t2.Item2 - t1.Item2);
             var rank = mLeaderboard.IndexOf(t) + 1;
             if (mBestRank > rank) mBestRank = rank;
+            addParticlesLater(ParticleUtil.eatFood(foodSheet, e));
         },
         e =>
         {
+            // Called on player death
             mPlayerSnake = null;
             mPause.gameOver = true;
             mPause.open();
