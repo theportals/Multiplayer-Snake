@@ -40,12 +40,21 @@ public class TutorialView : Menu
     {
         base.render(gameTime);
         mSpriteBatch.Begin();
-        //TODO: Draw the tutorial messages better
-        DrawUtil.DrawStringsCentered(new List<string>()
+        var strings = new List<string>();
+        if (mKeyboardInput.listenKeys)
         {
-            "Your snake will follow your mouse",
-            "Left click to boost",
-        }, mFont, Color.White, mSpriteBatch, null, mGraphics.PreferredBackBufferHeight / 4);
+            strings.Add("Use the arrow keys to steer left and right");
+            strings.Add("Press space to boost");
+        }
+        else
+        {
+            strings.Add($"Your snake will follow your mouse");
+            strings.Add($"Click and hold to boost");
+        }
+        strings.Add("");
+        strings.Add("You can change between mouse and keyboard in the controls menu");
+        
+        DrawUtil.DrawStringsCentered(strings, mFont, Color.White, mSpriteBatch, null, mGraphics.PreferredBackBufferHeight / 4);
         mSpriteBatch.End();
     }
 }
