@@ -126,7 +126,6 @@ public class Client : Game
 }
 
 // TODO: Add better assets for snakes, food, etc
-// TODO: Show the joining message and once joined, the player begins participating in the game
 // TODO: Multiple kinds and sizes of food, utilizing animated sprite
 // TODO: Background image
 // TODO: Finish server implementation
