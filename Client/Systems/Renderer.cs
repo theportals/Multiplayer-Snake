@@ -48,7 +48,7 @@ public class Renderer : Shared.Systems.System
     public override void Update(TimeSpan gameTime)
     {
         mSpriteBatch.Begin();
-        mSpriteBatch.Draw(mBackground, new Rectangle(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT), Color.White);
+        mSpriteBatch.Draw(mBackground, new Rectangle(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT), new Color(25, 25, 255));
 
         var centerPoint = new Vector2();
         var bgCenter = new Vector2();

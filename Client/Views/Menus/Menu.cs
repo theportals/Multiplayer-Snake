@@ -13,12 +13,16 @@ public abstract class Menu : GameStateView
     protected SpriteFont mFont;
     protected SpriteFont mFontSelect;
     protected Texture2D mButtonBackground;
+    protected Texture2D bg;
     protected List<MenuOption> mOptions;
     protected MenuOption? mSelected;
     protected MenuOption mDefault;
     protected SoundEffect mMenuSelectSound;
     protected SoundEffect mMenuBrowseSound;
 
+    protected Rectangle mButtonBackdrop;
+
+    protected bool drawBackground = true;
     public override void initializeSession()
     {
         mKeyboardInput.clearCommands();
@@ -56,6 +60,7 @@ public abstract class Menu : GameStateView
         mButtonBackground = contentManager.Load<Texture2D>("Images/square");
         mMenuSelectSound = contentManager.Load<SoundEffect>("Sounds/button_select");
         mMenuBrowseSound = contentManager.Load<SoundEffect>("Sounds/button_click");
+        bg = contentManager.Load<Texture2D>("Images/normal_hillside");
     }
 
     protected void moveUp()
@@ -112,16 +117,18 @@ public abstract class Menu : GameStateView
     public override void render(GameTime gameTime)
     {
         mSpriteBatch.Begin();
+        if (drawBackground) mSpriteBatch.Draw(bg, new Rectangle(0, 0, mGraphics.PreferredBackBufferWidth, mGraphics.PreferredBackBufferHeight), new Color(25, 25, 255));
+        mSpriteBatch.Draw(mButtonBackground, mButtonBackdrop,new Color(64, 64, 64));
         foreach (var option in mOptions)
         {
             var font = mFont;
-            var fontColor = Color.White;
+            var fontColor = Color.Black;
             if (mSelected == option)
             {
                 font = mFontSelect;
                 fontColor = Color.Red;
             }
-            option.render(gameTime, mSpriteBatch, font, mButtonBackground, fontColor, Color.Black);
+            option.render(gameTime, mSpriteBatch, font, mButtonBackground, fontColor, Color.White);
         }
         mSpriteBatch.End();
     }

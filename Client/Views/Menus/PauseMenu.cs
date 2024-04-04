@@ -24,6 +24,7 @@ public class PauseMenu : Menu
     public PauseMenu(GameModel model)
     {
         mModel = model;
+        drawBackground = false;
     }
 
     public void open()

@@ -11,13 +11,21 @@ public class MainMenuView : Menu
 {
     private TextInput mNameInput;
     private string nameError = "";
-    
+    private Texture2D logo;
+
+    public override void loadContent(ContentManager contentManager)
+    {
+        base.loadContent(contentManager);
+        logo = contentManager.Load<Texture2D>("Images/logo");
+        
+    }
+
     public override void initializeSession()
     {
         base.initializeSession();
         var textSize = mFont.MeasureString("____________");
         mNameInput = new TextInput(mKeyboardInput, mMouseInput, 
-            mGraphics.PreferredBackBufferWidth / 2, mGraphics.PreferredBackBufferHeight / 4, 
+            mGraphics.PreferredBackBufferWidth / 2, 9 * mGraphics.PreferredBackBufferHeight / 16, 
             (int)textSize.X, (int)textSize.Y, 
             mButtonBackground, mSpriteBatch, mFont,
             n =>
@@ -44,7 +52,7 @@ public class MainMenuView : Menu
         var credits = new MenuOption("Credits", () => mGame.changeState(GameStates.CREDITS), 2 * mGraphics.PreferredBackBufferWidth / 3, start + spacing, mFont);
         var exit = new MenuOption("Exit", () => mGame.changeState(GameStates.EXIT), mGraphics.PreferredBackBufferWidth / 2, start + spacing * 2, mFont);
         var submitName = new MenuOption("Submit", () => this.submitName(mNameInput.input),
-            (int)(mGraphics.PreferredBackBufferWidth / 2 + textSize.X), mGraphics.PreferredBackBufferHeight / 4, mFont);
+            (int)(mGraphics.PreferredBackBufferWidth / 2 + textSize.X), 9 * mGraphics.PreferredBackBufferHeight / 16, mFont);
 
         newGame.linkDown(highScores);
         newGame.linkRight(controls);
@@ -79,6 +87,8 @@ public class MainMenuView : Menu
             exit,
             submitName
         };
+        mButtonBackdrop = 
+            new Rectangle(3 * mGraphics.PreferredBackBufferWidth / 16, 14 * mGraphics.PreferredBackBufferHeight / 32, 10 * mGraphics.PreferredBackBufferWidth / 16, mGraphics.PreferredBackBufferHeight / 2);
         mDefault = newGame;
         if (!mGame.tutorialCompleted) return;
         
@@ -121,13 +131,13 @@ public class MainMenuView : Menu
     public override void render(GameTime gameTime)
     {
         base.render(gameTime);
-        
         mNameInput.render(gameTime);
         mSpriteBatch.Begin();
+        mSpriteBatch.Draw(logo, new Vector2((mGraphics.PreferredBackBufferWidth - logo.Width) / 2, mGraphics.PreferredBackBufferHeight / 4 - logo.Height / 2), Color.White);
         if (nameError != "")
         {
             var size = mFont.MeasureString(nameError);
-            mSpriteBatch.DrawString(mFont, nameError, new Vector2((mGraphics.PreferredBackBufferWidth - size.X) / 2, mGraphics.PreferredBackBufferHeight / 8), Color.Red);
+            mSpriteBatch.DrawString(mFont, nameError, new Vector2((mGraphics.PreferredBackBufferWidth - size.X) / 2, 15 * mGraphics.PreferredBackBufferHeight / 32), Color.Red);
         }
         mSpriteBatch.End();
     }
