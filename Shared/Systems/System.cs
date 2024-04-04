@@ -18,21 +18,21 @@ public abstract class System
         return ComponentTypes.All(entity.contains);
     }
 
-    public bool Add(Entity entity)
+    public virtual bool add(Entity entity)
     {
         var interested = isInterested(entity);
         if (interested)
         {
-            mEntities.Add(entity.Id, entity);
+            mEntities.Add(entity.id, entity);
         }
 
         return interested;
     }
 
-    public bool Remove(uint id)
+    public virtual bool remove(uint id)
     {
         return mEntities.Remove(id);
     }
 
-    public abstract void Update(TimeSpan gameTime);
+    public abstract void update(TimeSpan gameTime);
 }

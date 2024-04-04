@@ -52,7 +52,7 @@ public class Input : Shared.Systems.System
         mAbsCursor = to;
     }
     
-    public override void Update(TimeSpan gameTime)
+    public override void update(TimeSpan gameTime)
     {
         mKeyboardInput.update(gameTime);
         mMouseInput.update(gameTime);

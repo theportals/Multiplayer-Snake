@@ -45,7 +45,7 @@ public class Renderer : Shared.Systems.System
         return mFollow != null;
     }
     
-    public override void Update(TimeSpan gameTime)
+    public override void update(TimeSpan gameTime)
     {
         mSpriteBatch.Begin();
         mSpriteBatch.Draw(mBackground, new Rectangle(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT), new Color(25, 25, 255));

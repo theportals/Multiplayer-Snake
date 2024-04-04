@@ -17,7 +17,7 @@ public class Collision : Shared.Systems.System
         mOnCollision = onCollision;
     }
     
-    public override void Update(TimeSpan gameTime)
+    public override void update(TimeSpan gameTime)
     {
         var movable = findMovable(mEntities);
 

@@ -9,11 +9,11 @@ public sealed class Entity
 
     private static uint mNextId = 0;
     
-    public uint Id { get; private set; }
+    public uint id { get; private set; }
 
     public Entity()
     {
-        Id = mNextId++;
+        id = mNextId++;
     }
 
     public bool contains(Type type)
@@ -56,6 +56,6 @@ public sealed class Entity
 
     public override string ToString()
     {
-        return $"{Id}: {string.Join(", ", from c in components.Values select c.GetType().Name)}";
+        return $"{id}: {string.Join(", ", from c in components.Values select c.GetType().Name)}";
     }
 }

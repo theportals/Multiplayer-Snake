@@ -15,7 +15,7 @@ public class Movement : Shared.Systems.System
         
     }
     
-    public override void Update(TimeSpan gameTime)
+    public override void update(TimeSpan gameTime)
     {
         foreach (var entity in mEntities.Values)
         {

@@ -6,7 +6,7 @@ public class Input : Component
     
     public enum Type : UInt16
     {
-        MOVE,
+        BOOST,
         TURN_LEFT,
         TURN_RIGHT
     }

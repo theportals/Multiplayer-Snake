@@ -273,12 +273,12 @@ public class GameModel
 
     public void update(GameTime gameTime)
     {
-        if (mGame.IsActive && !mPause.isOpen) mSysInput.Update(gameTime.ElapsedGameTime);
+        if (mGame.IsActive && !mPause.isOpen) mSysInput.update(gameTime.ElapsedGameTime);
         else thrustInstance.Pause();
-        mSysMovement.Update(gameTime.ElapsedGameTime);
-        mSysCollision.Update(gameTime.ElapsedGameTime);
-        mSysLifetime.Update(gameTime.ElapsedGameTime);
-        mSysParticleLifetime.Update(gameTime.ElapsedGameTime);
+        mSysMovement.update(gameTime.ElapsedGameTime);
+        mSysCollision.update(gameTime.ElapsedGameTime);
+        mSysLifetime.update(gameTime.ElapsedGameTime);
+        mSysParticleLifetime.update(gameTime.ElapsedGameTime);
 
         foreach (var entity in mToRemove)
         {
@@ -303,7 +303,7 @@ public class GameModel
 
     public void render(GameTime gameTime)
     {
-        mSysRenderer.Update(gameTime.ElapsedGameTime);
+        mSysRenderer.update(gameTime.ElapsedGameTime);
         
         // Draw leaderboard
         mSpriteBatch.Begin();
@@ -339,27 +339,27 @@ public class GameModel
 
     private void addParticle(Entity particle)
     {
-        mSysMovement.Add(particle);
-        mSysRenderer.Add(particle);
-        mSysParticleLifetime.Add(particle);
+        mSysMovement.add(particle);
+        mSysRenderer.add(particle);
+        mSysParticleLifetime.add(particle);
     }
 
     private void addEntity(Entity entity)
     {
-        mSysMovement.Add(entity);
-        mSysCollision.Add(entity);
-        mSysRenderer.Add(entity);
-        mSysInput.Add(entity);
-        mSysLifetime.Add(entity);
+        mSysMovement.add(entity);
+        mSysCollision.add(entity);
+        mSysRenderer.add(entity);
+        mSysInput.add(entity);
+        mSysLifetime.add(entity);
     }
 
     private void removeEntity(Entity entity)
     {
-        mSysMovement.Remove(entity.Id);
-        mSysCollision.Remove(entity.Id);
-        mSysRenderer.Remove(entity.Id);
-        mSysInput.Remove(entity.Id);
-        mSysParticleLifetime.Remove(entity.Id);
+        mSysMovement.remove(entity.id);
+        mSysCollision.remove(entity.id);
+        mSysRenderer.remove(entity.id);
+        mSysInput.remove(entity.id);
+        mSysParticleLifetime.remove(entity.id);
     }
 
     private void initializeBorder(Texture2D square)

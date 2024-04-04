@@ -63,14 +63,14 @@ public class GameModel
             return;
         }
 
-        mEntities[entity.Id] = entity;
-        mSystemNetwork.Add(entity);
+        mEntities[entity.id] = entity;
+        mSystemNetwork.add(entity);
     }
 
     private void removeEntity(uint id)
     {
         mEntities.Remove(id);
-        mSystemNetwork.Remove(id);
+        mSystemNetwork.remove(id);
     }
 
     private void reportAllEntities(int clientId)
@@ -90,7 +90,7 @@ public class GameModel
         // TODO: Player spawns in the least populated area
         var player = SnakeSegment.create("Images/Snake_Sheet", 500, 500);
         addEntity(player);
-        mClientToEntityId[clientId] = player.Id;
+        mClientToEntityId[clientId] = player.id;
         
         // Step 3: Send the new player entity to the newly joined client
         MessageQueueServer.instance.sendMessage(clientId, new NewEntity(player));

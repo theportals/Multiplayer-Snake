@@ -10,7 +10,7 @@ public class NewEntity : Message
 {
     public NewEntity(Entity entity) : base(Type.NewEntity)
     {
-        id = entity.Id;
+        id = entity.id;
 
         if (entity.contains<Appearance>())
         {
