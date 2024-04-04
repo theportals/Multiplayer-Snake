@@ -21,7 +21,7 @@ public class Renderer : Shared.Systems.System
     private Entity? mFollow;
 
     public Renderer(SpriteBatch spriteBatch, SpriteFont font, Texture2D background, int windowWidth, int windowHeight, int arenaSize, Entity? toFollow, float zoom=1)
-        : base(typeof(Components.Appearance), typeof(Shared.Components.Position))
+        : base(typeof(Components.Appearance), typeof(Shared.Components.Position), typeof(Components.Sprite))
     {
         mFont = font;
         ARENA_SIZE = arenaSize;
@@ -83,6 +83,7 @@ public class Renderer : Shared.Systems.System
     {
         var appearance = entity.get<Components.Appearance>();
         var pos = entity.get<Shared.Components.Position>();
+        var sprite = entity.get<Sprite>();
         Vector2 drawPos = new Vector2();
         var rng = new Random();
 
@@ -129,7 +130,7 @@ public class Renderer : Shared.Systems.System
                 {
                     frame = appearance.staticFrame.Value;
                 }
-                mSpriteBatch.Draw(appearance.image,
+                mSpriteBatch.Draw(sprite.texture,
                     new Rectangle((int)drawPos.X, (int)drawPos.Y, (int)Math.Ceiling(appearance.displaySize * zoom),
                         (int)Math.Ceiling(appearance.displaySize * zoom)),
                     new Rectangle(frame * appearance.frameWidth, 0, appearance.frameWidth, appearance.frameHeight),
@@ -141,13 +142,13 @@ public class Renderer : Shared.Systems.System
                 
             } else
             {
-                mSpriteBatch.Draw(appearance.image,
+                mSpriteBatch.Draw(sprite.texture,
                     new Rectangle((int)drawPos.X, (int)drawPos.Y, (int)Math.Ceiling(appearance.displaySize * zoom),
                         (int)Math.Ceiling(appearance.displaySize * zoom)),
                     null,
                     c,
                     (float)(rot + Math.PI / 2),
-                    new Vector2(appearance.image.Width / 2f, appearance.image.Height / 2f),
+                    new Vector2(sprite.texture.Width / 2f, sprite.texture.Height / 2f),
                     SpriteEffects.None,
                     0);
             }

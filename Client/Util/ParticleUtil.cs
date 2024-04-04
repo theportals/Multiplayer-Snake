@@ -57,7 +57,7 @@ public class ParticleUtil
 
     public static Entity fireParticle(Texture2D fire, float x, float y, ExtendedRandom rng)
     {
-        return Entities.Particle.create(fire, 
+        var p = Entities.Particle.create("FIRE_PARTICLE", 
             x, y, 
             rng, 
             10, 4, 
@@ -66,11 +66,13 @@ public class ParticleUtil
             0.5f,0.05f, 
             0f, 
             5f, 5f);
+        p.add(new Sprite(fire));
+        return p;
     }
 
     public static Entity smokeParticle(Texture2D smoke, float x, float y, ExtendedRandom rng)
     {
-        return Entities.Particle.create(smoke, 
+        var p = Entities.Particle.create("SMOKE_PARTICLE", 
             x, y, 
             rng, 
             15, 4, 
@@ -79,20 +81,13 @@ public class ParticleUtil
             3f,1f, 
             0f, 
             5f, 5f);
+        p.add(new Sprite(smoke));
+        return p;
     }
 
     public static Entity foodParticle(Texture2D texture, float x, float y, ExtendedRandom rng)
     {
-        // return Entities.Particle.create(texture,
-        //     x, y,
-        //     rng,
-        //     5, 2,
-        //     (float)rng.nextCircleAngle(), 0f,
-        //     250f, 50f,
-        //     0.1f, 0.01f,
-        //     (float)-Math.PI / 2,
-        //     10f, 2f);
-        return Entities.Particle.create(texture,
+        var p = Entities.Particle.create("FOOD_PARTICLE",
             x, y,
             rng,
             3, 1,
@@ -101,5 +96,7 @@ public class ParticleUtil
             0.125f, 0.01f,
             (float)-Math.PI / 2,
             6f, 3f);
+        p.add(new Sprite(texture));
+        return p;
     }
 }

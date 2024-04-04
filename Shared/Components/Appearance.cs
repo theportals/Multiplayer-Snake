@@ -1,13 +1,10 @@
-using System;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using Shared.Components;
 
 namespace Client.Components;
 
 public class Appearance : Component
 {
-    public Texture2D image;
+    public string texture;
     public int displaySize;
     public bool animated;
     public int frames;
@@ -15,9 +12,9 @@ public class Appearance : Component
     public int frameHeight;
     public int? staticFrame;
 
-    public Appearance(Texture2D image, int displaySize, bool animated, int frames, int frameWidth, int frameHeight, int? staticFrame=null)
+    public Appearance(string texture, int displaySize, bool animated, int frames, int frameWidth, int frameHeight, int? staticFrame=null)
     {
-        this.image = image;
+        this.texture = texture;
         this.displaySize = displaySize;
         this.animated = animated;
         this.frames = frames;

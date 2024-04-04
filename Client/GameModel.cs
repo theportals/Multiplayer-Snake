@@ -366,19 +366,24 @@ public class GameModel
     {
         for (int position = 0; position < ARENA_SIZE; position += 10)
         {
-            var left = BorderBlock.create(square, 0, position);
+            var left = BorderBlock.create("SQUARE_SPRITE", 0, position);
+            left.add(new Sprite(square));
             addEntity(left);
             
-            var right = BorderBlock.create(square, ARENA_SIZE, position);
+            var right = BorderBlock.create("SQUARE_SPRITE", ARENA_SIZE, position);
+            right.add(new Sprite(square));
             addEntity(right);
             
-            var top = BorderBlock.create(square, position, 0);
+            var top = BorderBlock.create("SQUARE_SPRITE", position, 0);
+            top.add(new Sprite(square));
             addEntity(top);
             
-            var bottom = BorderBlock.create(square, position, ARENA_SIZE);
+            var bottom = BorderBlock.create("SQUARE_SPRITE", position, ARENA_SIZE);
+            bottom.add(new Sprite(square));
             addEntity(bottom);
 
-            var bottomRight = BorderBlock.create(square, ARENA_SIZE, ARENA_SIZE);
+            var bottomRight = BorderBlock.create("SQUARE_SPRITE", ARENA_SIZE, ARENA_SIZE);
+            bottomRight.add(new Sprite(square));
             addEntity(bottomRight);
         }
     }
@@ -392,9 +397,10 @@ public class GameModel
         {
             int x = (int)rng.nextRange(1, ARENA_SIZE - 1);
             int y = (int)rng.nextRange(1, ARENA_SIZE - 1);
-            var proposed = Obstacle.create(bomb, x, y);
+            var proposed = Obstacle.create("BOMB", x, y);
             if (!mSysCollision.anyCollision(proposed))
             {
+                proposed.add(new Sprite(bomb));
                 addEntity(proposed);
                 remaining -= 1;
             }
@@ -410,9 +416,10 @@ public class GameModel
         {
             int x = (int)rng.nextRange(1, ARENA_SIZE - 1);
             int y = (int)rng.nextRange(1, ARENA_SIZE - 1);
-            var proposed = SnakeSegment.create(snakeSheet, x, y);
+            var proposed = SnakeSegment.create("SNAKE_SHEET", x, y);
             if (!mSysCollision.anyCollision(proposed))
             {
+                proposed.add(new Sprite(snakeSheet));
                 addEntity(proposed);
                 proposed.get<Shared.Components.Movable>().segmentsToAdd = 3;
                 return proposed;
@@ -431,13 +438,16 @@ public class GameModel
         {
             if (pos != null)
             {
-                return Food.create(foodSheet, (int)pos.Value.X, (int)pos.Value.Y, naturalSpawn);
+                var food = Food.create("FOOD_SHEET", (int)pos.Value.X, (int)pos.Value.Y, naturalSpawn);
+                food.add(new Sprite(foodSheet));
+                return food;
             }
             int x = (int)rng.nextRange(1, ARENA_SIZE - 1);
             int y = (int)rng.nextRange(1, ARENA_SIZE - 1);
-            var proposed = Food.create(foodSheet, x, y, naturalSpawn);
+            var proposed = Food.create("FOOD_SHEET", x, y, naturalSpawn);
             if (!mSysCollision.anyCollision(proposed))
             {
+                proposed.add(new Sprite(foodSheet));
                 return proposed;
             }
         }

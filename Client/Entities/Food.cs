@@ -9,12 +9,12 @@ namespace Client.Entities;
 
 public class Food
 {
-    public static Entity create(Texture2D square, int x, int y, bool naturalSpawn)
+    public static Entity create(string texture, int x, int y, bool naturalSpawn)
     {
         var rng = new ExtendedRandom();
         var size = rng.Next(10) + 7.5f;
         return new Entity()
-            .add(new Appearance(square, (int)size, true, 4, 1024, 1024, rng.Next(4)))
+            .add(new Appearance(texture, (int)size, true, 4, 1024, 1024, rng.Next(4)))
             .add(new RotationOffset((float)(-Math.PI / 2), 0f))
             .add(new Shared.Components.Position(x, y))
             .add(new Collision(size))

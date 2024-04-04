@@ -181,6 +181,9 @@ public class MessageQueueServer
         // SocketType.Stream is the type we use for TCP
         mListener = new Socket(ipAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
         mListener.Bind(endPoint);
+        
+        // Set the socket to listen, with a waiting queue of up to 10 connections
+        mListener.Listen(10);
 
         mThreadListener = new Thread(() =>
         {
@@ -302,7 +305,7 @@ public class MessageQueueServer
             var size = new byte[sizeof(int)];
 
             var remove = new List<int>();
-            // TODO: This is a busy loop, would be nice to efficiently wait for an incoming message
+            // This is a busy loop, would be nice to efficiently wait for an incoming message
             //       from a client
             while (mKeepRunning)
             {
