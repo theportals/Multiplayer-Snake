@@ -10,7 +10,7 @@ public class Lifetime : Shared.Systems.System
     private Action<Entity> mOnExpire;
 
     public Lifetime(Action<Entity> onExpire)
-        : base(typeof(Components.Lifetime))
+        : base(typeof(Shared.Components.Lifetime))
     {
         mOnExpire = onExpire;
     }
@@ -19,7 +19,7 @@ public class Lifetime : Shared.Systems.System
     {
         foreach (var entity in mEntities.Values)
         {
-            var lifetime = entity.get<Components.Lifetime>();
+            var lifetime = entity.get<Shared.Components.Lifetime>();
             lifetime.timeAlive += (float)gameTime.TotalSeconds;
             if (lifetime.timeAlive >= lifetime.lifetime)
             {

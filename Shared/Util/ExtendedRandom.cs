@@ -1,7 +1,6 @@
-using System;
-using Microsoft.Xna.Framework;
+using System.Numerics;
 
-namespace Client.Util;
+namespace Shared.Util;
 
 public class ExtendedRandom : Random
 {
@@ -17,7 +16,7 @@ public class ExtendedRandom : Random
     /// </summary>
     public float nextRange(float min, float max)
     {
-        return MathHelper.Lerp(min, max, (float)this.NextDouble());
+        return (float)(NextDouble() * (max - min) + min);
     }
 
     /// <summary>

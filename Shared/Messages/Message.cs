@@ -25,9 +25,10 @@ public abstract class Message
 
     public virtual int parse(byte[] data)
     {
-        int offset = 0;
+        if (data.Length < 1) return 0;
+        var offset = 0;
 
-        bool hasValue = BitConverter.ToBoolean(data, offset);
+        var hasValue = BitConverter.ToBoolean(data, offset);
         offset += sizeof(bool);
         if (hasValue)
         {

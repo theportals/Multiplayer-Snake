@@ -1,11 +1,7 @@
-using System;
-using Client.Components;
-using Client.Util;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Shared.Entities;
+using Shared.Components;
+using Shared.Util;
 
-namespace Client.Entities;
+namespace Shared.Entities;
 
 public class Food
 {

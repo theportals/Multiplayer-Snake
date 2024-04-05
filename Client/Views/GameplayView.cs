@@ -1,10 +1,12 @@
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using Client.Input;
 using Client.Util;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
+using Shared.Messages;
 
 namespace Client.Views;
 
@@ -19,6 +21,8 @@ public class GameplayView : GameStateView
     private float timeout = 5;
     private float timer = 0;
 
+    private Thread connect;
+
     public override void initializeSession()
     {
         timer = 0;
@@ -27,6 +31,14 @@ public class GameplayView : GameStateView
         mGameModel = new GameModel(mGame, mGraphics.PreferredBackBufferWidth, mGraphics.PreferredBackBufferHeight,
             mKeyboardInput, mMouseInput, mKeyboardInput.listenKeys);
         mGameModel.Initialize(mContent, mSpriteBatch);
+        
+        connect = new Thread(() =>
+        {
+            connected = MessageQueueClient.instance.initialize("localhost", 3000);
+            // Clear out the message queue buffer
+            MessageQueueClient.instance.getMessages();
+        });
+        connect.Start();
     }
 
     public override void loadContent(ContentManager contentManager)
@@ -37,19 +49,16 @@ public class GameplayView : GameStateView
 
     public override void update(GameTime gameTime)
     {
-        if (firstFrame)
-        {
-            render(gameTime);
-            firstFrame = false;
-            connected = MessageQueueClient.instance.initialize("localhost", 3000);
-            return;
-        }
         if (connected) mGameModel.update(gameTime);
         else
         {
             timer += (float)gameTime.ElapsedGameTime.TotalSeconds;
-            if (timer >= timeout) mGame.changeState(GameStates.MAIN_MENU);
-        };
+            if (timer >= timeout)
+            {
+                Console.WriteLine("Timed out");
+                mGameModel.disconnect();
+            }
+        }
     }
 
     public override void render(GameTime gameTime)

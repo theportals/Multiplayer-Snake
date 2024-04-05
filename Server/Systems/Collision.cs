@@ -1,9 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Shared.Entities;
+using Food = Shared.Components.Food;
 
-namespace Client.Systems;
+namespace Server.Systems;
 
 public class Collision : Shared.Systems.System
 {
@@ -28,9 +26,9 @@ public class Collision : Shared.Systems.System
                 if (collides(entity, entityMovable))
                 {
                     // No worries if collides with food
-                    if (entity.contains<Components.Food>())
+                    if (entity.contains<Food>())
                     {
-                        var food = entity.get<Components.Food>();
+                        var food = entity.get<Food>();
                         if (food.naturalSpawn) entityMovable.get<Shared.Components.Movable>().segmentsToAdd = 3;
                         else entityMovable.get<Shared.Components.Movable>().segmentsToAdd = 1;
                         mFoodConsumed(entity);
@@ -47,7 +45,7 @@ public class Collision : Shared.Systems.System
     public bool anyCollision(Entity proposed)
     {
         return mEntities.Values
-            .Where(entity => entity.contains<Components.Collision>() 
+            .Where(entity => entity.contains<Shared.Components.Collision>() 
                              && entity.contains<Shared.Components.Position>())
             .Any(entity => collides(proposed, entity));
     }
@@ -60,9 +58,9 @@ public class Collision : Shared.Systems.System
     private bool collides(Entity a, Entity b)
     {
         var aPos = a.get<Shared.Components.Position>();
-        var aCol = a.get<Components.Collision>();
+        var aCol = a.get<Shared.Components.Collision>();
         var bPos = b.get<Shared.Components.Position>();
-        var bCol = b.get<Components.Collision>();
+        var bCol = b.get<Shared.Components.Collision>();
 
         float d2;
         double r2;

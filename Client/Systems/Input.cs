@@ -2,6 +2,7 @@ using System;
 using Client.Input;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
+using Shared.Components;
 
 namespace Client.Systems;
 
@@ -25,7 +26,7 @@ public class Input : Shared.Systems.System
     private const float TURN_DEADZONE = (float)(2 * Math.PI / 180);
     
     public Input(KeyboardInput keyboardInput, MouseInput mouseInput, bool listenKeys, int arenaSize, int windowWidth, int windowHeight, bool absCursor, float zoom=1)
-        : base(typeof(Components.Controllable))
+        : base(typeof(Controllable))
     {
         mKeyboardInput = keyboardInput;
         mMouseInput = mouseInput;

@@ -43,15 +43,44 @@ public class MessageQueueClient
 
     public bool initialize(string address, ushort port)
     {
+        mKeepRunning = true;
         var ipAddress = parseIPAddress(address);
         var endpoint = new IPEndPoint(ipAddress, port);
 
         mSocketServer = new Socket(endpoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
 
-        mMessageCommand[Type.ConnectAck] = () => new ConnectAck();
-        mMessageCommand[Type.NewEntity] = () => new NewEntity();
-        mMessageCommand[Type.UpdateEntity] = () => new UpdateEntity();
-        mMessageCommand[Type.RemoveEntity] = () => new RemoveEntity();
+        mMessageCommand[Type.ConnectAck] = () =>
+        {
+            Console.WriteLine("Connect message received");
+            return new ConnectAck();
+        };
+        mMessageCommand[Type.NewEntity] = () =>
+        {
+            // Console.WriteLine("NewEntity message received");
+            return new NewEntity();
+        };
+        mMessageCommand[Type.UpdateEntity] = () =>
+        {
+            Console.WriteLine("UpdateEntity message received");
+            return new UpdateEntity();
+        };
+        mMessageCommand[Type.RemoveEntity] = () =>
+        {
+            Console.WriteLine("RemoveEntity message received");
+            return new RemoveEntity();
+        };
+        mMessageCommand[Type.Join] = () => { 
+            Console.WriteLine("Join message received");
+            return new Join();
+        };
+        mMessageCommand[Type.Input] = () => {
+            Console.WriteLine("Input message received");
+            return new Shared.Messages.Input();
+        };
+        mMessageCommand[Type.Disconnect] = () => { 
+            Console.WriteLine("Disconnect message received");
+            return new Disconnect();
+        };
 
         try
         {
@@ -175,7 +204,7 @@ public class MessageQueueClient
     {
         mThreadReceiver = new Thread(() =>
         {
-            var type = new byte[sizeof(Type)];
+            var type = new byte[sizeof(Shared.Messages.Type)];
             var size = new byte[sizeof(int)];
 
             mSocketServer.ReceiveTimeout = 100; // Milliseconds
@@ -202,8 +231,19 @@ public class MessageQueueClient
                         var body = new byte[BitConverter.ToInt32(size)];
                         mSocketServer.Receive(body);
                         // Deserialize into actual message
-                        var message = mMessageCommand[(Shared.Messages.Type)BitConverter.ToUInt16(type)]();
-                        message.parse(body);
+                        Message message;
+                        Shared.Messages.Type mtype;
+                        mtype = (Shared.Messages.Type)BitConverter.ToUInt16(type);
+                        try
+                        {
+                            message = mMessageCommand[(Shared.Messages.Type)BitConverter.ToUInt16(type)]();
+                            message.parse(body);
+                        }
+                        catch (KeyNotFoundException)
+                        {
+                            Console.WriteLine($"Could not find command for message type {(Shared.Messages.Type)BitConverter.ToUInt16(type)}");
+                            continue;
+                        }
 
                         lock (mMutexReceivedMessages)
                         {

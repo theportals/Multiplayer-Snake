@@ -5,6 +5,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Shared.Components;
 using Shared.Entities;
+using Shared.Util;
 
 namespace Client.Util;
 

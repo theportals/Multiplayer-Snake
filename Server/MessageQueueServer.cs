@@ -114,13 +114,14 @@ public class MessageQueueServer
     /// Send the message to all connected clients.
     /// </summary>
     /// <param name="message"></param>
-    public void broadcastMessage(Message message)
+    /// <param name="ignore"></param>
+    public void broadcastMessage(Message message, List<int>? ignore=null)
     {
         lock (mMutexSockets)
         {
             foreach (var clientId in mClients.Keys)
             {
-                sendMessage(clientId, message);
+                if (ignore == null || !ignore.Contains(clientId)) sendMessage(clientId, message);
             }
         }
     }
@@ -233,7 +234,7 @@ public class MessageQueueServer
                         {
                             try
                             {
-                                Console.WriteLine($"Sending message {item.Item3.type} to {item.Item1}");
+                                if (item.Item3.type != Type.NewEntity) Console.WriteLine($"Sending message {item.Item3.type} to {item.Item1}");
                                 // Three items are sent; type, size, and body
                                 var type = BitConverter.GetBytes((UInt16)item.Item3.type);
                                 var body = item.Item3.serialize();

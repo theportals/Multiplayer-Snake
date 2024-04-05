@@ -1,6 +1,8 @@
 using Client.Util;
 using Microsoft.Xna.Framework.Graphics;
+using Shared.Components;
 using Shared.Entities;
+using Shared.Util;
 
 namespace Client.Entities;
 
@@ -11,9 +13,9 @@ public class Particle
     {
         return new Entity()
                 .add(new Shared.Components.Position(x, y))
-                .add(new Components.Appearance(texture, (int)rng.nextGaussian(sizeMean,sizeStdDev), false, 0, 0, 0))
+                .add(new Appearance(texture, (int)rng.nextGaussian(sizeMean,sizeStdDev), false, 0, 0, 0))
                 .add(new Shared.Components.Movable((float)rng.nextGaussian(moveDir, moveDirStdDev), (float)rng.nextGaussian(speed, speedStdDev), 0f))
-                .add(new Components.Lifetime((float)rng.nextGaussian(lifetime, lifetimeStdDev)))
-                .add(new Components.RotationOffset(baseRotation, (float)rng.nextGaussian(rotationSpeed, rotationSpeedStdDev)));
+                .add(new Lifetime((float)rng.nextGaussian(lifetime, lifetimeStdDev)))
+                .add(new RotationOffset(baseRotation, (float)rng.nextGaussian(rotationSpeed, rotationSpeedStdDev)));
     }
 }

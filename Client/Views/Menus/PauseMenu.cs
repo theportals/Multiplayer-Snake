@@ -104,8 +104,7 @@ public class PauseMenu : Menu
         var close = new MenuOption("Close Menu", this.close, mGraphics.PreferredBackBufferWidth / 3, 2 * mGraphics.PreferredBackBufferHeight / 3, mFont);
         var mainMenu = new MenuOption("Return to Title", () =>
         {
-            // MessageQueueClient.instance.sendMessage(new Disconnect());
-            mGame.changeState(GameStates.MAIN_MENU);
+            mModel.disconnect();
         }, 2 * mGraphics.PreferredBackBufferWidth / 3, 2 * mGraphics.PreferredBackBufferHeight / 3, mFont);
         var respawn = new MenuOption("Respawn", () =>
         {

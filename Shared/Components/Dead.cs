@@ -1,6 +1,4 @@
-using Shared.Components;
-
-namespace Client.Components;
+namespace Shared.Components;
 
 public class Dead : Component
 {

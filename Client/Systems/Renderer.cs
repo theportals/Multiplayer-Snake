@@ -3,6 +3,7 @@ using Client.Components;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Client.Entities;
+using Shared.Components;
 using Shared.Entities;
 
 namespace Client.Systems;
@@ -21,7 +22,7 @@ public class Renderer : Shared.Systems.System
     private Entity? mFollow;
 
     public Renderer(SpriteBatch spriteBatch, SpriteFont font, Texture2D background, int windowWidth, int windowHeight, int arenaSize, Entity? toFollow, float zoom=1)
-        : base(typeof(Components.Appearance), typeof(Shared.Components.Position), typeof(Components.Sprite))
+        : base(typeof(Appearance), typeof(Shared.Components.Position), typeof(Components.Sprite))
     {
         mFont = font;
         ARENA_SIZE = arenaSize;
@@ -81,7 +82,7 @@ public class Renderer : Shared.Systems.System
 
     private void renderEntity(Entity entity, Vector2 centerPoint)
     {
-        var appearance = entity.get<Components.Appearance>();
+        var appearance = entity.get<Appearance>();
         var pos = entity.get<Shared.Components.Position>();
         var sprite = entity.get<Sprite>();
         Vector2 drawPos = new Vector2();
@@ -103,7 +104,14 @@ public class Renderer : Shared.Systems.System
             if (entity.contains<RotationOffset>()) rot += entity.get<RotationOffset>().offset;
             
             var c = Color.White;
-            if (entity.contains<ColorOverride>()) c = entity.get<ColorOverride>().color;
+            if (entity.contains<ColorOverride>())
+            {
+                var color = entity.get<ColorOverride>().color;
+                c.R = color.R;
+                c.G = color.G;
+                c.B = color.B;
+                c.A = color.A;
+            }
             if (entity.contains<Boostable>())
             {
                 var boost = entity.get<Boostable>();

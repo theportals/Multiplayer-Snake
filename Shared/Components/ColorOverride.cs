@@ -1,7 +1,6 @@
-using Microsoft.Xna.Framework;
-using Shared.Components;
+using System.Drawing;
 
-namespace Client.Components;
+namespace Shared.Components;
 
 public class ColorOverride : Component
 {
