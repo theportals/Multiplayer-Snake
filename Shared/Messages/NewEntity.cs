@@ -79,6 +79,40 @@ public class NewEntity : Message
             hasPlayername = true;
             playerName = entity.get<PlayerName>().playerName;
         }
+
+        if (entity.contains<Controllable>())
+        {
+            controllable = true;
+        }
+
+        if (entity.contains<Boostable>())
+        {
+            boostable = true;
+            var boost = entity.get<Boostable>();
+            maxStamina = boost.maxStamina;
+            stamina = boost.stamina;
+            regenRate = boost.regenRate;
+            staminaDrain = boost.staminaDrain;
+            speedModifier = boost.speedModifier;
+            penaltySpeed = boost.penaltySpeed;
+            boosting = boost.boosting;
+        }
+
+        if (entity.contains<Alive>())
+        {
+            alive = true;
+        }
+
+        if (entity.contains<Snakeitude>())
+        {
+            snakeitude = true;
+        }
+
+        if (entity.contains<Components.Food>())
+        {
+            food = true;
+            naturalSpawn = entity.get<Components.Food>().naturalSpawn;
+        }
     }
 
     public NewEntity() : base(Type.NewEntity)
@@ -132,6 +166,29 @@ public class NewEntity : Message
     
     // Camera following
     public bool suggestFollow { get; private set; } = false;
+    
+    // Controllable
+    public bool controllable { get; private set; } = false;
+    
+    // Boostable
+    public bool boostable { get; private set; } = false;
+    public float maxStamina { get; private set; }
+    public float stamina { get; private set; }
+    public float regenRate { get; private set; }
+    public float staminaDrain { get; private set; }
+    public float speedModifier { get; private set; }
+    public float penaltySpeed { get; private set; }
+    public bool boosting { get; private set; } = false;
+    
+    // Alive
+    public bool alive { get; private set; } = false;
+    
+    // Snakeitude
+    public bool snakeitude { get; private set; } = false;
+    
+    // Food
+    public bool food { get; private set; } = false;
+    public bool naturalSpawn { get; private set; } = true;
 
     public override byte[] serialize()
     {
@@ -208,6 +265,30 @@ public class NewEntity : Message
         }
         
         data.AddRange(BitConverter.GetBytes(suggestFollow));
+        
+        data.AddRange(BitConverter.GetBytes(controllable));
+        
+        data.AddRange(BitConverter.GetBytes(boostable));
+        if (boostable)
+        {
+            data.AddRange(BitConverter.GetBytes(maxStamina));
+            data.AddRange(BitConverter.GetBytes(stamina));
+            data.AddRange(BitConverter.GetBytes(regenRate));
+            data.AddRange(BitConverter.GetBytes(staminaDrain));
+            data.AddRange(BitConverter.GetBytes(speedModifier));
+            data.AddRange(BitConverter.GetBytes(penaltySpeed));
+            data.AddRange(BitConverter.GetBytes(boosting));
+        }
+        
+        data.AddRange(BitConverter.GetBytes(alive));
+        
+        data.AddRange(BitConverter.GetBytes(snakeitude));
+        
+        data.AddRange(BitConverter.GetBytes(food));
+        if (food)
+        {
+            data.AddRange(BitConverter.GetBytes(naturalSpawn));
+        }
 
         return data.ToArray();
     }
@@ -325,6 +406,43 @@ public class NewEntity : Message
 
         suggestFollow = BitConverter.ToBoolean(data, offset);
         offset += sizeof(bool);
+        
+        controllable = BitConverter.ToBoolean(data, offset);
+        offset += sizeof(bool);
+
+        boostable = BitConverter.ToBoolean(data, offset);
+        offset += sizeof(bool);
+        if (boostable)
+        {
+            maxStamina = BitConverter.ToSingle(data, offset);
+            offset += sizeof(Single);
+            stamina = BitConverter.ToSingle(data, offset);
+            offset += sizeof(Single);
+            regenRate = BitConverter.ToSingle(data, offset);
+            offset += sizeof(Single);
+            staminaDrain = BitConverter.ToSingle(data, offset);
+            offset += sizeof(Single);
+            speedModifier = BitConverter.ToSingle(data, offset);
+            offset += sizeof(Single);
+            penaltySpeed = BitConverter.ToSingle(data, offset);
+            offset += sizeof(Single);
+            boosting = BitConverter.ToBoolean(data, offset);
+            offset += sizeof(bool);
+        }
+
+        alive = BitConverter.ToBoolean(data, offset);
+        offset += sizeof(bool);
+
+        snakeitude = BitConverter.ToBoolean(data, offset);
+        offset += sizeof(bool);
+
+        food = BitConverter.ToBoolean(data, offset);
+        offset += sizeof(bool);
+        if (food)
+        {
+            naturalSpawn = BitConverter.ToBoolean(data, offset);
+            offset += sizeof(bool);
+        }
 
         return offset;
     }

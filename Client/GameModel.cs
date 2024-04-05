@@ -209,7 +209,33 @@ public class GameModel
         {
             mPlayerSnake = entity;
             mSysRenderer.follow(entity);
-            
+
+            // We only want to attempt to control snakes we own
+            if (message.controllable)
+            {
+                entity.add(new Controllable());
+            }
+        }
+
+        if (message.boostable)
+        {
+            entity.add(new Boostable(message.maxStamina, message.staminaDrain, message.speedModifier, message.regenRate,
+                message.penaltySpeed, message.stamina, message.boosting));
+        }
+
+        if (message.alive)
+        {
+            entity.add(new Alive());
+        }
+
+        if (message.snakeitude)
+        {
+            entity.add(new Snakeitude());
+        }
+
+        if (message.food)
+        {
+            entity.add(new Shared.Components.Food(message.naturalSpawn));
         }
 
         return entity;
@@ -267,19 +293,14 @@ public class GameModel
             mPlayerSnake = null;
         }
         
-        // snake.get<PlayerName>().playerName = mGame.playerName;
-        // mSysRenderer.follow(snake);
-
-        // mPlayerSnake = snake;
-        
-        // if (mListenKeys) mKeyboardInput.registerCommand(InputDevice.Commands.BOOST, 
-        //     _ => boostOn(snake), 
-        //     _ => playBoost(snake), 
-        //     _ => boostOff(snake));
-        // else mMouseInput.registerMouseRegion(null, MouseInput.MouseActions.L_CLICK, 
-        //     _ => boostOn(snake), 
-        //     _ => playBoost(snake), 
-            // _ => boostOff(snake));
+        if (mListenKeys) mKeyboardInput.registerCommand(InputDevice.Commands.BOOST, 
+            _ => boostOn(mPlayerSnake), 
+            _ => playBoost(mPlayerSnake), 
+            _ => boostOff(mPlayerSnake));
+        else mMouseInput.registerMouseRegion(null, MouseInput.MouseActions.L_CLICK, 
+            _ => boostOn(mPlayerSnake), 
+            _ => playBoost(mPlayerSnake), 
+            _ => boostOff(mPlayerSnake));
 
         var t = new Tuple<string, int>(Client.playerName, 0);
         mLeaderboard.Add(t);
