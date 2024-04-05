@@ -7,7 +7,7 @@ public class SnakeSegment
     public const float MOVE_SPEED = 100;
     private const float TURN_SPEED = 4;
 
-    public static Entity create(string spriteSheet, int x, int y, int segmentsToAdd=0)
+    public static Entity create(string spriteSheet, int x, int y, int segmentsToAdd=0, string playerName="NOT INITIALIZED")
     {
         var rng = new Random();
         return new Entity()
@@ -18,7 +18,7 @@ public class SnakeSegment
             .add(new Controllable())
             .add(new Alive())
             .add(new Boostable(3, 1, 2, 0.5f, 0.75f))
-            .add(new PlayerName("NOT INITIALIZED"))
+            .add(new PlayerName(playerName))
             .add(new Snakeitude());
     }
 }

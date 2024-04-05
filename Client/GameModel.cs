@@ -200,6 +200,18 @@ public class GameModel
             entity.add(new ColorOverride(System.Drawing.Color.FromArgb(message.cR, message.cG, message.cB)));
         }
 
+        if (message.hasPlayername)
+        {
+            entity.add(new PlayerName(message.playerName));
+        }
+
+        if (message.suggestFollow)
+        {
+            mPlayerSnake = entity;
+            mSysRenderer.follow(entity);
+            
+        }
+
         return entity;
     }
 
@@ -269,7 +281,7 @@ public class GameModel
         //     _ => playBoost(snake), 
             // _ => boostOff(snake));
 
-        var t = new Tuple<string, int>(mGame.playerName, 0);
+        var t = new Tuple<string, int>(Client.playerName, 0);
         mLeaderboard.Add(t);
         mLeaderboard.Sort((t1, t2) => t2.Item2 - t1.Item2);
         mBestRank = mLeaderboard.IndexOf(t);

@@ -64,6 +64,8 @@ public class Renderer : Shared.Systems.System
         }
         else
         {
+            OFFSET_X = (WINDOW_WIDTH - ARENA_SIZE) / 2;
+            OFFSET_Y = (WINDOW_HEIGHT - ARENA_SIZE) / 2;
             var followPos = mFollow.get<Shared.Components.Position>();
             centerPoint.X = followPos.x;
             centerPoint.Y = followPos.y;

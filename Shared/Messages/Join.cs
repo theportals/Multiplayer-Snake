@@ -1,26 +1,40 @@
+using System.Runtime.Loader;
+using System.Text;
+
 namespace Shared.Messages;
 
 public class Join : Message
 {
+    public string playerName { get; private set; }
     public Join() : base(Type.Join)
     {
     }
 
-    /// <summary>
-    /// In this case, the message type is all we need, so just sending a single
-    /// byte of empty data as the message body.
-    /// </summary>
+    public Join(string playerName) : base(Type.Join)
+    {
+        Console.WriteLine($"Constructing packet with name {playerName}");
+        this.playerName = playerName;
+    }
+    
     public override byte[] serialize()
     {
-        return base.serialize();
-    }
+        var data = new List<Byte>();
+        data.AddRange(base.serialize());
+        data.AddRange(BitConverter.GetBytes(playerName.Length));
+        data.AddRange(Encoding.UTF8.GetBytes(playerName));
 
-    /// <summary>
-    /// Don't actually need to parse anything, as the message body is just a
-    /// dummy byte.
-    /// </summary>
+        return data.ToArray();
+    }
+    
     public override int parse(byte[] data)
     {
-        return base.parse(data);
+        var offset = base.parse(data);
+
+        var nameSize = BitConverter.ToInt32(data, offset);
+        offset += sizeof(Int32);
+        if (nameSize > 0) playerName = Encoding.UTF8.GetString(data, offset, nameSize);
+        offset += nameSize;
+
+        return offset;
     }
 }

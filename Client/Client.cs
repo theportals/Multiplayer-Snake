@@ -21,7 +21,7 @@ public class Client : Game
     private MouseInput mMouseInput;
     public List<Tuple<int, DateTime>> mHighscores;
     public static Texture2D pixel;
-    public string playerName = "";
+    public static string playerName = "";
     public bool tutorialCompleted = false;
 
     public Client()

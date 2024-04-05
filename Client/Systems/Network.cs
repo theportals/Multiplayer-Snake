@@ -113,7 +113,7 @@ public class Network : Shared.Systems.System
     private void handleConnectAck(TimeSpan gameTime, ConnectAck message)
     {
         Console.WriteLine("Sending Join");
-        MessageQueueClient.instance.sendMessage(new Join());
+        MessageQueueClient.instance.sendMessage(new Join(Client.playerName));
     }
 
     private void handleUpdateEntity(TimeSpan gameTime, UpdateEntity message)

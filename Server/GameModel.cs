@@ -126,23 +126,24 @@ public class GameModel
         }
     }
 
-    private void handleJoin(int clientId)
+    private void handleJoin(int clientId, string playerName)
     {
+        Console.WriteLine($"{playerName} joined");
         // Step 1: Tell the newly connected player about all other entities
         reportAllEntities(clientId);
-        spawnSnake(clientId);
+        spawnSnake(clientId, playerName);
     }
 
-    private void spawnSnake(int clientId)
+    private void spawnSnake(int clientId, string playerName)
     {
         // Step 2: Create an entity for the newly joined player and send it to the newly joined client
         // TODO: Player spawns in the least populated area
-        var snake = SnakeSegment.create("Images/Snake_Sheet", 500, 500, 3);
+        var snake = SnakeSegment.create("Images/Snake_Sheet", 500, 500, 3, playerName);
         addEntity(snake);
         mClientToEntityId[clientId] = snake.id;
         
         // Step 3: Send the new snake to the newly joined client
-        MessageQueueServer.instance.sendMessage(clientId, new NewEntity(snake));
+        MessageQueueServer.instance.sendMessage(clientId, new NewEntity(snake, true));
         
         // Step 4: Let all other clients know about the new entity
         // Remove components not needed for other players

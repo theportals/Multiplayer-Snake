@@ -33,13 +33,13 @@ public class MainMenuView : Menu
                 mMenuSelectSound.Play();
                 this.submitName(n);
             },
-            mGame.playerName);
+            Client.playerName);
         mSelected = null;
         var start = 2 * mGraphics.PreferredBackBufferHeight / 3;
         const int spacing = 100;
         var newGame = new MenuOption("New Game", () =>
         {
-            if (mGame.playerName == "")
+            if (Client.playerName == "")
             {
                 nameError = "Please choose a name!";
                 return;
@@ -94,7 +94,7 @@ public class MainMenuView : Menu
         
         var tutorial = new MenuOption("Tutorial", () =>
             {
-                if (mGame.playerName == "")
+                if (Client.playerName == "")
                 {
                     nameError = "Please choose a name!";
                     return;
@@ -117,7 +117,7 @@ public class MainMenuView : Menu
         }
 
         nameError = "";
-        mGame.playerName = name;
+        Client.playerName = name;
     }
 
     public override void update(GameTime gameTime)

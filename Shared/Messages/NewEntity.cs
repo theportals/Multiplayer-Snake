@@ -1,5 +1,6 @@
 using System.Numerics;
 using System.Text;
+using System.Text.Unicode;
 using Shared.Components;
 using Shared.Entities;
 
@@ -7,9 +8,10 @@ namespace Shared.Messages;
 
 public class NewEntity : Message
 {
-    public NewEntity(Entity entity) : base(Type.NewEntity)
+    public NewEntity(Entity entity, bool suggestFollow=false) : base(Type.NewEntity)
     {
         id = entity.id;
+        this.suggestFollow = suggestFollow;
 
         if (entity.contains<Appearance>())
         {
@@ -71,6 +73,12 @@ public class NewEntity : Message
             cG = c.G;
             cB = c.B;
         }
+
+        if (entity.contains<PlayerName>())
+        {
+            hasPlayername = true;
+            playerName = entity.get<PlayerName>().playerName;
+        }
     }
 
     public NewEntity() : base(Type.NewEntity)
@@ -117,6 +125,13 @@ public class NewEntity : Message
     public int cR { get; private set; }
     public int cG { get; private set; }
     public int cB { get; private set; }
+    
+    // Player name
+    public bool hasPlayername { get; private set; } = false;
+    public string playerName { get; private set; }
+    
+    // Camera following
+    public bool suggestFollow { get; private set; } = false;
 
     public override byte[] serialize()
     {
@@ -184,6 +199,15 @@ public class NewEntity : Message
             data.AddRange(BitConverter.GetBytes(cG));
             data.AddRange(BitConverter.GetBytes(cB));
         }
+        
+        data.AddRange(BitConverter.GetBytes(hasPlayername));
+        if (hasPlayername)
+        {
+            data.AddRange(BitConverter.GetBytes(playerName.Length));
+            data.AddRange(Encoding.UTF8.GetBytes(playerName));
+        }
+        
+        data.AddRange(BitConverter.GetBytes(suggestFollow));
 
         return data.ToArray();
     }
@@ -288,6 +312,19 @@ public class NewEntity : Message
             cB = BitConverter.ToInt32(data, offset);
             offset += sizeof(Int32);
         }
+
+        hasPlayername = BitConverter.ToBoolean(data, offset);
+        offset += sizeof(bool);
+        if (hasPlayername)
+        {
+            var nameSize = BitConverter.ToInt32(data, offset);
+            offset += sizeof(Int32);
+            playerName = Encoding.UTF8.GetString(data, offset, nameSize);
+            offset += nameSize;
+        }
+
+        suggestFollow = BitConverter.ToBoolean(data, offset);
+        offset += sizeof(bool);
 
         return offset;
     }
