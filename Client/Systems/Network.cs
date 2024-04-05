@@ -27,7 +27,6 @@ public class Network : Shared.Systems.System
         
         registerHandler(Type.NewEntity, (gameTime, message) =>
         {
-            // Console.WriteLine("NewEntity received!");
             mNewEntityHandler((NewEntity)message);
         });
         

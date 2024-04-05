@@ -1,8 +1,12 @@
 using System.Numerics;
-using Server.Systems;
+using System.Text;
+using Shared.Components;
 using Shared.Entities;
 using Shared.Messages;
 using Shared.Util;
+using Collision = Server.Systems.Collision;
+using Food = Shared.Entities.Food;
+using Lifetime = Shared.Systems.Lifetime;
 
 namespace Server;
 
@@ -13,10 +17,12 @@ public class GameModel
     private Dictionary<uint, Entity> mEntities = new Dictionary<uint, Entity>();
     private Dictionary<int, uint> mClientToEntityId = new Dictionary<int, uint>();
 
+    private List<Entity> mToAdd = new();
     private List<Entity> mToRemove = new();
 
     Systems.Network mSystemNetwork = new Server.Systems.Network();
     private Collision mSysCollision;
+    private Shared.Systems.Lifetime mSysLifetime;
 
     /// <summary>
     /// This is where the server-side simulation takes place.  Messages
@@ -28,6 +34,19 @@ public class GameModel
         mSystemNetwork.update(elapsedTime, MessageQueueServer.instance.getMessages());
         
         mSysCollision.update(elapsedTime);
+        mSysLifetime.update(elapsedTime);
+
+        foreach (var entity in mToRemove)
+        {
+            removeEntity(entity.id);
+        }
+        mToRemove.Clear();
+
+        foreach (var entity in mToAdd)
+        {
+            addEntity(entity);
+        }
+        mToAdd.Clear();
     }
 
     public bool initialize()
@@ -40,6 +59,9 @@ public class GameModel
         mSysCollision = new Collision(food =>
         {
             // Called when player collides with food
+            mToRemove.Add(food);
+            Console.WriteLine("Food consumed!");
+            MessageQueueServer.instance.broadcastMessage(new RemoveEntity(food.id));
             // score.Play();
             // mToRemove.Add(e);
             // mScore += 1;
@@ -53,6 +75,7 @@ public class GameModel
         }, e =>
         {
             // Called when player collides with non-food
+            Console.WriteLine("Player collision!");
             // mPlayerSnake = null;
             // mPause.gameOver = true;
             // mPause.open();
@@ -60,6 +83,13 @@ public class GameModel
             // addParticlesLater(ParticleUtil.playerDeath(fire, smoke, e));
             // thrustInstance.Pause();
             // explode.Play();
+        });
+
+        mSysLifetime = new Shared.Systems.Lifetime(food =>
+        {
+            mToRemove.Add(food);
+            if (food.get<Shared.Components.Food>().naturalSpawn) mToAdd.Add(createFood(true));
+            MessageQueueServer.instance.broadcastMessage(new RemoveEntity(food.id));
         });
         
         // Initialize arena
@@ -70,6 +100,7 @@ public class GameModel
             addEntity(createFood());
         }
         
+        Console.WriteLine();
         return true;
     }
 
@@ -108,14 +139,15 @@ public class GameModel
         mEntities[entity.id] = entity;
         mSystemNetwork.add(entity);
         mSysCollision.add(entity);
+        mSysLifetime.add(entity);
     }
 
     private void removeEntity(uint id)
     {
-        Console.WriteLine($"Removing entity {id}");
         mEntities.Remove(id);
         mSystemNetwork.remove(id);
         mSysCollision.remove(id);
+        mSysLifetime.remove(id);
     }
 
     private void reportAllEntities(int clientId)
@@ -215,6 +247,7 @@ public class GameModel
             var proposed = Food.create("Images/Food_Sheet", x, y, naturalSpawn);
             if (!mSysCollision.anyCollision(proposed))
             {
+                MessageQueueServer.instance.broadcastMessage(new NewEntity(proposed));
                 return proposed;
             }
         }

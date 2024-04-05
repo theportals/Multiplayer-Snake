@@ -1,9 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Shared.Entities;
 
-namespace Client.Systems;
+namespace Shared.Systems;
 
 public class Lifetime : Shared.Systems.System
 {

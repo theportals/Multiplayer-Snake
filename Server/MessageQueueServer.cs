@@ -115,13 +115,13 @@ public class MessageQueueServer
     /// </summary>
     /// <param name="message"></param>
     /// <param name="ignore"></param>
-    public void broadcastMessage(Message message, List<int>? ignore=null)
+    public void broadcastMessage(Message message)
     {
         lock (mMutexSockets)
         {
             foreach (var clientId in mClients.Keys)
             {
-                if (ignore == null || !ignore.Contains(clientId)) sendMessage(clientId, message);
+               sendMessage(clientId, message);
             }
         }
     }

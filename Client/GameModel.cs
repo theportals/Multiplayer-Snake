@@ -17,6 +17,7 @@ using Shared.Entities;
 using Shared.Messages;
 using Shared.Util;
 using Food = Shared.Entities.Food;
+using Lifetime = Shared.Systems.Lifetime;
 
 namespace Client;
 
@@ -34,8 +35,8 @@ public class GameModel
     private Systems.Renderer mSysRenderer;
     private Systems.Movement mSysMovement;
     private Systems.Input mSysInput;
-    private Systems.Lifetime mSysLifetime;
-    private Systems.Lifetime mSysParticleLifetime;
+    private Lifetime mSysLifetime;
+    private Lifetime mSysParticleLifetime;
 
     private Systems.Network mSysNetwork;
     private Systems.Interpolation mSysInterp;
@@ -109,13 +110,13 @@ public class GameModel
 
         mSysMovement = new Systems.Movement();
         mSysInput = new Systems.Input(mKeyboardInput, mMouseInput, mListenKeys, Constants.ARENA_SIZE, WINDOW_WIDTH, WINDOW_HEIGHT, false);
-        mSysLifetime = new Systems.Lifetime(e =>
+        mSysLifetime = new Lifetime(e =>
         {
             mToRemove.Add(e);
             var food = e.get<Shared.Components.Food>();
             // if (food.naturalSpawn) mToAdd.Add(createFood(true));
         });
-        mSysParticleLifetime = new Systems.Lifetime(e =>
+        mSysParticleLifetime = new Lifetime(e =>
         {
             mToRemove.Add(e);
         });

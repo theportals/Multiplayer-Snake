@@ -68,7 +68,6 @@ public class MessageQueueClient
         };
         mMessageCommand[Type.RemoveEntity] = () =>
         {
-            Console.WriteLine("RemoveEntity message received");
             return new RemoveEntity();
         };
         mMessageCommand[Type.Join] = () => { 
