@@ -7,7 +7,7 @@ namespace Client.Systems;
 
 public class Interpolation : Shared.Systems.System
 {
-    public Interpolation() : base(typeof(Shared.Components.Position), typeof(Shared.Components.Movable))
+    public Interpolation() : base(typeof(Shared.Components.Position), typeof(Shared.Components.Movable), typeof(Shared.Components.Boostable))
     {
     }
 
@@ -21,7 +21,8 @@ public class Interpolation : Shared.Systems.System
                 interested = true;
                 var position = entity.get<Shared.Components.Position>();
                 var movement = entity.get<Shared.Components.Movable>();
-                entity.add(new Components.Goal(position.segments, movement.facing));
+                var boost = entity.get<Shared.Components.Boostable>();
+                entity.add(new Components.Goal(position.segments, movement.facing, boost.stamina));
             }
         }
 
@@ -34,6 +35,7 @@ public class Interpolation : Shared.Systems.System
         {
             var position = entity.get<Shared.Components.Position>();
             var movement = entity.get<Shared.Components.Movable>();
+            var boost = entity.get<Shared.Components.Boostable>();
             var goal = entity.get<Components.Goal>();
 
             if (goal.updateWindow > TimeSpan.Zero && goal.updatedTime < goal.updateWindow)
@@ -42,8 +44,9 @@ public class Interpolation : Shared.Systems.System
                 var updateFraction = (float)gameTime.Milliseconds / goal.updateWindow.Milliseconds;
 
                 movement.facing = movement.facing - (goal.startFacing - goal.goalFacing) * updateFraction;
+                boost.stamina = boost.stamina - (goal.startStamina - goal.goalStamina) * updateFraction;
 
-                var startSegments = position.segments.Count;
+                
                 position.segments = new List<Vector2>();
                 for (var i = 0; i < goal.startSegments.Count; i++)
                 {

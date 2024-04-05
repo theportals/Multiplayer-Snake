@@ -10,12 +10,22 @@ public class UpdateEntity : Message
         {
             id = entity.id;
 
-            if (entity.contains<Position>() && entity.contains<Movable>())
+            if (entity.contains<Position>())
             {
                 hasPosition = true;
-                hasMovement = true;
                 segments = entity.get<Position>().segments;
+            }
+
+            if (entity.contains<Movable>())
+            {
+                hasMovement = true;
                 facing = entity.get<Movable>().facing;
+            }
+
+            if (entity.contains<Boostable>())
+            {
+                hasBoost = true;
+                stamina = entity.get<Boostable>().stamina;
             }
 
             this.updateWindow = updateWindow;
@@ -34,9 +44,11 @@ public class UpdateEntity : Message
         
         // Movement
         public bool hasMovement { get; private set; } = false;
-        // public float moveSpeed { get; private set; }
-        // public float turnSpeed { get; private set; }
         public float facing { get; private set; }
+        
+        // Boost
+        public bool hasBoost { get; private set; } = false;
+        public float stamina { get; private set; }
 
         // Only the milliseconds are used/serialized
         public TimeSpan updateWindow { get; private set; } = TimeSpan.Zero;
@@ -64,6 +76,12 @@ public class UpdateEntity : Message
             if (hasMovement)
             {
                 data.AddRange(BitConverter.GetBytes(facing));
+            }
+            
+            data.AddRange(BitConverter.GetBytes(hasBoost));
+            if (hasBoost)
+            {
+                data.AddRange(BitConverter.GetBytes(stamina));
             }
 
             data.AddRange(BitConverter.GetBytes(updateWindow.Milliseconds));
@@ -99,6 +117,14 @@ public class UpdateEntity : Message
             if (hasMovement)
             {
                 facing = BitConverter.ToSingle(data, offset);
+                offset += sizeof(Single);
+            }
+
+            hasBoost = BitConverter.ToBoolean(data, offset);
+            offset += sizeof(bool);
+            if (hasBoost)
+            {
+                stamina = BitConverter.ToSingle(data, offset);
                 offset += sizeof(Single);
             }
 

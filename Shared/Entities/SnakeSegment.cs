@@ -4,7 +4,7 @@ namespace Shared.Entities;
 
 public class SnakeSegment
 {
-    public const float MOVE_SPEED = 5;
+    public const float MOVE_SPEED = 100;
     private const float TURN_SPEED = 4;
 
     public static Entity create(string spriteSheet, int x, int y, int segmentsToAdd=0, string playerName="NOT INITIALIZED")

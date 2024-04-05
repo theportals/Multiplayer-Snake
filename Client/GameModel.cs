@@ -422,7 +422,15 @@ public class GameModel
 
         mEntities[entity.id] = entity;
         mSysMovement.add(entity);
-        mSysRenderer.add(entity);
+        try
+        {
+            //TODO: This try/catch is a bandaid solution for a weird race condition. I really ought to find the cause and fix it properly.
+            mSysRenderer.add(entity);
+        }
+        catch (ArgumentException)
+        {
+            Console.WriteLine($"[WARN]: Attempted to add duplicate entity {entity.id}");
+        }
         mSysInput.add(entity);
         mSysLifetime.add(entity);
         mSysNetwork.add(entity);

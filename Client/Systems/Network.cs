@@ -108,25 +108,39 @@ public class Network : Shared.Systems.System
         if (mEntities.ContainsKey(message.id))
         {
             var entity = mEntities[message.id];
-            if (entity.contains<Components.Goal>() && message.hasPosition && message.hasMovement)
+            if (entity.contains<Components.Goal>())
             {
-                var position = entity.get<Position>();
-                var movement = entity.get<Movable>();
                 var goal = entity.get<Components.Goal>();
+                if (message.hasPosition)
+                {
+                    var position = entity.get<Position>();
+                    goal.startSegments = position.segments;
+                }
+
+                if (message.hasMovement)
+                {
+                    var movement = entity.get<Movable>();
+                    goal.startFacing = movement.facing;   
+                }
+
+                if (message.hasBoost)
+                {
+                    var boost = entity.get<Boostable>();
+                    goal.startStamina = boost.stamina;
+                }
 
                 goal.updateWindow = message.updateWindow;
                 goal.updatedTime = TimeSpan.Zero;
                 goal.goalSegments = message.segments;
                 goal.goalFacing = message.facing;
-
-                goal.startSegments = position.segments;
-                goal.startFacing = movement.facing;
+                goal.goalStamina = message.stamina;
             }
             else if (entity.contains<Position>() && message.hasPosition && entity.contains<Movable>() &&
                      message.hasMovement)
             {
                 entity.get<Position>().segments = message.segments;
                 entity.get<Movable>().facing = message.facing;
+                entity.get<Boostable>().stamina = message.stamina;
 
                 mUpdatedEntries.Add(entity.id);
             }
