@@ -1,3 +1,5 @@
+using System.Numerics;
+using Shared.Components;
 using Shared.Entities;
 using Shared.Messages;
 
@@ -7,13 +9,13 @@ public class Network : Shared.Systems.System
     public delegate void Handler(int clientId, TimeSpan elapsedTime, Message message);
     public delegate void JoinHandler(int clientId, string playerName);
     public delegate void DisconnectHandler(int clientId);
-    public delegate void InputHandler(Entity entity, Shared.Components.Input.Type type, TimeSpan elapsedTime);
+    public delegate void InputHandler(Entity entity, TimeSpan elapsedTime);
 
-    private Dictionary<Shared.Messages.Type, Handler> m_commandMap = new();
-    private JoinHandler m_joinHandler;
-    private DisconnectHandler m_disconnectHandler;
+    private Dictionary<Shared.Messages.Type, Handler> mCommandMap = new();
+    private JoinHandler mJoinHandler;
+    private DisconnectHandler mDisconnectHandler;
 
-    private HashSet<uint> m_reportThese = new();
+    private HashSet<uint> mReportThese = new();
 
     /// <summary>
     /// Primary activity in the constructor is to setup the command map
@@ -28,18 +30,18 @@ public class Network : Shared.Systems.System
         // Register our own join handler
         registerHandler(Shared.Messages.Type.Join, (int clientId, TimeSpan elapsedTime, Shared.Messages.Message message) =>
         {
-            if (m_joinHandler != null)
+            if (mJoinHandler != null)
             {
-                m_joinHandler(clientId, ((Join)message).playerName);
+                mJoinHandler(clientId, ((Join)message).playerName);
             }
         });
 
         // Register our own disconnect handler
         registerHandler(Shared.Messages.Type.Disconnect, (int clientId, TimeSpan elapsedTime, Shared.Messages.Message message) =>
         {
-            if (m_disconnectHandler != null)
+            if (mDisconnectHandler != null)
             {
-                m_disconnectHandler(clientId);
+                mDisconnectHandler(clientId);
             }
         });
 
@@ -64,9 +66,9 @@ public class Network : Shared.Systems.System
             while (messages.Count > 0)
             {
                 var message = messages.Dequeue();
-                if (m_commandMap.ContainsKey(message.Item2.type))
+                if (mCommandMap.ContainsKey(message.Item2.type))
                 {
-                    m_commandMap[message.Item2.type](message.Item1, elapsedTime, message.Item2);
+                    mCommandMap[message.Item2.type](message.Item1, elapsedTime, message.Item2);
                 }
             }
         }
@@ -77,17 +79,17 @@ public class Network : Shared.Systems.System
 
     public void registerJoinHandler(JoinHandler handler)
     {
-        m_joinHandler = handler;
+        mJoinHandler = handler;
     }
 
     public void registerDisconnectHandler(DisconnectHandler handler)
     {
-        m_disconnectHandler = handler;
+        mDisconnectHandler = handler;
     }
 
     private void registerHandler(Shared.Messages.Type type, Handler handler)
     {
-        m_commandMap[type] = handler;
+        mCommandMap[type] = handler;
     }
 
     /// <summary>
@@ -98,25 +100,13 @@ public class Network : Shared.Systems.System
     private void handleInput(Shared.Messages.Input message)
     {
         var entity = mEntities[message.entityId];
-        foreach (var input in message.inputs)
-        {
-            switch (input)
-            {
-                //TODO: Handle input messages
-                // case Shared.Components.Input.Type.Thrust:
-                //     Shared.Entities.Utility.thrust(entity, message.elapsedTime);
-                //     m_reportThese.Add(message.entityId);
-                //     break;
-                // case Shared.Components.Input.Type.RotateLeft:
-                //     Shared.Entities.Utility.rotateLeft(entity, message.elapsedTime);
-                //     m_reportThese.Add(message.entityId);
-                //     break;
-                // case Shared.Components.Input.Type.RotateRight:
-                //     Shared.Entities.Utility.rotateRight(entity, message.elapsedTime);
-                //     m_reportThese.Add(message.entityId);
-                //     break;
-            }
-        }
+        var pos = entity.get<Position>();
+        var movable = entity.get<Movable>();
+        var boost = entity.get<Boostable>();
+
+        movable.facing = message.newFacing;
+        boost.boosting = message.boosting;
+        // mReportThese.Add(entity.id);
     }
 
     /// <summary>
@@ -125,13 +115,21 @@ public class Network : Shared.Systems.System
     /// </summary>
     private void updateClients(TimeSpan elapsedTime)
     {
-        foreach (var entityId in m_reportThese)
+        // foreach (uint entityId in mReportThese)
+        // {
+        //     var entity = mEntities[entityId];
+        //     var message = new Shared.Messages.UpdateEntity(entity, elapsedTime);
+        //     MessageQueueServer.instance.broadcastMessageWithLastId(message);
+        // }
+        //
+        // mReportThese.Clear();
+        foreach (var entry in mEntities)
         {
-            var entity = mEntities[entityId];
+            var entity = entry.Value;
             var message = new Shared.Messages.UpdateEntity(entity, elapsedTime);
             MessageQueueServer.instance.broadcastMessageWithLastId(message);
         }
 
-        m_reportThese.Clear();
+        // mReportThese.Clear();
     }
 }

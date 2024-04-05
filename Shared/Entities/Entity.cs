@@ -7,7 +7,7 @@ public sealed class Entity
 {
     private readonly Dictionary<Type, Component> components = new();
 
-    private static uint mNextId = 0;
+    public static uint mNextId = 0;
     
     public uint id { get; private set; }
 

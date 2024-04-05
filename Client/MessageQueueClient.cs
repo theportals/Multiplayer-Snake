@@ -63,7 +63,7 @@ public class MessageQueueClient
         };
         mMessageCommand[Type.UpdateEntity] = () =>
         {
-            Console.WriteLine("UpdateEntity message received");
+            // Console.WriteLine("UpdateEntity message received");
             return new UpdateEntity();
         };
         mMessageCommand[Type.RemoveEntity] = () =>
@@ -118,7 +118,7 @@ public class MessageQueueClient
         mEventSendMessages.Set();
     }
 
-    public void sendMessageWidthId(Message message)
+    public void sendMessageWithId(Message message)
     {
         message.messageId = mNextMessageId++;
         sendMessage(message);

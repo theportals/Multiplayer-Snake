@@ -14,7 +14,7 @@ public class Interpolation : Shared.Systems.System
     public override bool add(Entity entity)
     {
         var interested = false;
-        if (!entity.contains<Shared.Components.Input>())
+        if (!entity.contains<Shared.Components.Controllable>())
         {
             if (base.add(entity))
             {
@@ -45,11 +45,10 @@ public class Interpolation : Shared.Systems.System
 
                 var startSegments = position.segments.Count;
                 position.segments = new List<Vector2>();
-                for (var i = 0; i < goal.goalSegments.Count; i++)
+                for (var i = 0; i < goal.startSegments.Count; i++)
                 {
-                    if (i >= startSegments)
+                    if (i >= position.segments.Count)
                     {
-                        Console.WriteLine("i exceeded startSegments in Interpolation.cs");
                         position.segments.Add(goal.goalSegments[i]);
                         continue;
                     }

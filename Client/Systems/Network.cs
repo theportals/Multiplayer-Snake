@@ -76,19 +76,7 @@ public class Network : Shared.Systems.System
                 var entity = mEntities[message.entityId];
                 if (mUpdatedEntries.Contains(entity.id))
                 {
-                    foreach (var input in message.inputs)
-                    {
-                        switch (input)
-                        {
-                            //TODO: Simulate input messages
-                            case Shared.Components.Input.Type.BOOST:
-                                break;
-                            case Shared.Components.Input.Type.TURN_LEFT:
-                                break;
-                            case Shared.Components.Input.Type.TURN_RIGHT:
-                                break;
-                        }
-                    }
+                    //TODO: Simulate input messages
                 }
             }
         }
@@ -112,7 +100,7 @@ public class Network : Shared.Systems.System
     private void handleConnectAck(TimeSpan gameTime, ConnectAck message)
     {
         Console.WriteLine("Sending Join");
-        MessageQueueClient.instance.sendMessage(new Join(Client.playerName));
+        MessageQueueClient.instance.sendMessageWithId(new Join(Client.playerName));
     }
 
     private void handleUpdateEntity(TimeSpan gameTime, UpdateEntity message)

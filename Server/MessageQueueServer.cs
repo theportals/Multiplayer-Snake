@@ -350,7 +350,7 @@ public class MessageQueueServer
                                         mReceivedMessages.Enqueue(new Tuple<int, Message>(client.Key, message));
                                     }
 
-                                    Console.WriteLine($"Received message {message.type} from {client.Key}");
+                                    // Console.WriteLine($"Received message {message.type} from {client.Key}");
                                 }
 
                             }

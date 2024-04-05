@@ -15,6 +15,7 @@ using Multiplayer_Snake.Views.Menus;
 using Shared.Components;
 using Shared.Entities;
 using Shared.Messages;
+using Shared.Systems;
 using Shared.Util;
 using Food = Shared.Entities.Food;
 using Lifetime = Shared.Systems.Lifetime;
@@ -33,7 +34,7 @@ public class GameModel
     private Dictionary<uint, Entity> mEntities;
 
     private Systems.Renderer mSysRenderer;
-    private Systems.Movement mSysMovement;
+    private Movement mSysMovement;
     private Systems.Input mSysInput;
     private Lifetime mSysLifetime;
     private Lifetime mSysParticleLifetime;
@@ -108,7 +109,7 @@ public class GameModel
 
         mSysRenderer = new Systems.Renderer(spriteBatch, font, bg, WINDOW_WIDTH, WINDOW_HEIGHT, Constants.ARENA_SIZE, null);
 
-        mSysMovement = new Systems.Movement();
+        mSysMovement = new Movement();
         mSysInput = new Systems.Input(mKeyboardInput, mMouseInput, mListenKeys, Constants.ARENA_SIZE, WINDOW_WIDTH, WINDOW_HEIGHT, false);
         mSysLifetime = new Lifetime(e =>
         {
@@ -212,11 +213,6 @@ public class GameModel
             entity.add(new Movable(message.facing, message.moveSpeed, message.turnSpeed, message.segmentsToAdd));
         }
 
-        if (message.hasInput)
-        {
-            entity.add(new Shared.Components.Input(message.inputs));
-        }
-
         if (message.hasRotationOffset)
         {
             entity.add(new RotationOffset(message.rotationOffset, message.rotationSpeed));
@@ -236,12 +232,11 @@ public class GameModel
         {
             mPlayerSnake = entity;
             mSysRenderer.follow(entity);
+        }
 
-            // We only want to attempt to control snakes we own
-            if (message.controllable)
-            {
-                entity.add(new Controllable());
-            }
+        if (message.controllable)
+        {
+            entity.add(new Controllable());
         }
 
         if (message.boostable)
@@ -270,7 +265,7 @@ public class GameModel
 
     public void handleRemoveEntity(RemoveEntity message)
     {
-        removeEntity(mEntities[message.id]);
+        if (mEntities.ContainsKey(message.id)) removeEntity(mEntities[message.id]);
     }
 
     // private void playerDeath(Entity e)

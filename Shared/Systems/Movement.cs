@@ -1,17 +1,12 @@
-using System;
-using Client.Components;
 using Shared.Components;
 using Vector2 = System.Numerics.Vector2;
 
-namespace Client.Systems;
+namespace Shared.Systems;
 
 public class Movement : Shared.Systems.System
 {
-    private const float squiggleFactor = 10;
-    private const float antiSquiggleFactor = 10;
-    private const float segmentDistance = 10f / (squiggleFactor + antiSquiggleFactor);
     public Movement()
-        : base(typeof(Shared.Components.Movable), typeof(Shared.Components.Position))
+        : base(typeof(Controllable))
     {
         
     }
@@ -63,14 +58,13 @@ public class Movement : Shared.Systems.System
         var front = pos.segments[0];
         var angle = movable.facing;
         
-        // const float maxTurn = (float)Math.PI / 32;
         var maxTurn = movable.turnSpeed * gameTime.TotalSeconds;
         while (movable.segmentsToAdd > 0)
         {
             var tail = pos.segments[^1];
             var spawnDir = movable.facing - Math.PI;
             if (pos.segments.Count > 1) spawnDir = Math.Atan2(tail.Y - pos.segments[^2].Y, tail.X - pos.segments[^2].X);
-            pos.segments.Add(new Vector2((float)(tail.X + Math.Cos(spawnDir) * segmentDistance * (squiggleFactor + antiSquiggleFactor)), (float)(tail.Y + Math.Sin(spawnDir) * segmentDistance)));
+            pos.segments.Add(new Vector2((float)(tail.X + Math.Cos(spawnDir) * Shared.Util.Constants.segmentDistance * (Shared.Util.Constants.squiggleFactor + Shared.Util.Constants.antiSquiggleFactor)), (float)(tail.Y + Math.Sin(spawnDir) * Shared.Util.Constants.segmentDistance)));
             movable.segmentsToAdd -= 1;
         }
         
@@ -85,8 +79,8 @@ public class Movement : Shared.Systems.System
             var leader = pos.segments[i - 1];
             var segment = pos.segments[i];
             var dir = Math.Atan2(leader.Y - segment.Y, leader.X - segment.X);
-            var needx = (float)(leader.X - Math.Cos(dir) * segmentDistance * squiggleFactor);
-            var needy = (float)(leader.Y - Math.Sin(dir) * segmentDistance * squiggleFactor);
+            var needx = (float)(leader.X - Math.Cos(dir) * Shared.Util.Constants.segmentDistance * Shared.Util.Constants.squiggleFactor);
+            var needy = (float)(leader.Y - Math.Sin(dir) * Shared.Util.Constants.segmentDistance * Shared.Util.Constants.squiggleFactor);
             
             if (i > 1)
             {
@@ -101,22 +95,21 @@ public class Movement : Shared.Systems.System
                     if (dl < dr) sign = 1;
                     
                     var correction = dir2 - maxTurn * sign;
-                    needx = (float)(leader.X - Math.Cos(correction) * segmentDistance * squiggleFactor);
-                    needy = (float)(leader.Y - Math.Sin(correction) * segmentDistance * squiggleFactor);
+                    needx = (float)(leader.X - Math.Cos(correction) * Shared.Util.Constants.segmentDistance * Shared.Util.Constants.squiggleFactor);
+                    needy = (float)(leader.Y - Math.Sin(correction) * Shared.Util.Constants.segmentDistance * Shared.Util.Constants.squiggleFactor);
                     dir = Math.Atan2(needy - segment.Y, needx - segment.X);
                 }
             }
             var d = Math.Sqrt(Math.Pow(needx - segment.X, 2) + Math.Pow(needy - segment.Y, 2));
 
-            if (d >= segmentDistance * antiSquiggleFactor)
+            if (d >= Shared.Util.Constants.segmentDistance * Shared.Util.Constants.antiSquiggleFactor)
             {
-                xInc = (float)(Math.Cos(dir) * (d - segmentDistance * antiSquiggleFactor));
-                yInc = (float)(Math.Sin(dir) * (d - segmentDistance * antiSquiggleFactor));
+                xInc = (float)(Math.Cos(dir) * (d - Shared.Util.Constants.segmentDistance * Shared.Util.Constants.antiSquiggleFactor));
+                yInc = (float)(Math.Sin(dir) * (d - Shared.Util.Constants.segmentDistance * Shared.Util.Constants.antiSquiggleFactor));
                 segment.X += xInc;
                 segment.Y += yInc;
                 pos.segments[i] = segment;
             }
         }
-
     }
 }

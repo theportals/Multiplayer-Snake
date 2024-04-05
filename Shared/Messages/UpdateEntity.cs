@@ -23,6 +23,7 @@ public class UpdateEntity : Message
 
         public UpdateEntity() : base(Type.UpdateEntity)
         {
+            segments = new List<Vector2>();
         }
 
         public uint id { get; private set; }
@@ -51,8 +52,9 @@ public class UpdateEntity : Message
             if (hasPosition)
             {
                 data.AddRange(BitConverter.GetBytes(segments.Count));
-                foreach (var segment in segments)
+                for (int i = 0; i < segments.Count; i++)
                 {
+                    var segment = segments[i];
                     data.AddRange(BitConverter.GetBytes(segment.X));
                     data.AddRange(BitConverter.GetBytes(segment.Y));
                 }

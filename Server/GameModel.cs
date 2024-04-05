@@ -3,6 +3,7 @@ using System.Text;
 using Shared.Components;
 using Shared.Entities;
 using Shared.Messages;
+using Shared.Systems;
 using Shared.Util;
 using Collision = Server.Systems.Collision;
 using Food = Shared.Entities.Food;
@@ -22,6 +23,7 @@ public class GameModel
 
     Systems.Network mSystemNetwork = new Server.Systems.Network();
     private Collision mSysCollision;
+    private Movement mSysMovement;
     private Shared.Systems.Lifetime mSysLifetime;
 
     /// <summary>
@@ -34,6 +36,7 @@ public class GameModel
         mSystemNetwork.update(elapsedTime, MessageQueueServer.instance.getMessages());
         
         mSysCollision.update(elapsedTime);
+        mSysMovement.update(elapsedTime);
         mSysLifetime.update(elapsedTime);
 
         foreach (var entity in mToRemove)
@@ -84,6 +87,8 @@ public class GameModel
             // thrustInstance.Pause();
             // explode.Play();
         });
+
+        mSysMovement = new Movement();
 
         mSysLifetime = new Shared.Systems.Lifetime(food =>
         {
@@ -139,6 +144,7 @@ public class GameModel
         mEntities[entity.id] = entity;
         mSystemNetwork.add(entity);
         mSysCollision.add(entity);
+        mSysMovement.add(entity);
         mSysLifetime.add(entity);
     }
 
@@ -147,6 +153,7 @@ public class GameModel
         mEntities.Remove(id);
         mSystemNetwork.remove(id);
         mSysCollision.remove(id);
+        mSysMovement.remove(id);
         mSysLifetime.remove(id);
     }
 
@@ -179,7 +186,7 @@ public class GameModel
         
         // Step 4: Let all other clients know about the new entity
         // Remove components not needed for other players
-        snake.remove<Shared.Components.Input>();
+        snake.remove<Shared.Components.Controllable>();
         
         var message = new NewEntity(snake);
         foreach (int otherId in mClients)

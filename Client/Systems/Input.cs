@@ -1,8 +1,10 @@
 using System;
+using System.Collections.Generic;
 using Client.Input;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using Shared.Components;
+using Shared.Entities;
 
 namespace Client.Systems;
 
@@ -58,8 +60,9 @@ public class Input : Shared.Systems.System
         mKeyboardInput.update(gameTime);
         mMouseInput.update(gameTime);
         
-        foreach (var entity in mEntities.Values)
+        foreach (var entry in mEntities)
         {
+            var entity = entry.Value;
             var movable = entity.get<Shared.Components.Movable>();
             var pos = entity.get<Shared.Components.Position>();
             
@@ -92,6 +95,10 @@ public class Input : Shared.Systems.System
             movable.facing += (float)(movable.turnSpeed * gameTime.TotalSeconds * turn);
             if (movable.facing < -Math.PI) movable.facing += (float)(2 * Math.PI);
             else if (movable.facing > Math.PI) movable.facing -= (float)(2 * Math.PI);
+
+            var boost = entity.get<Boostable>();
+            
+            MessageQueueClient.instance.sendMessageWithId(new Shared.Messages.Input(entity.id, movable.facing, boost.boosting, boost.stamina > 0, gameTime));
         }
     }
 }

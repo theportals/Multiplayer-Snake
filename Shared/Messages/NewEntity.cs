@@ -49,16 +49,6 @@ public class NewEntity : Message
             segmentsToAdd = entity.get<Movable>().segmentsToAdd;
         }
 
-        if (entity.contains<Components.Input>())
-        {
-            hasInput = true;
-            inputs = entity.get<Components.Input>().inputs;
-        }
-        else
-        {
-            inputs = new List<Components.Input.Type>();
-        }
-
         if (entity.contains<RotationOffset>())
         {
             hasRotationOffset = true;
@@ -120,7 +110,6 @@ public class NewEntity : Message
     {
         texture = "";
         segments = new List<Vector2>();
-        inputs = new List<Components.Input.Type>();
     }
     
     public uint id { get; private set; }
@@ -145,10 +134,6 @@ public class NewEntity : Message
     public float turnSpeed { get; private set; }
     public float facing { get; private set; }
     public int segmentsToAdd { get; private set; }
-
-    // Input
-    public bool hasInput { get; private set; } = false;
-    public List<Components.Input.Type> inputs { get; private set; }
     
     // Rotation Offset
     public bool hasRotationOffset { get; private set; } = false;
@@ -231,16 +216,6 @@ public class NewEntity : Message
             data.AddRange(BitConverter.GetBytes(turnSpeed));
             data.AddRange(BitConverter.GetBytes(facing));
             data.AddRange(BitConverter.GetBytes(segmentsToAdd));
-        }
-        
-        data.AddRange(BitConverter.GetBytes(hasInput));
-        if (hasInput)
-        {
-            data.AddRange(BitConverter.GetBytes(inputs.Count));
-            foreach (var input in inputs)
-            {
-                data.AddRange(BitConverter.GetBytes((UInt16)input));
-            }
         }
         
         data.AddRange(BitConverter.GetBytes(hasRotationOffset));
@@ -358,19 +333,6 @@ public class NewEntity : Message
             offset += sizeof(Single);
             segmentsToAdd = BitConverter.ToInt32(data, offset);
             offset += sizeof(Int32);
-        }
-        
-        hasInput = BitConverter.ToBoolean(data, offset);
-        offset += sizeof(bool);
-        if (hasInput)
-        {
-            var howMany = BitConverter.ToInt32(data, offset);
-            offset += sizeof(int);
-            for (int i = 0; i < howMany; i++)
-            {
-                inputs.Add((Components.Input.Type)BitConverter.ToUInt16(data, offset));
-                offset += sizeof(UInt16);
-            }
         }
         
         hasRotationOffset = BitConverter.ToBoolean(data, offset);
