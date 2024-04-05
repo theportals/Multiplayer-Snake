@@ -13,6 +13,7 @@ public class MessageQueueClient
 {
     private static MessageQueueClient mInstance;
     private bool mKeepRunning = true;
+    private bool shutDownRequest = false;
     private Thread mThreadSender;
     private Thread mThreadReceiver;
     private Socket mSocketServer;
@@ -44,6 +45,7 @@ public class MessageQueueClient
     public bool initialize(string address, ushort port)
     {
         mKeepRunning = true;
+        shutDownRequest = false;
         var ipAddress = parseIPAddress(address);
         var endpoint = new IPEndPoint(ipAddress, port);
 
@@ -96,10 +98,16 @@ public class MessageQueueClient
         return true;
     }
 
+    public void submitShutdown()
+    {
+        shutDownRequest = true;
+    }
+
     public void shutdown()
     {
         mKeepRunning = false;
         mEventSendMessages.Set();
+        getMessages(); // Clear the buffer
         mSocketServer.Shutdown(SocketShutdown.Both);
         mSocketServer.Disconnect(false);
         mSocketServer.Close();
@@ -195,6 +203,11 @@ public class MessageQueueClient
                         mEventSendMessages.Reset();
                     }
                 }
+
+                if (mSendMessages.Count == 0 && shutDownRequest)
+                {
+                    shutdown();
+                }
             }
         });
         mThreadSender.Start();
@@ -209,7 +222,7 @@ public class MessageQueueClient
 
             mSocketServer.ReceiveTimeout = 100; // Milliseconds
 
-            while (mKeepRunning)
+            while (mKeepRunning && !shutDownRequest)
             {
                 try
                 {

@@ -130,29 +130,32 @@ public class GameModel
     {
         // Step 1: Tell the newly connected player about all other entities
         reportAllEntities(clientId);
+        spawnSnake(clientId);
+    }
+
+    private void spawnSnake(int clientId)
+    {
+        // Step 2: Create an entity for the newly joined player and send it to the newly joined client
+        // TODO: Player spawns in the least populated area
+        var snake = SnakeSegment.create("Images/Snake_Sheet", 500, 500, 3);
+        addEntity(snake);
+        mClientToEntityId[clientId] = snake.id;
         
-        // // Step 2: Create an entity for the newly joined player and send it to the newly joined client
-        // // TODO: Player spawns in the least populated area
-        // var player = SnakeSegment.create("Images/Snake_Sheet", 500, 500, 3);
-        // addEntity(player);
-        // mClientToEntityId[clientId] = player.id;
+        // Step 3: Send the new snake to the newly joined client
+        MessageQueueServer.instance.sendMessage(clientId, new NewEntity(snake));
         
-        // // Step 3: Send the new player entity to the newly joined client
-        // MessageQueueServer.instance.sendMessage(clientId, new NewEntity(player));
-        //
-        // // Step 4: Let all other clients know about the new entity
-        //
-        // // Remove components not needed for other players
-        // player.remove<Shared.Components.Input>();
-        //
-        // var message = new NewEntity(player);
-        // foreach (int otherId in mClients)
-        // {
-        //     if (otherId != clientId)
-        //     {
-        //         MessageQueueServer.instance.sendMessage(otherId, message);
-        //     }
-        // }
+        // Step 4: Let all other clients know about the new entity
+        // Remove components not needed for other players
+        snake.remove<Shared.Components.Input>();
+        
+        var message = new NewEntity(snake);
+        foreach (int otherId in mClients)
+        {
+            if (otherId != clientId)
+            {
+                MessageQueueServer.instance.sendMessage(otherId, message);
+            }
+        }
     }
 
     private void initializeBorder()

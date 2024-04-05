@@ -29,7 +29,7 @@ public class GameModel
     private List<Entity> mToAdd = new();
     private List<Entity> mParticlesToAdd = new();
 
-    private Dictionary<uint, Entity> mEntities = new();
+    private Dictionary<uint, Entity> mEntities;
 
     private Systems.Renderer mSysRenderer;
     private Systems.Movement mSysMovement;
@@ -88,6 +88,7 @@ public class GameModel
 
     public bool Initialize(ContentManager content, SpriteBatch spriteBatch)
     {
+        mEntities = new Dictionary<uint, Entity>();
         mSpriteBatch = spriteBatch;
         mKeyboardInput.clearCommands();
         mMouseInput.clearRegions();
@@ -332,7 +333,7 @@ public class GameModel
     {
         Console.WriteLine("Sending Disconnect");
         MessageQueueClient.instance.sendMessage(new Disconnect());
-        MessageQueueClient.instance.shutdown();
+        MessageQueueClient.instance.submitShutdown();
         mGame.changeState(GameStates.MAIN_MENU);
     }
 
