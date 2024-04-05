@@ -231,6 +231,7 @@ public class GameModel
         if (message.snakeitude)
         {
             entity.add(new Snakeitude());
+            Console.WriteLine($"Snake has {message.segmentsToAdd} segments to add");
         }
 
         if (message.food)

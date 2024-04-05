@@ -46,6 +46,7 @@ public class NewEntity : Message
             moveSpeed = entity.get<Movable>().moveSpeed;
             turnSpeed = entity.get<Movable>().turnSpeed;
             facing = entity.get<Movable>().facing;
+            segmentsToAdd = entity.get<Movable>().segmentsToAdd;
         }
 
         if (entity.contains<Components.Input>())
