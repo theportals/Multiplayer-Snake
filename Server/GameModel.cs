@@ -64,11 +64,11 @@ public class GameModel
         
         // Initialize arena
         initializeBorder();
-        // initializeObstacles();
-        // for (var i = 0; i < Constants.FOOD_COUNT; i++)
-        // {
-        //     addEntity(createFood());
-        // }
+        initializeObstacles();
+        for (var i = 0; i < Constants.FOOD_COUNT; i++)
+        {
+            addEntity(createFood());
+        }
         
         return true;
     }
@@ -138,7 +138,6 @@ public class GameModel
         // mClientToEntityId[clientId] = player.id;
         
         // // Step 3: Send the new player entity to the newly joined client
-        // //TODO: Game currently crashes due to multiple entities with id 0 being added to the client. fix this.
         // MessageQueueServer.instance.sendMessage(clientId, new NewEntity(player));
         //
         // // Step 4: Let all other clients know about the new entity

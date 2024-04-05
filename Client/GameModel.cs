@@ -332,7 +332,7 @@ public class GameModel
     {
         Console.WriteLine("Sending Disconnect");
         MessageQueueClient.instance.sendMessage(new Disconnect());
-        
+        MessageQueueClient.instance.shutdown();
         mGame.changeState(GameStates.MAIN_MENU);
     }
 
