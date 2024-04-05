@@ -159,7 +159,6 @@ public class GameModel
     public Entity createEntity(NewEntity message)
     {
         Entity entity = new Entity(message.id);
-        // Console.WriteLine($"Adding entity with id {entity.id}");
 
         if (message.hasAppearance)
         {
@@ -171,8 +170,35 @@ public class GameModel
                 message.frameHeight,
                 message.staticFrame));
             var texture = mContentManager.Load<Texture2D>(message.texture);
-            entity.add(new Sprite(texture));
-            // Console.WriteLine($"Gave entity texture");
+
+            if (message.snakeitude)
+            {
+                var cFrom = new Color(0, 255, 0);
+                var rng = new Random();
+                var r = rng.Next(230);
+                var g = rng.Next(230);
+                var b = rng.Next(230);
+                var cTo = new Color(r, g, b);
+                var data = new Color[snakeSheet.Width * snakeSheet.Height];
+                texture.GetData(data);
+
+                var recolor = new Texture2D(mSpriteBatch.GraphicsDevice, snakeSheet.Width, snakeSheet.Height);
+
+                var tolerance = 15;
+                var count = 0;
+                for (int i = 0; i < data.Length; i++)
+                {
+                    if (Math.Abs(data[i].R - cFrom.R) < tolerance && Math.Abs(data[i].G - cFrom.G) < tolerance && Math.Abs(data[i].B - cFrom.B) < tolerance)
+                    {
+                        data[i] = cTo;
+                        count += 1;
+                    }
+                }
+                recolor.SetData(data);
+                entity.add(new Sprite(recolor));
+            }
+            
+            else entity.add(new Sprite(texture));
         }
 
         if (message.hasPosition)
@@ -231,7 +257,6 @@ public class GameModel
         if (message.snakeitude)
         {
             entity.add(new Snakeitude());
-            Console.WriteLine($"Snake has {message.segmentsToAdd} segments to add");
         }
 
         if (message.food)
@@ -263,29 +288,6 @@ public class GameModel
 
     public void spawnSnake()
     {
-        // Color replacement for the snake
-        Color cFrom;
-        if (lastColor == null) cFrom = new Color(0, 255, 0);
-        else cFrom = lastColor.Value;
-        var rng = new Random();
-        var r = rng.Next(230);
-        var g = rng.Next(230);
-        var b = rng.Next(230);
-        var cTo = new Color(r, g, b);
-        // var cTo = new Color(255, 255, 255);
-        Color[] data = new Color[snakeSheet.Width * snakeSheet.Height];
-        snakeSheet.GetData(data);
-
-        var tolerance = 15;
-        for (int i = 0; i < data.Length; i++)
-        {
-            if (Math.Abs(data[i].R - cFrom.R) < tolerance && Math.Abs(data[i].G - cFrom.G) < tolerance && Math.Abs(data[i].B - cFrom.B) < tolerance)
-            {
-                data[i] = cTo;
-            }
-        }
-        snakeSheet.SetData(data);
-        lastColor = cTo;
         
         mScore = 0;
         if (mPlayerSnake != null && mPlayerSnake.contains<Alive>())
