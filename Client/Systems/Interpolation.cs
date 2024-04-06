@@ -48,7 +48,7 @@ public class Interpolation : Shared.Systems.System
 
                 
                 position.segments = new List<Vector2>();
-                for (var i = 0; i < goal.startSegments.Count; i++)
+                for (var i = 0; i < goal.goalSegments.Count; i++)
                 {
                     if (i >= position.segments.Count)
                     {

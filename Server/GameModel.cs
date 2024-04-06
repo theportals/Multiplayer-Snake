@@ -63,7 +63,7 @@ public class GameModel
         {
             // Called when player collides with food
             mToRemove.Add(food);
-            Console.WriteLine("Food consumed!");
+            // TODO: Better food consumption
             MessageQueueServer.instance.broadcastMessage(new RemoveEntity(food.id));
             // score.Play();
             // mToRemove.Add(e);
@@ -78,7 +78,7 @@ public class GameModel
         }, e =>
         {
             // Called when player collides with non-food
-            Console.WriteLine("Player collision!");
+            // TODO: Player collision
             // mPlayerSnake = null;
             // mPause.gameOver = true;
             // mPause.open();

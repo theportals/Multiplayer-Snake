@@ -12,7 +12,7 @@ public class Join : Message
 
     public Join(string playerName) : base(Type.Join)
     {
-        Console.WriteLine($"Constructing packet with name {playerName}");
+        // Console.WriteLine($"Constructing packet with name {playerName}");
         this.playerName = playerName;
     }
     

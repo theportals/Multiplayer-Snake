@@ -107,7 +107,14 @@ public class MessageQueueServer
     /// </summary>
     public void sendMessageWithLastId(int clientId, Message message)
     {
-        sendMessage(clientId, message, mClientLastMessageId[clientId]);
+        if (mClientLastMessageId.ContainsKey(clientId))
+        {
+            sendMessage(clientId, message, mClientLastMessageId[clientId]);
+        }
+        else
+        {
+            Console.WriteLine($"[WARN]: Client id {clientId} was not present in dictionary mClientLastMessageId");
+        }
     }
     
     /// <summary>
@@ -234,7 +241,12 @@ public class MessageQueueServer
                         {
                             try
                             {
-                                if (item.Item3.type != Type.NewEntity) Console.WriteLine($"Sending message {item.Item3.type} to {item.Item1}");
+                                if (item.Item3.type != Type.NewEntity
+                                    && item.Item3.type != Type.UpdateEntity
+                                    && item.Item3.type != Type.RemoveEntity)
+                                {
+                                    Console.WriteLine($"Sending message {item.Item3.type} to {item.Item1}");
+                                }
                                 // Three items are sent; type, size, and body
                                 var type = BitConverter.GetBytes((UInt16)item.Item3.type);
                                 var body = item.Item3.serialize();

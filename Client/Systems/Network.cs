@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Shared.Components;
 using Shared.Messages;
+using Shared.Systems;
 using Type = Shared.Messages.Type;
 
 namespace Client.Systems;
@@ -76,7 +77,7 @@ public class Network : Shared.Systems.System
                 var entity = mEntities[message.entityId];
                 if (mUpdatedEntries.Contains(entity.id))
                 {
-                    //TODO: Simulate input messages
+                    Movement.moveEntity(entity, message.elapsedTime);
                 }
             }
         }
@@ -120,7 +121,7 @@ public class Network : Shared.Systems.System
                 if (message.hasMovement)
                 {
                     var movement = entity.get<Movable>();
-                    goal.startFacing = movement.facing;   
+                    goal.startFacing = movement.facing;
                 }
 
                 if (message.hasBoost)

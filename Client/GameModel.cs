@@ -426,15 +426,15 @@ public class GameModel
         {
             //TODO: This try/catch is a bandaid solution for a weird race condition. I really ought to find the cause and fix it properly.
             mSysRenderer.add(entity);
+            mSysInput.add(entity);
+            mSysLifetime.add(entity);
+            mSysNetwork.add(entity);
+            mSysInterp.add(entity);
         }
         catch (ArgumentException)
         {
             Console.WriteLine($"[WARN]: Attempted to add duplicate entity {entity.id}");
         }
-        mSysInput.add(entity);
-        mSysLifetime.add(entity);
-        mSysNetwork.add(entity);
-        mSysInterp.add(entity);
     }
 
     private void removeEntity(Entity entity)

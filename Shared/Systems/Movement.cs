@@ -24,7 +24,7 @@ public class Movement : Shared.Systems.System
         }
     }
 
-    private void moveEntity(Shared.Entities.Entity entity, TimeSpan gameTime)
+    public static void moveEntity(Shared.Entities.Entity entity, TimeSpan gameTime)
     {
         var movable = entity.get<Shared.Components.Movable>();
         var pos = entity.get<Shared.Components.Position>();
