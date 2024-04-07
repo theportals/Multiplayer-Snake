@@ -28,6 +28,13 @@ public class UpdateEntity : Message
                 stamina = entity.get<Boostable>().stamina;
             }
 
+            if (entity.contains<PlayerInfo>())
+            {
+                hasPlayerInfo = true;
+                score = entity.get<PlayerInfo>().score;
+                kills = entity.get<PlayerInfo>().kills;
+            }
+
             this.updateWindow = updateWindow;
         }
 
@@ -49,6 +56,11 @@ public class UpdateEntity : Message
         // Boost
         public bool hasBoost { get; private set; } = false;
         public float stamina { get; private set; }
+        
+        // Score/Kills
+        public bool hasPlayerInfo { get; private set; } = false;
+        public int score { get; private set; }
+        public int kills { get; private set; }
 
         // Only the milliseconds are used/serialized
         public TimeSpan updateWindow { get; private set; } = TimeSpan.Zero;
@@ -82,6 +94,13 @@ public class UpdateEntity : Message
             if (hasBoost)
             {
                 data.AddRange(BitConverter.GetBytes(stamina));
+            }
+            
+            data.AddRange(BitConverter.GetBytes(hasPlayerInfo));
+            if (hasPlayerInfo)
+            {
+                data.AddRange(BitConverter.GetBytes(score));
+                data.AddRange(BitConverter.GetBytes(kills));
             }
 
             data.AddRange(BitConverter.GetBytes(updateWindow.Milliseconds));
@@ -126,6 +145,16 @@ public class UpdateEntity : Message
             {
                 stamina = BitConverter.ToSingle(data, offset);
                 offset += sizeof(Single);
+            }
+
+            hasPlayerInfo = BitConverter.ToBoolean(data, offset);
+            offset += sizeof(bool);
+            if (hasPlayerInfo)
+            {
+                score = BitConverter.ToInt32(data, offset);
+                offset += sizeof(Int32);
+                kills = BitConverter.ToInt32(data, offset);
+                offset += sizeof(Int32);
             }
 
             updateWindow = new TimeSpan(0, 0, 0, 0, BitConverter.ToInt32(data, offset));

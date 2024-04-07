@@ -5,10 +5,10 @@ namespace Server.Systems;
 
 public class Collision : Shared.Systems.System
 {
-    private Action<Entity> mFoodConsumed;
-    private Action<Entity> mOnCollision;
+    private Action<Entity, Entity> mFoodConsumed;
+    private Action<Entity, Entity> mOnCollision;
 
-    public Collision(Action<Entity> foodConsumed, Action<Entity> onCollision) 
+    public Collision(Action<Entity, Entity> foodConsumed, Action<Entity, Entity> onCollision) 
         : base(typeof(Shared.Components.Position))
     {
         mFoodConsumed = foodConsumed;
@@ -19,23 +19,23 @@ public class Collision : Shared.Systems.System
     {
         var movable = findMovable(mEntities);
 
-        foreach (var entity in mEntities.Values)
+        foreach (var entityA in mEntities.Values)
         {
-            foreach (var entityMovable in movable)
+            foreach (var entityB in movable)
             {
-                if (collides(entity, entityMovable))
+                if (collides(entityA, entityB))
                 {
                     // No worries if collides with food
-                    if (entity.contains<Food>())
+                    if (entityA.contains<Food>())
                     {
-                        var food = entity.get<Food>();
-                        if (food.naturalSpawn) entityMovable.get<Shared.Components.Movable>().segmentsToAdd = 3;
-                        else entityMovable.get<Shared.Components.Movable>().segmentsToAdd = 1;
-                        mFoodConsumed(entity);
+                        var food = entityA.get<Food>();
+                        if (food.naturalSpawn) entityB.get<Shared.Components.Movable>().segmentsToAdd += 3;
+                        else entityB.get<Shared.Components.Movable>().segmentsToAdd += 1;
+                        mFoodConsumed(entityA, entityB);
                     }
                     else
                     {
-                        mOnCollision(entityMovable);
+                        mOnCollision(entityB, entityA);
                     }
                 }
             }

@@ -59,6 +59,7 @@ public class MessageQueueServer
         mMessageCommand[Type.Join] = () => { return new Join(); };
         mMessageCommand[Type.Input] = () => { return new Input(); };
         mMessageCommand[Type.Disconnect] = () => { return new Disconnect(); };
+        mMessageCommand[Type.Respawn] = () => { return new Respawn(); };
 
         initializeListener(port);
         initializeSender();

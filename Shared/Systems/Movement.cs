@@ -6,7 +6,7 @@ namespace Shared.Systems;
 public class Movement : Shared.Systems.System
 {
     public Movement()
-        : base(typeof(Controllable))
+        : base(typeof(Movable), typeof(Position))
     {
         
     }

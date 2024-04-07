@@ -7,7 +7,7 @@ namespace Client.Systems;
 
 public class Interpolation : Shared.Systems.System
 {
-    public Interpolation() : base(typeof(Shared.Components.Position), typeof(Shared.Components.Movable), typeof(Shared.Components.Boostable))
+    public Interpolation() : base(typeof(Shared.Components.Position), typeof(Shared.Components.Movable), typeof(Shared.Components.Boostable), typeof(Shared.Components.PlayerInfo))
     {
     }
 
@@ -22,7 +22,9 @@ public class Interpolation : Shared.Systems.System
                 var position = entity.get<Shared.Components.Position>();
                 var movement = entity.get<Shared.Components.Movable>();
                 var boost = entity.get<Shared.Components.Boostable>();
-                entity.add(new Components.Goal(position.segments, movement.facing, boost.stamina));
+                // Console.WriteLine($"Interp.add says boosting = {boost.boosting}");
+                var info = entity.get<Shared.Components.PlayerInfo>();
+                entity.add(new Components.Goal(position.segments, movement.facing, boost.stamina, info.score, info.kills));
             }
         }
 
@@ -36,6 +38,8 @@ public class Interpolation : Shared.Systems.System
             var position = entity.get<Shared.Components.Position>();
             var movement = entity.get<Shared.Components.Movable>();
             var boost = entity.get<Shared.Components.Boostable>();
+            // Console.WriteLine($"Interp.update says boosting = {boost.boosting}");
+            var info = entity.get<Shared.Components.PlayerInfo>();
             var goal = entity.get<Components.Goal>();
 
             if (goal.updateWindow > TimeSpan.Zero && goal.updatedTime < goal.updateWindow)
@@ -46,6 +50,8 @@ public class Interpolation : Shared.Systems.System
                 movement.facing = movement.facing - (goal.startFacing - goal.goalFacing) * updateFraction;
                 boost.stamina = boost.stamina - (goal.startStamina - goal.goalStamina) * updateFraction;
 
+                info.score = goal.goalScore;
+                info.kills = goal.goalKills;
                 
                 position.segments = new List<Vector2>();
                 for (var i = 0; i < goal.goalSegments.Count; i++)

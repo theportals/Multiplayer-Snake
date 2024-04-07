@@ -31,12 +31,14 @@ public class GameModel
     private List<Entity> mToAdd = new();
     private List<Entity> mParticlesToAdd = new();
 
-    private Dictionary<uint, Entity> mEntities;
+    private Dictionary<uint, Entity> mClientIdToEntity = new();
+    private Dictionary<uint, Entity> mServerIdToEntity = new();
 
     private Systems.Renderer mSysRenderer;
     private Movement mSysMovement;
     private Systems.Input mSysInput;
     private Lifetime mSysLifetime;
+
     private Lifetime mSysParticleLifetime;
 
     private Systems.Network mSysNetwork;
@@ -44,7 +46,12 @@ public class GameModel
 
     private ContentManager mContentManager;
 
+    private Texture2D fire;
+    private Texture2D smoke;
     private Texture2D snakeSheet;
+    private Texture2D foodSheet;
+    private SoundEffect onScore;
+    private SoundEffect explode;
     private SoundEffect thrust;
     private SoundEffectInstance thrustInstance;
     private SpriteFont font;
@@ -61,20 +68,14 @@ public class GameModel
 
     private Color? lastColor = null;
 
-    public List<Tuple<string, int>> mLeaderboard = new()
-    {
-        new Tuple<string, int>("Test1", 0),
-        new Tuple<string, int>("Test2", 5),
-        new Tuple<string, int>("Test3", 30),
-        new Tuple<string, int>("Test4", 100),
-        new Tuple<string, int>("Test5", 50)
-    };
+    public List<Tuple<string, int>> mLeaderboard = new();
 
     private Client mGame;
 
     private PauseMenu mPause;
 
     private Entity? mPlayerSnake;
+
 
     public GameModel(Client game, int width, int height, KeyboardInput keyboardInput, MouseInput mouseInput, bool listenKeys)
     {
@@ -90,13 +91,19 @@ public class GameModel
 
     public bool Initialize(ContentManager content, SpriteBatch spriteBatch)
     {
-        mEntities = new Dictionary<uint, Entity>();
+        mClientIdToEntity = new Dictionary<uint, Entity>();
+        mServerIdToEntity = new Dictionary<uint, Entity>();
         mSpriteBatch = spriteBatch;
         mKeyboardInput.clearCommands();
         mMouseInput.clearRegions();
         mContentManager = content;
+        fire = content.Load<Texture2D>("Particles/fire");
+        smoke = content.Load<Texture2D>("Particles/smoke-2");
         snakeSheet = content.Load<Texture2D>("Images/Snake_Sheet");
+        foodSheet = content.Load<Texture2D>("Images/Food_Sheet");
+        onScore = content.Load<SoundEffect>("Sounds/score");
         thrust = content.Load<SoundEffect>("Sounds/thrust");
+        explode = content.Load<SoundEffect>("Sounds/explosion");
         font = content.Load<SpriteFont>("Fonts/name");
 
         var bg = content.Load<Texture2D>("Images/normal_hillside");
@@ -114,8 +121,6 @@ public class GameModel
         mSysLifetime = new Lifetime(e =>
         {
             mToRemove.Add(e);
-            var food = e.get<Shared.Components.Food>();
-            // if (food.naturalSpawn) mToAdd.Add(createFood(true));
         });
         mSysParticleLifetime = new Lifetime(e =>
         {
@@ -128,14 +133,14 @@ public class GameModel
         mSysNetwork.registerNewEntityHandler(handleNewEntity);
         mSysNetwork.registerRemoveEntityHandler(handleRemoveEntity);
 
-        spawnSnake();
+        bindBoost();
         mSysRenderer.zoom = 2.5f;
         mSysInput.zoom = mSysRenderer.zoom;
         mSysInput.setAbsCursor(true);
         mKeyboardInput.registerCommand(InputDevice.Commands.BACK, _ =>
         {
             mPause.toggle();
-            if (mPlayerSnake != null) boostOff(mPlayerSnake);
+            if (mPlayerSnake != null) boostOff();
         });
         
         mMouseInput.registerMouseRegion(null, MouseInput.MouseActions.SCROLL_UP, _ =>
@@ -152,15 +157,31 @@ public class GameModel
         return true;
     }
 
+    public void bindBoost()
+    {
+        if (mListenKeys) mKeyboardInput.registerCommand(InputDevice.Commands.BOOST, 
+            _ => boostOn(), 
+            _ => playBoost(), 
+            _ => boostOff());
+        else mMouseInput.registerMouseRegion(null, MouseInput.MouseActions.L_CLICK, 
+            _ => boostOn(), 
+            _ => playBoost(), 
+            _ => boostOff());
+    }
+
     public void handleNewEntity(NewEntity message)
     {
-        Entity entity = createEntity(message);
+        var entity = createEntity(message);
+        mServerIdToEntity[message.id] = entity;
+        mClientIdToEntity[entity.id] = entity;
+        mSysNetwork.mapServerToClientId(message.id, entity.id);
+        mSysInput.mapClientToServerId(entity.id, message.id);
         addEntity(entity);
     }
 
     public Entity createEntity(NewEntity message)
     {
-        Entity entity = new Entity(message.id);
+        var entity = new Entity();
 
         if (message.hasAppearance)
         {
@@ -223,9 +244,9 @@ public class GameModel
             entity.add(new ColorOverride(System.Drawing.Color.FromArgb(message.cR, message.cG, message.cB)));
         }
 
-        if (message.hasPlayername)
+        if (message.hasPlayerInfo)
         {
-            entity.add(new PlayerName(message.playerName));
+            entity.add(new PlayerInfo(message.playerName, message.score, message.kills));
         }
 
         if (message.suggestFollow)
@@ -265,68 +286,102 @@ public class GameModel
 
     public void handleRemoveEntity(RemoveEntity message)
     {
-        if (mEntities.ContainsKey(message.id)) removeEntity(mEntities[message.id]);
+        if (!mServerIdToEntity.ContainsKey(message.removeId))
+        {
+            Console.WriteLine("[WARN]: Received a remove message for an entity that did not receive a create message");
+            return;
+        }
+
+        var entity = mServerIdToEntity[message.removeId];
+        removeEntity(entity);
+        switch (message.reason)
+        {
+            case RemoveEntity.Reasons.PLAYER_DIED:
+                if (entity.Equals(mPlayerSnake))
+                {
+                    playerDeath(entity);
+                }
+                else
+                {
+                    // ParticleUtil.enemyDeath();
+                }
+                break;
+            case RemoveEntity.Reasons.FOOD_CONSUMED:
+                if (message.reasonId.HasValue && mServerIdToEntity.ContainsKey(message.reasonId.Value))
+                {
+                    var cause = mServerIdToEntity[message.reasonId.Value];
+                    if (cause.Equals(mPlayerSnake))
+                    {
+                        onScore.Play();
+                            
+                        addParticlesLater(ParticleUtil.eatFood(foodSheet, entity));
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("[WARN]: Removal cause entity did not receive a create message");
+                }
+                break;
+        }
     }
 
-    // private void playerDeath(Entity e)
+    private void playerDeath(Entity e)
+    {
+        e.remove<Alive>();
+        addParticlesLater(ParticleUtil.playerDeath(fire, smoke, e));
+        explode.Play();
+        mToRemove.Add(e);
+        if (mScore > 0) mGame.SubmitScore(mScore);
+
+        mPause.gameOver = true;
+        mPause.open();
+    
+        mLeaderboard.RemoveAll(t => t.Item1 == Client.playerName);
+    }
+
+    // public void spawnSnake()
     // {
-    //     e.remove<Alive>();
-    //     mToRemove.Add(e);
-    //     if (mScore > 0) mGame.SubmitScore(mScore);
-    //     var pos = e.get<Position>();
-    //     for (var segment = 0; segment < pos.segments.Count; segment++)
+    //     mScore = 0;
+    //     if (mPlayerSnake != null && mPlayerSnake.contains<Alive>())
     //     {
-    //         mToAdd.Add(createFood(false, pos.segments[segment]));
+    //         mPlayerSnake = null;
     //     }
+    //     
+    //     if (mListenKeys) mKeyboardInput.registerCommand(InputDevice.Commands.BOOST, 
+    //         _ => boostOn(mPlayerSnake), 
+    //         _ => playBoost(mPlayerSnake), 
+    //         _ => boostOff(mPlayerSnake));
+    //     else mMouseInput.registerMouseRegion(null, MouseInput.MouseActions.L_CLICK, 
+    //         _ => boostOn(mPlayerSnake), 
+    //         _ => playBoost(mPlayerSnake), 
+    //         _ => boostOff(mPlayerSnake));
     //
-    //     mLeaderboard.RemoveAll(t => t.Item1 == mGame.playerName);
+    //     var t = new Tuple<string, int>(Client.playerName, 0);
+    //     mLeaderboard.Add(t);
+    //     mLeaderboard.Sort((t1, t2) => t2.Item2 - t1.Item2);
+    //     mBestRank = mLeaderboard.IndexOf(t);
     // }
 
-    public void spawnSnake()
+    private void boostOn()
     {
-        
-        mScore = 0;
         if (mPlayerSnake != null && mPlayerSnake.contains<Alive>())
         {
-            // playerDeath(mPlayerSnake);
-            mPlayerSnake = null;
-        }
-        
-        if (mListenKeys) mKeyboardInput.registerCommand(InputDevice.Commands.BOOST, 
-            _ => boostOn(mPlayerSnake), 
-            _ => playBoost(mPlayerSnake), 
-            _ => boostOff(mPlayerSnake));
-        else mMouseInput.registerMouseRegion(null, MouseInput.MouseActions.L_CLICK, 
-            _ => boostOn(mPlayerSnake), 
-            _ => playBoost(mPlayerSnake), 
-            _ => boostOff(mPlayerSnake));
-
-        var t = new Tuple<string, int>(Client.playerName, 0);
-        mLeaderboard.Add(t);
-        mLeaderboard.Sort((t1, t2) => t2.Item2 - t1.Item2);
-        mBestRank = mLeaderboard.IndexOf(t);
-    }
-
-    private void boostOn(Entity snake)
-    {
-        if (snake.contains<Alive>())
-        {
-            snake.get<Boostable>().boosting = true;
+            mPlayerSnake.get<Boostable>().boosting = true;
         }
     }
 
-    private void playBoost(Entity snake)
+    private void playBoost()
     {
-        if (snake.contains<Alive>() && snake.get<Boostable>().stamina > 0) thrustInstance.Play();
+        if (mPlayerSnake != null && mPlayerSnake.contains<Alive>() && mPlayerSnake.get<Boostable>().stamina > 0) thrustInstance.Play();
         else thrustInstance.Pause();
     }
     
-    private void boostOff(Entity snake)
+    private void boostOff()
     {
         thrustInstance.Pause();
-        if (snake.contains<Alive>())
+        if (mPlayerSnake != null && mPlayerSnake.contains<Alive>())
         {
-            snake.get<Boostable>().boosting = false;
+            mPlayerSnake.get<Boostable>().boosting = false;
         }
     }
 
@@ -407,6 +462,7 @@ public class GameModel
 
     private void addParticle(Entity particle)
     {
+        mClientIdToEntity[particle.id] = particle;
         mSysMovement.add(particle);
         mSysRenderer.add(particle);
         mSysParticleLifetime.add(particle);
@@ -420,26 +476,18 @@ public class GameModel
             return;
         }
 
-        mEntities[entity.id] = entity;
+        mClientIdToEntity[entity.id] = entity;
         mSysMovement.add(entity);
-        try
-        {
-            //TODO: This try/catch is a bandaid solution for a weird race condition. I really ought to find the cause and fix it properly.
-            mSysRenderer.add(entity);
-            mSysInput.add(entity);
-            mSysLifetime.add(entity);
-            mSysNetwork.add(entity);
-            mSysInterp.add(entity);
-        }
-        catch (ArgumentException)
-        {
-            Console.WriteLine($"[WARN]: Attempted to add duplicate entity {entity.id}");
-        }
+        mSysRenderer.add(entity);
+        mSysInput.add(entity);
+        mSysLifetime.add(entity);
+        mSysNetwork.add(entity);
+        mSysInterp.add(entity);
     }
 
     private void removeEntity(Entity entity)
     {
-        mEntities.Remove(entity.id);
+        mClientIdToEntity.Remove(entity.id);
         mSysMovement.remove(entity.id);
         mSysRenderer.remove(entity.id);
         mSysInput.remove(entity.id);

@@ -26,6 +26,8 @@ public class Input : Shared.Systems.System
     private bool mAbsCursor;
 
     private const float TURN_DEADZONE = (float)(2 * Math.PI / 180);
+
+    private Dictionary<uint, uint> mClientToServerId = new();
     
     public Input(KeyboardInput keyboardInput, MouseInput mouseInput, bool listenKeys, int arenaSize, int windowWidth, int windowHeight, bool absCursor, float zoom=1)
         : base(typeof(Controllable))
@@ -48,6 +50,11 @@ public class Input : Shared.Systems.System
 
         mAbsCursor = absCursor;
         this.zoom = zoom;
+    }
+
+    public void mapClientToServerId(uint clientId, uint serverId)
+    {
+        mClientToServerId[clientId] = serverId;
     }
 
     public void setAbsCursor(bool to)
@@ -97,8 +104,8 @@ public class Input : Shared.Systems.System
             else if (movable.facing > Math.PI) movable.facing -= (float)(2 * Math.PI);
 
             var boost = entity.get<Boostable>();
-            
-            MessageQueueClient.instance.sendMessageWithId(new Shared.Messages.Input(entity.id, movable.facing, boost.boosting, boost.stamina > 0, gameTime));
+            var id = mClientToServerId[entity.id];
+            MessageQueueClient.instance.sendMessageWithId(new Shared.Messages.Input(id, movable.facing, boost.boosting, boost.stamina > 0, gameTime));
         }
     }
 }

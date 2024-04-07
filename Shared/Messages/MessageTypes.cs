@@ -8,5 +8,6 @@ public enum Type : UInt16
     RemoveEntity,   // Server to client
     Join,           // Client to server
     Input,          // Client to server
-    Disconnect      // Client to server
+    Disconnect,     // Client to server
+    Respawn         // Client to server
 }

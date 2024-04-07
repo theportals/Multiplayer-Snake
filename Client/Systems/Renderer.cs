@@ -164,11 +164,11 @@ public class Renderer : Shared.Systems.System
             }
         }
                 
-        if (entity.contains<PlayerName>())
+        if (entity.contains<PlayerInfo>())
         {
             drawPos = getDrawPos(centerPoint, pos, 0);
             
-            var name = entity.get<PlayerName>().playerName;
+            var name = entity.get<PlayerInfo>().playerName;
             var size = mFont.MeasureString(name);
             mSpriteBatch.DrawString(mFont, 
                 name, 

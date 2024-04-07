@@ -56,45 +56,42 @@ public class GameModel
     {
         mSystemNetwork.registerJoinHandler(handleJoin);
         mSystemNetwork.registerDisconnectHandler(handleDisconnect);
+        mSystemNetwork.registerRespawnHandler(handleRespawn);
         
         MessageQueueServer.instance.registerConnectHandler(handleConnect);
 
-        mSysCollision = new Collision(food =>
+        mSysCollision = new Collision((food, consumer) =>
         {
             // Called when player collides with food
             mToRemove.Add(food);
-            // TODO: Better food consumption
-            MessageQueueServer.instance.broadcastMessage(new RemoveEntity(food.id));
-            // score.Play();
-            // mToRemove.Add(e);
-            // mScore += 1;
-            // mLeaderboard.RemoveAll(t => t.Item1 == mGame.playerName);
-            // var t = new Tuple<string, int>(mGame.playerName, mScore);
-            // mLeaderboard.Add(t);
-            // mLeaderboard.Sort((t1, t2) => t2.Item2 - t1.Item2);
-            // var rank = mLeaderboard.IndexOf(t) + 1;
-            // if (mBestRank > rank) mBestRank = rank;
-            // addParticlesLater(ParticleUtil.eatFood(foodSheet, e));
-        }, e =>
+            MessageQueueServer.instance.broadcastMessage(new RemoveEntity(food.id, RemoveEntity.Reasons.FOOD_CONSUMED, consumer.id));
+            consumer.get<PlayerInfo>().score += 1;
+            if (food.get<Shared.Components.Food>().naturalSpawn) mToAdd.Add(createFood());
+        }, (collider, collidee) =>
         {
             // Called when player collides with non-food
-            // TODO: Player collision
-            // mPlayerSnake = null;
-            // mPause.gameOver = true;
-            // mPause.open();
-            // playerDeath(e);
-            // addParticlesLater(ParticleUtil.playerDeath(fire, smoke, e));
-            // thrustInstance.Pause();
-            // explode.Play();
+            mToRemove.Add(collider);
+            MessageQueueServer.instance.broadcastMessage(new RemoveEntity(collider.id, RemoveEntity.Reasons.PLAYER_DIED, collidee.id));
+            if (collidee.contains<PlayerInfo>())
+            {
+                collidee.get<PlayerInfo>().kills += 1;
+            }
+            mToRemove.Add(collider);
+            var pos = collider.get<Position>();
+            for (var segment = 0; segment < pos.segments.Count; segment++)
+            {
+                mToAdd.Add(createFood(false, pos.segments[segment]));
+            }
         });
 
         mSysMovement = new Movement();
 
         mSysLifetime = new Shared.Systems.Lifetime(food =>
         {
+            // Called when food naturally despawns
             mToRemove.Add(food);
-            if (food.get<Shared.Components.Food>().naturalSpawn) mToAdd.Add(createFood(true));
-            MessageQueueServer.instance.broadcastMessage(new RemoveEntity(food.id));
+            if (food.get<Shared.Components.Food>().naturalSpawn) mToAdd.Add(createFood());
+            MessageQueueServer.instance.broadcastMessage(new RemoveEntity(food.id, RemoveEntity.Reasons.FOOD_EXPIRED, null));
         });
         
         // Initialize arena
@@ -126,12 +123,24 @@ public class GameModel
         mClients.Remove(clientId);
         if (mClientToEntityId.ContainsKey(clientId))
         {
-            var message = new Shared.Messages.RemoveEntity(mClientToEntityId[clientId]);
+            var message = new Shared.Messages.RemoveEntity(mClientToEntityId[clientId], RemoveEntity.Reasons.PLAYER_DISCONNECT, null);
             MessageQueueServer.instance.broadcastMessage(message);
             removeEntity(mClientToEntityId[clientId]);
 
             mClientToEntityId.Remove(clientId);
         }
+    }
+
+    private void handleRespawn(int clientId, string playerName)
+    {
+        // Check if player already has a snake
+        if (mClientToEntityId.ContainsKey(clientId))
+        {
+            var oldId = mClientToEntityId[clientId];
+            removeEntity(oldId);
+            MessageQueueServer.instance.broadcastMessage(new RemoveEntity(oldId, RemoveEntity.Reasons.PLAYER_RESPAWNED, null));
+        }
+        spawnSnake(clientId, playerName);
     }
 
     private void addEntity(Entity entity)
@@ -247,6 +256,7 @@ public class GameModel
             if (pos != null)
             {
                 var food = Food.create("Images/Food_Sheet", (int)pos.Value.X, (int)pos.Value.Y, naturalSpawn);
+                MessageQueueServer.instance.broadcastMessage(new NewEntity(food));
                 return food;
             }
             int x = (int)rng.nextRange(1, Constants.ARENA_SIZE - 1);

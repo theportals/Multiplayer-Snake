@@ -177,6 +177,7 @@ public class MessageQueueClient
                     var body = item.serialize();
                     var size = BitConverter.GetBytes(body.Length);
                     
+                    // TODO: Handle connection forcibly closed by remote host
                     // Type
                     if (BitConverter.IsLittleEndian)
                     {

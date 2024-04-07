@@ -13,10 +13,14 @@ public class Goal : Component
     public float goalFacing { get; set; }
     public float startStamina { get; set; }
     public float goalStamina { get; set; }
+    public int startScore { get; set; }
+    public int goalScore { get; set; }
+    public int startKills { get; set; }
+    public int goalKills { get; set; }
     public TimeSpan updateWindow { get; set; }
     public TimeSpan updatedTime { get; set; }
     
-    public Goal(List<Vector2> segments, float facing, float stamina)
+    public Goal(List<Vector2> segments, float facing, float stamina, int score, int kills)
     {
         startSegments = segments;
         goalSegments = segments;
@@ -24,5 +28,9 @@ public class Goal : Component
         goalFacing = facing;
         startStamina = stamina;
         goalStamina = stamina;
+        startScore = score;
+        goalScore = score;
+        startKills = kills;
+        goalKills = kills;
     }
 }

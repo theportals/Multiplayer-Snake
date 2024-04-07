@@ -2,6 +2,7 @@ using System.Numerics;
 using Shared.Components;
 using Shared.Entities;
 using Shared.Messages;
+using Type = Shared.Messages.Type;
 
 namespace Server.Systems;
 public class Network : Shared.Systems.System
@@ -9,11 +10,13 @@ public class Network : Shared.Systems.System
     public delegate void Handler(int clientId, TimeSpan elapsedTime, Message message);
     public delegate void JoinHandler(int clientId, string playerName);
     public delegate void DisconnectHandler(int clientId);
+    public delegate void RespawnHandler(int clientId, string playerName);
     public delegate void InputHandler(Entity entity, TimeSpan elapsedTime);
 
     private Dictionary<Shared.Messages.Type, Handler> mCommandMap = new();
     private JoinHandler mJoinHandler;
     private DisconnectHandler mDisconnectHandler;
+    private RespawnHandler mRespawnHandler;
 
     private HashSet<uint> mReportThese = new();
 
@@ -49,6 +52,14 @@ public class Network : Shared.Systems.System
         registerHandler(Shared.Messages.Type.Input, (int clientId, TimeSpan elapsedTime, Shared.Messages.Message message) =>
         {
             handleInput((Shared.Messages.Input)message);
+        });
+        
+        registerHandler(Type.Respawn, (int clientId, TimeSpan elapsedTime, Shared.Messages.Message message) =>
+        {
+            if (mRespawnHandler != null)
+            {
+                mRespawnHandler(clientId, ((Respawn)message).playerName);
+            }
         });
     }
 
@@ -87,6 +98,11 @@ public class Network : Shared.Systems.System
         mDisconnectHandler = handler;
     }
 
+    public void registerRespawnHandler(RespawnHandler handler)
+    {
+        mRespawnHandler = handler;
+    }
+
     private void registerHandler(Shared.Messages.Type type, Handler handler)
     {
         mCommandMap[type] = handler;
@@ -99,13 +115,16 @@ public class Network : Shared.Systems.System
     /// <param name="message"></param>
     private void handleInput(Shared.Messages.Input message)
     {
-        var entity = mEntities[message.entityId];
-        var pos = entity.get<Position>();
-        var movable = entity.get<Movable>();
-        var boost = entity.get<Boostable>();
+        if (mEntities.ContainsKey(message.entityId))
+        {
+            var entity = mEntities[message.entityId];
+            var pos = entity.get<Position>();
+            var movable = entity.get<Movable>();
+            var boost = entity.get<Boostable>();
 
-        movable.facing = message.newFacing;
-        boost.boosting = message.boosting;
+            movable.facing = message.newFacing;
+            boost.boosting = message.boosting;
+        }
         // mReportThese.Add(entity.id);
     }
 

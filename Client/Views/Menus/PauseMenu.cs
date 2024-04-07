@@ -109,7 +109,8 @@ public class PauseMenu : Menu
         var respawn = new MenuOption("Respawn", () =>
         {
             this.close();
-            mModel.spawnSnake();
+            // mModel.bindBoost();
+            MessageQueueClient.instance.sendMessageWithId(new Respawn(Client.Client.playerName));
             gameOver = false;
         }, mGraphics.PreferredBackBufferWidth / 2, mGraphics.PreferredBackBufferHeight / 2, mFont);
         mSelected = null;

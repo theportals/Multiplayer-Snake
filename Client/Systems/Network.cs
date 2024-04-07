@@ -19,6 +19,8 @@ public class Network : Shared.Systems.System
     private uint mLastMessageId = 0;
     private HashSet<uint> mUpdatedEntries = new();
 
+    private Dictionary<uint, uint> mServerIdToClientId = new();
+
     public Network() : base(typeof(Position))
     {
         registerHandler(Type.ConnectAck, (gameTime, message) =>
@@ -40,6 +42,11 @@ public class Network : Shared.Systems.System
         {
             mRemoveEntityHandler((RemoveEntity)message);
         });
+    }
+
+    public void mapServerToClientId(uint serverId, uint clientId)
+    {
+        mServerIdToClientId[serverId] = clientId;
     }
     
     public override void update(TimeSpan gameTime)
@@ -71,10 +78,13 @@ public class Network : Shared.Systems.System
         var sent = MessageQueueClient.instance.getSendMessageHistory(mLastMessageId);
         while (sent.Count > 0)
         {
-            var message = (Shared.Messages.Input)sent.Dequeue();
-            if (message.type == Type.Input)
+            var dq = sent.Dequeue();
+            if (dq.type == Type.Input)
             {
-                var entity = mEntities[message.entityId];
+                var message = (Shared.Messages.Input)dq;
+                if (!mServerIdToClientId.ContainsKey(message.entityId) 
+                    || !mEntities.ContainsKey(mServerIdToClientId[message.entityId])) continue;
+                var entity = mEntities[mServerIdToClientId[message.entityId]];
                 if (mUpdatedEntries.Contains(entity.id))
                 {
                     Movement.moveEntity(entity, message.elapsedTime);
@@ -106,45 +116,56 @@ public class Network : Shared.Systems.System
 
     private void handleUpdateEntity(TimeSpan gameTime, UpdateEntity message)
     {
-        if (mEntities.ContainsKey(message.id))
+        if (!mServerIdToClientId.ContainsKey(message.id) 
+            || !mEntities.ContainsKey(mServerIdToClientId[message.id])) return;
+        var entity = mEntities[mServerIdToClientId[message.id]];
+        if (entity.contains<Components.Goal>())
         {
-            var entity = mEntities[message.id];
-            if (entity.contains<Components.Goal>())
+            var goal = entity.get<Components.Goal>();
+            if (message.hasPosition)
             {
-                var goal = entity.get<Components.Goal>();
-                if (message.hasPosition)
-                {
-                    var position = entity.get<Position>();
-                    goal.startSegments = position.segments;
-                }
-
-                if (message.hasMovement)
-                {
-                    var movement = entity.get<Movable>();
-                    goal.startFacing = movement.facing;
-                }
-
-                if (message.hasBoost)
-                {
-                    var boost = entity.get<Boostable>();
-                    goal.startStamina = boost.stamina;
-                }
-
-                goal.updateWindow = message.updateWindow;
-                goal.updatedTime = TimeSpan.Zero;
-                goal.goalSegments = message.segments;
-                goal.goalFacing = message.facing;
-                goal.goalStamina = message.stamina;
+                var position = entity.get<Position>();
+                goal.startSegments = position.segments;
             }
-            else if (entity.contains<Position>() && message.hasPosition && entity.contains<Movable>() &&
-                     message.hasMovement)
+
+            if (message.hasMovement)
             {
-                entity.get<Position>().segments = message.segments;
-                entity.get<Movable>().facing = message.facing;
-                entity.get<Boostable>().stamina = message.stamina;
-
-                mUpdatedEntries.Add(entity.id);
+                var movement = entity.get<Movable>();
+                goal.startFacing = movement.facing;
             }
+
+            if (message.hasBoost)
+            {
+                var boost = entity.get<Boostable>();
+                goal.startStamina = boost.stamina;
+            }
+
+            if (message.hasPlayerInfo)
+            {
+                var info = entity.get<PlayerInfo>();
+                goal.startScore = info.score;
+                goal.startKills = info.kills;
+            }
+
+            goal.updateWindow = message.updateWindow;
+            goal.updatedTime = TimeSpan.Zero;
+            goal.goalSegments = message.segments;
+            goal.goalFacing = message.facing;
+            goal.goalStamina = message.stamina;
+            goal.goalScore = message.score;
+            goal.goalKills = message.kills;
+        }
+        else if (entity.contains<Position>() && message.hasPosition 
+                                             && entity.contains<Movable>() && message.hasMovement 
+                                             && entity.contains<PlayerInfo>() && message.hasPlayerInfo)
+        {
+            entity.get<Position>().segments = message.segments;
+            entity.get<Movable>().facing = message.facing;
+            entity.get<Boostable>().stamina = message.stamina;
+            entity.get<PlayerInfo>().score = message.score;
+            entity.get<PlayerInfo>().kills = message.kills;
+
+            mUpdatedEntries.Add(entity.id);
         }
     }
 }
