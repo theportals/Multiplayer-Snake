@@ -63,12 +63,12 @@ public class GameModel
     private bool mListenKeys;
 
     public int mScore;
-    public int mKills = 0; // TODO: Track kills
+    public int mKills = 0;
     public int mBestRank = 0;
 
     private Color? lastColor = null;
 
-    public List<Tuple<string, int>> mLeaderboard = new();
+    public List<Tuple<uint, int>> mLeaderboard = new();
 
     private Client mGame;
 
@@ -247,12 +247,18 @@ public class GameModel
         if (message.hasPlayerInfo)
         {
             entity.add(new PlayerInfo(message.playerName, message.score, message.kills));
+            mLeaderboard.Add(new Tuple<uint, int>(entity.id, message.score));
+            mLeaderboard.Sort((t1, t2) => t2.Item2 - t1.Item2);
         }
 
         if (message.suggestFollow)
         {
             mPlayerSnake = entity;
             mSysRenderer.follow(entity);
+            // We've been given a new snake, so reset stats
+            mKills = 0;
+            mScore = 0;
+            mBestRank = mLeaderboard.Count;
         }
 
         if (message.controllable)
@@ -303,19 +309,37 @@ public class GameModel
                 }
                 else
                 {
-                    // ParticleUtil.enemyDeath();
+                    addParticlesLater(ParticleUtil.enemyDeath(fire, entity));
+                    var info = entity.get<PlayerInfo>();
+                    mLeaderboard.RemoveAll(t => t.Item1 == entity.id);
+
+                    if (message.reasonId.HasValue
+                        && mServerIdToEntity.ContainsKey(message.reasonId.Value)
+                        && mServerIdToEntity[message.reasonId.Value].Equals(mPlayerSnake))
+                    {
+                        mKills += 1;
+                    }
                 }
                 break;
             case RemoveEntity.Reasons.FOOD_CONSUMED:
                 if (message.reasonId.HasValue && mServerIdToEntity.ContainsKey(message.reasonId.Value))
                 {
                     var cause = mServerIdToEntity[message.reasonId.Value];
+                    mLeaderboard.RemoveAll(t => t.Item1 == cause.id);
+                    var info = cause.get<PlayerInfo>();
+                    var t = new Tuple<uint, int>(cause.id, info.score);
+                    mLeaderboard.Add(t);
+                    mLeaderboard.Sort((t1, t2) => t2.Item2 - t1.Item2);
                     if (cause.Equals(mPlayerSnake))
                     {
                         onScore.Play();
                             
                         addParticlesLater(ParticleUtil.eatFood(foodSheet, entity));
+                        mScore = info.score;
+                        var rank = mLeaderboard.IndexOf(t) + 1;
+                        if (mBestRank > rank) mBestRank = rank;
                     }
+                    
                 }
                 else
                 {
@@ -336,31 +360,8 @@ public class GameModel
         mPause.gameOver = true;
         mPause.open();
     
-        mLeaderboard.RemoveAll(t => t.Item1 == Client.playerName);
+        mLeaderboard.RemoveAll(t => t.Item1 == e.id);
     }
-
-    // public void spawnSnake()
-    // {
-    //     mScore = 0;
-    //     if (mPlayerSnake != null && mPlayerSnake.contains<Alive>())
-    //     {
-    //         mPlayerSnake = null;
-    //     }
-    //     
-    //     if (mListenKeys) mKeyboardInput.registerCommand(InputDevice.Commands.BOOST, 
-    //         _ => boostOn(mPlayerSnake), 
-    //         _ => playBoost(mPlayerSnake), 
-    //         _ => boostOff(mPlayerSnake));
-    //     else mMouseInput.registerMouseRegion(null, MouseInput.MouseActions.L_CLICK, 
-    //         _ => boostOn(mPlayerSnake), 
-    //         _ => playBoost(mPlayerSnake), 
-    //         _ => boostOff(mPlayerSnake));
-    //
-    //     var t = new Tuple<string, int>(Client.playerName, 0);
-    //     mLeaderboard.Add(t);
-    //     mLeaderboard.Sort((t1, t2) => t2.Item2 - t1.Item2);
-    //     mBestRank = mLeaderboard.IndexOf(t);
-    // }
 
     private void boostOn()
     {
@@ -441,10 +442,12 @@ public class GameModel
         mSpriteBatch.DrawString(font, mScore.ToString(), new Vector2(x + w - padding - size.X, y + h - padding - font.LineSpacing), Color.Red);
         for (int i = 0; i < Math.Min(10, mLeaderboard.Count); i++)
         {
-            var (name, score) = mLeaderboard[i];
+            var (id, score) = mLeaderboard[i];
             size = font.MeasureString(score.ToString());
+
+            var info = mClientIdToEntity[id].get<PlayerInfo>();
             
-            mSpriteBatch.DrawString(font, name, new Vector2(x + padding, y + padding + i * font.LineSpacing), Color.White);
+            mSpriteBatch.DrawString(font, info.playerName, new Vector2(x + padding, y + padding + i * font.LineSpacing), Color.White);
             mSpriteBatch.DrawString(font, score.ToString(), new Vector2(x + w - size.X - padding, y + padding + i * font.LineSpacing), Color.White);
         }
         mSpriteBatch.End();

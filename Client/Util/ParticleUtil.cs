@@ -28,9 +28,11 @@ public class ParticleUtil
         return particles;
     }
 
-    public static void enemyDeath(Texture2D fire, Entity ss)
+    public static List<Entity> enemyDeath(Texture2D fire, Entity ss)
     {
+        var particles = new List<Entity>();
         // TODO: Enemy death particles
+        return particles;
     }
 
     public static List<Entity> eatFood(Texture2D foodSheet, Entity food)

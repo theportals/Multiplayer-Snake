@@ -22,7 +22,6 @@ public class Interpolation : Shared.Systems.System
                 var position = entity.get<Shared.Components.Position>();
                 var movement = entity.get<Shared.Components.Movable>();
                 var boost = entity.get<Shared.Components.Boostable>();
-                // Console.WriteLine($"Interp.add says boosting = {boost.boosting}");
                 var info = entity.get<Shared.Components.PlayerInfo>();
                 entity.add(new Components.Goal(position.segments, movement.facing, boost.stamina, info.score, info.kills));
             }
@@ -38,7 +37,6 @@ public class Interpolation : Shared.Systems.System
             var position = entity.get<Shared.Components.Position>();
             var movement = entity.get<Shared.Components.Movable>();
             var boost = entity.get<Shared.Components.Boostable>();
-            // Console.WriteLine($"Interp.update says boosting = {boost.boosting}");
             var info = entity.get<Shared.Components.PlayerInfo>();
             var goal = entity.get<Components.Goal>();
 

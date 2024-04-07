@@ -78,8 +78,20 @@ public class Collision : Shared.Systems.System
             return false;
         }
 
-        d2 = (bPos.x - aPos.x) * (bPos.x - aPos.x) + (bPos.y - aPos.y) * (bPos.y - aPos.y);
-        r2 = Math.Pow(Math.Max(aCol.size, bCol.size), 2);
-        return d2 <= r2;
+        if (bPos.segments.Count == 0)
+        {
+            d2 = (bPos.x - aPos.x) * (bPos.x - aPos.x) + (bPos.y - aPos.y) * (bPos.y - aPos.y);
+            r2 = Math.Pow(Math.Max(aCol.size, bCol.size), 2);
+            return d2 <= r2;
+        }
+         
+        for (int segment = 0; segment < aPos.segments.Count; segment++)
+        {
+            d2 = (bPos.x - aPos.segments[segment].X) * (bPos.x - aPos.segments[segment].X) +
+                 (bPos.y - aPos.segments[segment].Y) * (bPos.y - aPos.segments[segment].Y);
+            if (d2 <= Math.Pow(Math.Max(aCol.size, bCol.size), 2)) return true;
+        }
+
+        return false;
     }
 }
