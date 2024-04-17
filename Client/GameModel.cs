@@ -309,7 +309,7 @@ public class GameModel
                 }
                 else
                 {
-                    addParticlesLater(ParticleUtil.enemyDeath(fire, entity));
+                    addParticlesLater(ParticleUtil.enemyDeath(fire, smoke, entity));
                     var info = entity.get<PlayerInfo>();
                     mLeaderboard.RemoveAll(t => t.Item1 == entity.id);
 

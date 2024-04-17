@@ -28,10 +28,20 @@ public class ParticleUtil
         return particles;
     }
 
-    public static List<Entity> enemyDeath(Texture2D fire, Entity ss)
+    public static List<Entity> enemyDeath(Texture2D fire, Texture2D smoke, Entity ss)
     {
+        var rng = new ExtendedRandom();
         var particles = new List<Entity>();
-        // TODO: Enemy death particles
+        var pos = ss.get<Position>();
+        
+        for (var segment = 0; segment < pos.segments.Count; segment++)
+        {
+            for (int i = 0; i < 5; i++)
+            {
+                particles.Add(smallFireParticle(fire, pos.segments[segment].X, pos.segments[segment].Y, rng));
+                particles.Add(smallSmokeParticle(smoke, pos.segments[segment].X, pos.segments[segment].Y, rng));
+            }
+        }
         return particles;
     }
 
@@ -73,6 +83,21 @@ public class ParticleUtil
         return p;
     }
 
+    public static Entity smallFireParticle(Texture2D fire, float x, float y, ExtendedRandom rng)
+    {
+        var p = Entities.Particle.create("FIRE_PARTICLE",
+            x, y,
+            rng,
+            5, 2,
+            (float)rng.nextCircleAngle(), 0f,
+            60f, 25f,
+            0.5f, 0.05f,
+            0f,
+            5f, 5f);
+        p.add(new Sprite(fire));
+        return p;
+    }
+
     public static Entity smokeParticle(Texture2D smoke, float x, float y, ExtendedRandom rng)
     {
         var p = Entities.Particle.create("SMOKE_PARTICLE", 
@@ -81,6 +106,21 @@ public class ParticleUtil
             15, 4, 
             (float)rng.nextCircleAngle(), 0f, 
             120f, 50f, 
+            3f,1f, 
+            0f, 
+            5f, 5f);
+        p.add(new Sprite(smoke));
+        return p;
+    }
+
+    public static Entity smallSmokeParticle(Texture2D smoke, float x, float y, ExtendedRandom rng)
+    {
+        var p = Entities.Particle.create("SMOKE_PARTICLE", 
+            x, y, 
+            rng, 
+            7, 2, 
+            (float)rng.nextCircleAngle(), 0f, 
+            60f, 25f, 
             3f,1f, 
             0f, 
             5f, 5f);
