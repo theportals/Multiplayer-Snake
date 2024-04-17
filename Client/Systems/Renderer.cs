@@ -49,7 +49,7 @@ public class Renderer : Shared.Systems.System
     public override void update(TimeSpan gameTime)
     {
         mSpriteBatch.Begin();
-        mSpriteBatch.Draw(mBackground, new Rectangle(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT), new Color(25, 25, 255));
+        mSpriteBatch.Draw(Client.pixel, new Rectangle(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT), Color.Black);
 
         var centerPoint = new Vector2();
         var bgCenter = new Vector2();
@@ -73,7 +73,7 @@ public class Renderer : Shared.Systems.System
             bgCenter.Y = OFFSET_Y - centerPoint.Y * zoom + ARENA_SIZE / 2;
         }
         Rectangle background = new Rectangle((int)(bgCenter.X), (int)(bgCenter.Y), (int)(ARENA_SIZE * zoom), (int)(ARENA_SIZE * zoom));
-        mSpriteBatch.Draw(Client.pixel, background, Color.DarkBlue);
+        mSpriteBatch.Draw(mBackground, background, new Color(25, 25, 255));
 
         foreach (var entity in mEntities.Values)
         {

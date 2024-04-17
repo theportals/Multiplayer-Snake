@@ -9,7 +9,7 @@ public class BorderBlock
     {
         return new Entity()
             .add(new Appearance(texture, 10, false, 0, 0, 0))
-            .add(new ColorOverride(Color.Black))
+            .add(new ColorOverride(Color.DarkRed))
             .add(new Shared.Components.Position(x, y))
             .add(new Collision(10f))
             .add(new Border());
