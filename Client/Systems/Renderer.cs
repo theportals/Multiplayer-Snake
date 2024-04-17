@@ -88,7 +88,6 @@ public class Renderer : Shared.Systems.System
         var pos = entity.get<Shared.Components.Position>();
         var sprite = entity.get<Sprite>();
         Vector2 drawPos = new Vector2();
-        var rng = new Random();
 
         for (int segment = 0; segment < pos.segments.Count; segment++)
         {
@@ -124,6 +123,10 @@ public class Renderer : Shared.Systems.System
                     (int)MathHelper.Lerp(0, c.B, frac)
                 );
                 c = staminaColor;
+            }
+            if (entity.contains<Collision>())
+            {
+                if (entity.get<Collision>().intangibility > 0) c.A = 112;
             }
 
             if (appearance.animated)

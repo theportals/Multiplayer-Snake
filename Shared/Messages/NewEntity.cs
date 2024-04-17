@@ -107,6 +107,13 @@ public class NewEntity : Message
             food = true;
             naturalSpawn = entity.get<Components.Food>().naturalSpawn;
         }
+
+        if (entity.contains<Components.Collision>())
+        {
+            collision = true;
+            collisionSize = entity.get<Collision>().size;
+            intangibility = entity.get<Collision>().intangibility;
+        }
     }
 
     public NewEntity() : base(Type.NewEntity)
@@ -180,6 +187,11 @@ public class NewEntity : Message
     // Food
     public bool food { get; private set; } = false;
     public bool naturalSpawn { get; private set; } = true;
+    
+    // Collision
+    public bool collision { get; private set; }
+    public float collisionSize { get; private set; }
+    public float intangibility { get; private set; }
 
     public override byte[] serialize()
     {
@@ -271,6 +283,13 @@ public class NewEntity : Message
         if (food)
         {
             data.AddRange(BitConverter.GetBytes(naturalSpawn));
+        }
+        
+        data.AddRange(BitConverter.GetBytes(collision));
+        if (collision)
+        {
+            data.AddRange(BitConverter.GetBytes(collisionSize));
+            data.AddRange(BitConverter.GetBytes(intangibility));
         }
 
         return data.ToArray();
@@ -416,6 +435,16 @@ public class NewEntity : Message
         {
             naturalSpawn = BitConverter.ToBoolean(data, offset);
             offset += sizeof(bool);
+        }
+
+        collision = BitConverter.ToBoolean(data, offset);
+        offset += sizeof(bool);
+        if (collision)
+        {
+            collisionSize = BitConverter.ToSingle(data, offset);
+            offset += sizeof(Single);
+            intangibility = BitConverter.ToSingle(data, offset);
+            offset += sizeof(Single);
         }
 
         return offset;

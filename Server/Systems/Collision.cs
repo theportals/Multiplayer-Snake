@@ -1,3 +1,4 @@
+using Shared.Components;
 using Shared.Entities;
 using Food = Shared.Components.Food;
 
@@ -21,8 +22,16 @@ public class Collision : Shared.Systems.System
 
         foreach (var entityA in mEntities.Values)
         {
+            var colA = entityA.get<Shared.Components.Collision>();
+            if (colA.intangibility > 0)
+            {
+                colA.intangibility -= (float)gameTime.TotalSeconds;
+                if (colA.intangibility < 0) colA.intangibility = 0;
+            }
+            
             foreach (var entityB in movable)
             {
+                var colB = entityB.get<Shared.Components.Collision>();
                 if (collides(entityA, entityB))
                 {
                     // No worries if collides with food
@@ -33,9 +42,14 @@ public class Collision : Shared.Systems.System
                         else entityB.get<Shared.Components.Movable>().segmentsToAdd += 1;
                         mFoodConsumed(entityA, entityB);
                     }
-                    else
+                    // Always collide with border block, regardless of intangibility
+                    else if (entityA.contains<Border>())
                     {
                         mOnCollision(entityB, entityA);
+                    }
+                    else
+                    {
+                        if (colA.intangibility <= 0 && colB.intangibility <= 0) mOnCollision(entityB, entityA);
                     }
                 }
             }

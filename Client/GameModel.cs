@@ -287,6 +287,11 @@ public class GameModel
             entity.add(new Shared.Components.Food(message.naturalSpawn));
         }
 
+        if (message.collision)
+        {
+            entity.add(new Collision(message.collisionSize, message.intangibility));
+        }
+
         return entity;
     }
 

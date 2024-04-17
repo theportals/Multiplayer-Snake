@@ -13,7 +13,7 @@ public class SnakeSegment
         return new Entity()
             .add(new Appearance(spriteSheet, 13, true, 3, 1024, 1024))
             .add(new Shared.Components.Position(x, y))
-            .add(new Collision(10f))
+            .add(new Collision(10f, 5))
             .add(new Shared.Components.Movable((float)(rng.NextDouble() * 2 * Math.PI), MOVE_SPEED, TURN_SPEED, segmentsToAdd))
             .add(new Controllable())
             .add(new Alive())

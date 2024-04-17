@@ -35,6 +35,13 @@ public class UpdateEntity : Message
                 kills = entity.get<PlayerInfo>().kills;
             }
 
+            if (entity.contains<Collision>())
+            {
+                hasCollision = true;
+                collisionSize = entity.get<Collision>().size;
+                intangibility = entity.get<Collision>().intangibility;
+            }
+
             this.updateWindow = updateWindow;
         }
 
@@ -61,6 +68,11 @@ public class UpdateEntity : Message
         public bool hasPlayerInfo { get; private set; } = false;
         public int score { get; private set; }
         public int kills { get; private set; }
+        
+        // Collision
+        public bool hasCollision { get; private set; } = false;
+        public float collisionSize { get; private set; }
+        public float intangibility { get; private set; }
 
         // Only the milliseconds are used/serialized
         public TimeSpan updateWindow { get; private set; } = TimeSpan.Zero;
@@ -101,6 +113,13 @@ public class UpdateEntity : Message
             {
                 data.AddRange(BitConverter.GetBytes(score));
                 data.AddRange(BitConverter.GetBytes(kills));
+            }
+            
+            data.AddRange(BitConverter.GetBytes(hasCollision));
+            if (hasCollision)
+            {
+                data.AddRange(BitConverter.GetBytes(collisionSize));
+                data.AddRange(BitConverter.GetBytes(intangibility));
             }
 
             data.AddRange(BitConverter.GetBytes(updateWindow.Milliseconds));
@@ -155,6 +174,16 @@ public class UpdateEntity : Message
                 offset += sizeof(Int32);
                 kills = BitConverter.ToInt32(data, offset);
                 offset += sizeof(Int32);
+            }
+
+            hasCollision = BitConverter.ToBoolean(data, offset);
+            offset += sizeof(bool);
+            if (hasCollision)
+            {
+                collisionSize = BitConverter.ToSingle(data, offset);
+                offset += sizeof(Single);
+                intangibility = BitConverter.ToSingle(data, offset);
+                offset += sizeof(Single);
             }
 
             updateWindow = new TimeSpan(0, 0, 0, 0, BitConverter.ToInt32(data, offset));

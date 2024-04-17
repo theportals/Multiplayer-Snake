@@ -23,7 +23,8 @@ public class Interpolation : Shared.Systems.System
                 var movement = entity.get<Shared.Components.Movable>();
                 var boost = entity.get<Shared.Components.Boostable>();
                 var info = entity.get<Shared.Components.PlayerInfo>();
-                entity.add(new Components.Goal(position.segments, movement.facing, boost.stamina, info.score, info.kills));
+                var collision = entity.get<Shared.Components.Collision>();
+                entity.add(new Components.Goal(position.segments, movement.facing, boost.stamina, info.score, info.kills, collision.size, collision.intangibility));
             }
         }
 
@@ -38,6 +39,7 @@ public class Interpolation : Shared.Systems.System
             var movement = entity.get<Shared.Components.Movable>();
             var boost = entity.get<Shared.Components.Boostable>();
             var info = entity.get<Shared.Components.PlayerInfo>();
+            var collision = entity.get<Shared.Components.Collision>();
             var goal = entity.get<Components.Goal>();
 
             if (goal.updateWindow > TimeSpan.Zero && goal.updatedTime < goal.updateWindow)
@@ -50,6 +52,10 @@ public class Interpolation : Shared.Systems.System
 
                 info.score = goal.goalScore;
                 info.kills = goal.goalKills;
+
+                collision.size = collision.size - (goal.startCollisionSize - goal.goalCollisionSize) * updateFraction;
+                collision.intangibility = collision.intangibility -
+                                          (goal.startIntangibility - goal.goalIntangibility) * updateFraction;
                 
                 position.segments = new List<Vector2>();
                 for (var i = 0; i < goal.goalSegments.Count; i++)

@@ -17,10 +17,14 @@ public class Goal : Component
     public int goalScore { get; set; }
     public int startKills { get; set; }
     public int goalKills { get; set; }
+    public float startCollisionSize { get; set; }
+    public float goalCollisionSize { get; set; }
+    public float startIntangibility { get; set; }
+    public float goalIntangibility { get; set; }
     public TimeSpan updateWindow { get; set; }
     public TimeSpan updatedTime { get; set; }
     
-    public Goal(List<Vector2> segments, float facing, float stamina, int score, int kills)
+    public Goal(List<Vector2> segments, float facing, float stamina, int score, int kills, float collisionSize, float intangibility)
     {
         startSegments = segments;
         goalSegments = segments;
@@ -32,5 +36,9 @@ public class Goal : Component
         goalScore = score;
         startKills = kills;
         goalKills = kills;
+        startCollisionSize = collisionSize;
+        goalCollisionSize = collisionSize;
+        startIntangibility = intangibility;
+        goalIntangibility = intangibility;
     }
 }

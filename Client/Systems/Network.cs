@@ -147,6 +147,13 @@ public class Network : Shared.Systems.System
                 goal.startKills = info.kills;
             }
 
+            if (message.hasCollision)
+            {
+                var collision = entity.get<Collision>();
+                goal.startCollisionSize = collision.size;
+                goal.startIntangibility = collision.intangibility;
+            }
+
             goal.updateWindow = message.updateWindow;
             goal.updatedTime = TimeSpan.Zero;
             goal.goalSegments = message.segments;
@@ -154,6 +161,8 @@ public class Network : Shared.Systems.System
             goal.goalStamina = message.stamina;
             goal.goalScore = message.score;
             goal.goalKills = message.kills;
+            goal.goalCollisionSize = message.collisionSize;
+            goal.goalIntangibility = message.intangibility;
         }
         else if (entity.contains<Position>() && message.hasPosition 
                                              && entity.contains<Movable>() && message.hasMovement 
@@ -164,6 +173,8 @@ public class Network : Shared.Systems.System
             entity.get<Boostable>().stamina = message.stamina;
             entity.get<PlayerInfo>().score = message.score;
             entity.get<PlayerInfo>().kills = message.kills;
+            entity.get<Collision>().size = message.collisionSize;
+            entity.get<Collision>().intangibility = message.intangibility;
 
             mUpdatedEntries.Add(entity.id);
         }
