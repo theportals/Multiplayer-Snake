@@ -124,6 +124,3 @@ public class Client : Game
         base.Draw(gameTime);
     }
 }
-
-// TODO: Finish server implementation
-// TODO: Test multiplayer on local machine and multiple machines

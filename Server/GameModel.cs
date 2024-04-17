@@ -185,8 +185,7 @@ public class GameModel
     private void spawnSnake(int clientId, string playerName)
     {
         // Step 2: Create an entity for the newly joined player and send it to the newly joined client
-        // TODO: Player spawns in the least populated area
-        var snake = SnakeSegment.create("Images/Snake_Sheet", 500, 500, 3, playerName);
+        var snake = createSnake(playerName);
         addEntity(snake);
         mClientToEntityId[clientId] = snake.id;
         
@@ -272,19 +271,22 @@ public class GameModel
         return null;
     }
 
-    private Entity createSnake()
+    private Entity createSnake(string playerName)
     {
         var rng = new ExtendedRandom();
         bool done = false;
+        var proposed = SnakeSegment.create("Images/Snake_Sheet", 0, 0, 0, playerName);
 
         while (!done)
         {
             int x = (int)rng.nextRange(1, Constants.ARENA_SIZE - 1);
             int y = (int)rng.nextRange(1, Constants.ARENA_SIZE - 1);
-            var proposed = SnakeSegment.create("Images/Snake_Sheet", x, y);
+            var pos = proposed.get<Position>().segments[0];
+            pos.X = x;
+            pos.Y = y;
+            proposed.get<Position>().segments[0] = pos;
             if (!mSysCollision.anyCollision(proposed))
             {
-                addEntity(proposed);
                 proposed.get<Shared.Components.Movable>().segmentsToAdd = 3;
                 return proposed;
             }
