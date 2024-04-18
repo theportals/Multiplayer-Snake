@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Client.Input;
 using Client.Util;
 using Client.Views;
 using Client.Views.Menus;
@@ -43,13 +44,13 @@ public class TutorialView : Menu
         var strings = new List<string>();
         if (mKeyboardInput.listenKeys)
         {
-            strings.Add("Use the arrow keys to steer left and right");
-            strings.Add("Press space to boost");
+            strings.Add($"Steer the snake with {mKeyboardInput.getKey(InputDevice.Commands.UP).ToString()}, {mKeyboardInput.getKey(InputDevice.Commands.DOWN).ToString()}, {mKeyboardInput.getKey(InputDevice.Commands.LEFT).ToString()}, and {mKeyboardInput.getKey(InputDevice.Commands.RIGHT).ToString()}");
+            strings.Add($"Press {mKeyboardInput.getKey(InputDevice.Commands.BOOST)} to boost");
         }
         else
         {
-            strings.Add($"Your snake will follow your mouse");
-            strings.Add($"Click and hold to boost");
+            strings.Add("Your snake will follow your mouse");
+            strings.Add("Click and hold to boost");
         }
         strings.Add("");
         strings.Add("You can change between mouse and keyboard in the controls menu");
