@@ -315,7 +315,6 @@ public class GameModel
                 else
                 {
                     addParticlesLater(ParticleUtil.enemyDeath(fire, smoke, entity));
-                    var info = entity.get<PlayerInfo>();
                     mLeaderboard.RemoveAll(t => t.Item1 == entity.id);
 
                     if (message.reasonId.HasValue
@@ -325,6 +324,12 @@ public class GameModel
                         mKills += 1;
                     }
                 }
+                break;
+            case RemoveEntity.Reasons.PLAYER_RESPAWNED:
+                mLeaderboard.RemoveAll(t => t.Item1 == entity.id);
+                break;
+            case RemoveEntity.Reasons.PLAYER_DISCONNECT:
+                mLeaderboard.RemoveAll(t => t.Item1 == entity.id);
                 break;
             case RemoveEntity.Reasons.FOOD_CONSUMED:
                 if (message.reasonId.HasValue && mServerIdToEntity.ContainsKey(message.reasonId.Value))
@@ -350,6 +355,12 @@ public class GameModel
                 {
                     Console.WriteLine("[WARN]: Removal cause entity did not receive a create message");
                 }
+                break;
+            case RemoveEntity.Reasons.FOOD_EXPIRED:
+                // Nothing special needs to be done on our end
+                break;
+            default:
+                Console.WriteLine($"[WARN]: GameModel has no response for RemoveEntity Reason: {message.reason.ToString()}");
                 break;
         }
     }
