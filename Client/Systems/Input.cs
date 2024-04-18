@@ -23,6 +23,8 @@ public class Input : Shared.Systems.System
     public float zoom;
 
     private int turn = 0;
+    private int turnX = 0;
+    private int turnY = 0;
     private bool mAbsCursor;
 
     private const float TURN_DEADZONE = (float)(2 * Math.PI / 180);
@@ -44,8 +46,10 @@ public class Input : Shared.Systems.System
         
         if (listenKeys)
         {
-            keyboardInput.registerCommand(InputDevice.Commands.LEFT, _ => turn = -1, null, _ => turn = 0);
-            keyboardInput.registerCommand(InputDevice.Commands.RIGHT, _ => turn = 1, null, _ => turn = 0);
+            keyboardInput.registerCommand(InputDevice.Commands.UP, _ => turnY = -1, null, _ => turnY = 0);
+            keyboardInput.registerCommand(InputDevice.Commands.DOWN, _ => turnY = 1, null, _ => turnY = 0);
+            keyboardInput.registerCommand(InputDevice.Commands.LEFT, _ => turnX = -1, null, _ => turnX = 0);
+            keyboardInput.registerCommand(InputDevice.Commands.RIGHT, _ => turnX = 1, null, _ => turnX = 0);
         }
 
         mAbsCursor = absCursor;
@@ -73,7 +77,26 @@ public class Input : Shared.Systems.System
             var movable = entity.get<Shared.Components.Movable>();
             var pos = entity.get<Shared.Components.Position>();
             
-            if (!mListenKeys)
+            if (mListenKeys)
+            {
+                if (turnX != 0 || turnY != 0)
+                {
+                    var facingNeeded = Math.Atan2(turnY, turnX);
+                    var dl = movable.facing - facingNeeded;
+                    if (dl < 0) dl += 2 * Math.PI;
+                    var dr = facingNeeded - movable.facing;
+                    if (dr < 0) dr += 2 * Math.PI;
+
+                    if (Math.Min(dl, dr) <= TURN_DEADZONE) turn = 0;
+                    if (dl < dr) turn = -1;
+                    else turn = 1;
+                }
+                else
+                {
+                    turn = 0;
+                }
+            }
+            else
             {
                 double angleToCursor = 0;
                 var cpos = mMouseInput.getCursorPos();
@@ -89,6 +112,8 @@ public class Input : Shared.Systems.System
                     var absY = pos.y * zoom + OFFSET_Y;
                     angleToCursor = Math.Atan2((cpos.Y - absY), (cpos.X - absX));
                 }
+                
+                Console.WriteLine(MathHelper.ToDegrees((float)angleToCursor));
 
                 var dl = movable.facing - angleToCursor;
                 if (dl < 0) dl += 2 * Math.PI;
@@ -98,6 +123,7 @@ public class Input : Shared.Systems.System
                 if (Math.Min(dl, dr) <= TURN_DEADZONE) turn = 0;
                 else if (dl < dr) turn = -1;
                 else turn = 1;
+                
             }
             movable.facing += (float)(movable.turnSpeed * gameTime.TotalSeconds * turn);
             if (movable.facing < -Math.PI) movable.facing += (float)(2 * Math.PI);
