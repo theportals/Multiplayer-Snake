@@ -76,33 +76,26 @@ public class Input : Shared.Systems.System
             var entity = entry.Value;
             var movable = entity.get<Shared.Components.Movable>();
             var pos = entity.get<Shared.Components.Position>();
+
+            double facingNeeded;
             
             if (mListenKeys)
             {
                 if (turnX != 0 || turnY != 0)
                 {
-                    var facingNeeded = Math.Atan2(turnY, turnX);
-                    var dl = movable.facing - facingNeeded;
-                    if (dl < 0) dl += 2 * Math.PI;
-                    var dr = facingNeeded - movable.facing;
-                    if (dr < 0) dr += 2 * Math.PI;
-
-                    if (Math.Min(dl, dr) <= TURN_DEADZONE) turn = 0;
-                    if (dl < dr) turn = -1;
-                    else turn = 1;
+                    facingNeeded = Math.Atan2(turnY, turnX);
                 }
                 else
                 {
-                    turn = 0;
+                    facingNeeded = movable.facing;
                 }
             }
             else
             {
-                double angleToCursor = 0;
                 var cpos = mMouseInput.getCursorPos();
                 if (mAbsCursor)
                 {
-                    angleToCursor = Math.Atan2(cpos.Y - WINDOW_HEIGHT / 2, cpos.X - WINDOW_WIDTH / 2);
+                    facingNeeded = Math.Atan2(cpos.Y - WINDOW_HEIGHT / 2, cpos.X - WINDOW_WIDTH / 2);
                 }
                 else
                 {
@@ -110,21 +103,19 @@ public class Input : Shared.Systems.System
                     OFFSET_Y = (int)((WINDOW_HEIGHT - ARENA_SIZE * zoom) / 2);
                     var absX = pos.x * zoom + OFFSET_X;
                     var absY = pos.y * zoom + OFFSET_Y;
-                    angleToCursor = Math.Atan2((cpos.Y - absY), (cpos.X - absX));
+                    facingNeeded = Math.Atan2((cpos.Y - absY), (cpos.X - absX));
                 }
-                
-                Console.WriteLine(MathHelper.ToDegrees((float)angleToCursor));
-
-                var dl = movable.facing - angleToCursor;
-                if (dl < 0) dl += 2 * Math.PI;
-                var dr = angleToCursor - movable.facing;
-                if (dr < 0) dr += 2 * Math.PI;
-
-                if (Math.Min(dl, dr) <= TURN_DEADZONE) turn = 0;
-                else if (dl < dr) turn = -1;
-                else turn = 1;
-                
             }
+            
+            var dl = movable.facing - facingNeeded;
+            if (dl < 0) dl += 2 * Math.PI;
+            var dr = facingNeeded - movable.facing;
+            if (dr < 0) dr += 2 * Math.PI;
+
+            if (Math.Min(dl, dr) <= TURN_DEADZONE) turn = 0;
+            else if (dl < dr) turn = -1;
+            else turn = 1;
+            
             movable.facing += (float)(movable.turnSpeed * gameTime.TotalSeconds * turn);
             if (movable.facing < -Math.PI) movable.facing += (float)(2 * Math.PI);
             else if (movable.facing > Math.PI) movable.facing -= (float)(2 * Math.PI);
