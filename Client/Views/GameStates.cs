@@ -8,5 +8,6 @@ public enum GameStates
     CONTROLS,
     CREDITS,
     EXIT,
-    TUTORIAL
+    TUTORIAL,
+    NAME_SELECT
 }

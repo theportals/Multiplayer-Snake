@@ -48,7 +48,8 @@ public class Client : Game
             { GameStates.HIGH_SCORES, new HighScoresView() },
             { GameStates.CONTROLS, new ControlsView() },
             { GameStates.CREDITS, new CreditsView() },
-            { GameStates.TUTORIAL, new TutorialView() }
+            { GameStates.TUTORIAL, new TutorialView() },
+            { GameStates.NAME_SELECT, new NameChangeView() }
         };
 
         mState = mStates[GameStates.MAIN_MENU];
