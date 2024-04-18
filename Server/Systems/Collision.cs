@@ -1,5 +1,7 @@
+using Shared;
 using Shared.Components;
 using Shared.Entities;
+using Shared.Util;
 using Food = Shared.Components.Food;
 
 namespace Server.Systems;
@@ -80,6 +82,7 @@ public class Collision : Shared.Systems.System
         double r2;
         if (a == b)
         {
+            if (!Shared.Constants.playerSelfCollision) return false;
             for (int segment = 1; segment < aPos.segments.Count; segment++)
             {
                 d2 = (aPos.segments[segment].X - aPos.segments[0].X) * (aPos.segments[segment].X - aPos.segments[0].X) + (aPos.segments[segment].Y - aPos.segments[0].Y) * (aPos.segments[segment].Y - aPos.segments[0].Y);

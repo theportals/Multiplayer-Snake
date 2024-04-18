@@ -1,5 +1,6 @@
 using System.Numerics;
 using System.Text;
+using Shared;
 using Shared.Components;
 using Shared.Entities;
 using Shared.Messages;

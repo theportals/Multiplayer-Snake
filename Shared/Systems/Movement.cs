@@ -64,7 +64,7 @@ public class Movement : Shared.Systems.System
             var tail = pos.segments[^1];
             var spawnDir = movable.facing - Math.PI;
             if (pos.segments.Count > 1) spawnDir = Math.Atan2(tail.Y - pos.segments[^2].Y, tail.X - pos.segments[^2].X);
-            pos.segments.Add(new Vector2((float)(tail.X + Math.Cos(spawnDir) * Shared.Util.Constants.segmentDistance * (Shared.Util.Constants.squiggleFactor + Shared.Util.Constants.antiSquiggleFactor)), (float)(tail.Y + Math.Sin(spawnDir) * Shared.Util.Constants.segmentDistance)));
+            pos.segments.Add(new Vector2((float)(tail.X + Math.Cos(spawnDir) * Constants.segmentDistance * (Constants.squiggleFactor + Constants.antiSquiggleFactor)), (float)(tail.Y + Math.Sin(spawnDir) * Constants.segmentDistance)));
             movable.segmentsToAdd -= 1;
         }
         
@@ -79,8 +79,8 @@ public class Movement : Shared.Systems.System
             var leader = pos.segments[i - 1];
             var segment = pos.segments[i];
             var dir = Math.Atan2(leader.Y - segment.Y, leader.X - segment.X);
-            var needx = (float)(leader.X - Math.Cos(dir) * Shared.Util.Constants.segmentDistance * Shared.Util.Constants.squiggleFactor);
-            var needy = (float)(leader.Y - Math.Sin(dir) * Shared.Util.Constants.segmentDistance * Shared.Util.Constants.squiggleFactor);
+            var needx = (float)(leader.X - Math.Cos(dir) * Constants.segmentDistance * Constants.squiggleFactor);
+            var needy = (float)(leader.Y - Math.Sin(dir) * Constants.segmentDistance * Constants.squiggleFactor);
             
             if (i > 1)
             {
@@ -95,17 +95,17 @@ public class Movement : Shared.Systems.System
                     if (dl < dr) sign = 1;
                     
                     var correction = dir2 - maxTurn * sign;
-                    needx = (float)(leader.X - Math.Cos(correction) * Shared.Util.Constants.segmentDistance * Shared.Util.Constants.squiggleFactor);
-                    needy = (float)(leader.Y - Math.Sin(correction) * Shared.Util.Constants.segmentDistance * Shared.Util.Constants.squiggleFactor);
+                    needx = (float)(leader.X - Math.Cos(correction) * Constants.segmentDistance * Constants.squiggleFactor);
+                    needy = (float)(leader.Y - Math.Sin(correction) * Constants.segmentDistance * Constants.squiggleFactor);
                     dir = Math.Atan2(needy - segment.Y, needx - segment.X);
                 }
             }
             var d = Math.Sqrt(Math.Pow(needx - segment.X, 2) + Math.Pow(needy - segment.Y, 2));
 
-            if (d >= Shared.Util.Constants.segmentDistance * Shared.Util.Constants.antiSquiggleFactor)
+            if (d >= Constants.segmentDistance * Constants.antiSquiggleFactor)
             {
-                xInc = (float)(Math.Cos(dir) * (d - Shared.Util.Constants.segmentDistance * Shared.Util.Constants.antiSquiggleFactor));
-                yInc = (float)(Math.Sin(dir) * (d - Shared.Util.Constants.segmentDistance * Shared.Util.Constants.antiSquiggleFactor));
+                xInc = (float)(Math.Cos(dir) * (d - Constants.segmentDistance * Constants.antiSquiggleFactor));
+                yInc = (float)(Math.Sin(dir) * (d - Constants.segmentDistance * Constants.antiSquiggleFactor));
                 segment.X += xInc;
                 segment.Y += yInc;
                 pos.segments[i] = segment;

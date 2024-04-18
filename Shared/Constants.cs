@@ -1,4 +1,4 @@
-namespace Shared.Util;
+namespace Shared;
 
 public class Constants
 {
@@ -8,4 +8,5 @@ public class Constants
     public const float squiggleFactor = 10;
     public const float antiSquiggleFactor = 10;
     public const float segmentDistance = 10f / (squiggleFactor + antiSquiggleFactor);
+    public const bool playerSelfCollision = false;
 }
